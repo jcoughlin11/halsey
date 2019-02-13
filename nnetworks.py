@@ -8,10 +8,9 @@ Notes:
 import time
 
 import numpy as np
-import pyprind
 import tensorflow as tf
 from tensorflow import keras as keras
-from tensorflow.keras.optimizers import Adam
+from tensorflow.train import AdamOptimizer
 
 import nnutils as nu
 
@@ -63,13 +62,19 @@ class DQNetwork():
         self.shrinkRows   = hyperparams['shrink_rows']
         self.stackSize    = hyperparams['nstacked_frames']
         self.totalRewards = []
-        # Set up callbacks
-        self.callbacks = nu.set_up_callbacks()
         # Seed rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes
         self.crop = (self.cropTop, self.cropBot, self.cropLeft, self.cropRight)
         self.shrink = (self.shrinkRows, self.shrinkCols)
+        # Use None for batch size in shape b/c in predict action we give it 1 state, but
+        # in self.learn(), we give it self.batchSize states all at once. This vectorizes
+        # the feedforward pass and makes it much faster than going one experience tuple
+        # at a time, which is what I did in the keras version
+        self.input_shape = (None,
+                            self.shrinkRows,
+                            self.shrinkCols,
+                            self.stackSize)
         # Set up memory
         self.memory = nu.Memory(self.memSize,
                                 self.preTrainLen,
@@ -91,46 +96,77 @@ class DQNetwork():
         if self.model is not None:
             raise("Error, model aleady built!")
         else:
-            # Set up network architecture
-            model = keras.Sequential()
-            # First convolutional layer. Keras expects the number of chanels to be
-            # given as a part of the input shape. Grayscaling the images removes this
-            # channel info, so here it gets added back
-            in_shape = (self.shrinkRows,
-                        self.shrinkCols,
-                        self.stackSize)
-            model.add(keras.layers.Conv2D(input_shape = in_shape,
-                                            filters=32,
-                                            kernel_size=[8,8],
-                                            strides=[4,4],
-                                            activation=tf.nn.elu,
-                                            data_format='channels_last'
-                                         ))
-            # Second convolutional layer
-            model.add(keras.layers.Conv2D(filters=64,
-                                            kernel_size=[4,4],
-                                            strides=[2,2],
-                                            activation=tf.nn.elu
-                                         ))
-            # Third convolutional layer
-            model.add(keras.layers.Conv2D(filters=64,
-                                            kernel_size=[3,3],
-                                            strides=[2,2],
-                                            activation=tf.nn.elu
-                                         ))
-            # Flatten later
-            model.add(keras.layers.Flatten())
-            # Fully-Connected (FC) layer
-            model.add(keras.layers.Dense(units=512,
-                                        activation=tf.nn.elu
-                                        ))
-            # Output layer
-            model.add(keras.layers.Dense(units=self.env.action_space.n))
-            # Compile
-            model.compile(loss='mse',
-                        optimizer=Adam(lr=self.learningRate)
-                        )
-            return model
+            with tf.variable_scope(name):
+                # Placeholders (anything that needs to be fed from the outside)
+                # Input. This is the stack of frames from the game
+                self.inputs = tf.placeholder(tf.float32,
+                                            shape=self.input_shape,
+                                            name='inputs')
+                # Actions. The action the agent chose. Used to get the predicted Q value
+                self.actions = tf.placeholder(tf.float32,
+                                              shape=[None, 1],
+                                              name='actions')
+                # Target Q. The max discounted future reward playing from next state
+                # after taking chosen action. Determined by Bellmann equation.
+                self.target_Q = tf.placeholder(tf.float32,
+                                               shape=[None],
+                                               name='target')
+
+                # First convolutional layer
+                self.conv1 = tf.layers.conv2d(inputs=self.inputs,
+                    filters=32,
+                    kernel_size=[8,8],
+                    strides=[4,4],
+                    padding='VALID',
+                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+                    name='conv1')
+                # First convolutional layer activation
+                self.conv1_out = tf.nn.elu(self.conv1, name='conv1_out')
+
+                # Second convolutional layer
+                self.conv2 = tf.layers.conv2d(inputs=self.conv1_out,
+                    filters=64,
+                    kernel_size=[4,4],
+                    strides=[2,2],
+                    padding='VALID',
+                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+                    name='conv2')
+                # Second convolutional layer activation
+                self.conv2_out = tf.nn.elu(self.conv2, name='conv2_out')
+
+                # Third convolutional layer
+                self.conv3 = tf.layers.conv2d(inputs=self.conv2_out,
+                    filters=64,
+                    kernel_size=[3,3],
+                    strides=[2,2],
+                    padding='VALID',
+                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
+                    name='conv3')
+                # Third convolutional layer activation
+                self.conv3_out = tf.nn.elu(self.conv3, name='conv3_out')
+
+                # Flatten
+                self.flatten = tf.contrib.layers.flatten(self.conv3_out)
+                # FC layer
+                self.fc = tf.layers.dense(inputs=self.flatten,
+                    units=512,
+                    activation=tf.nn.elu,
+                    kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                    name='fc1')
+                # Output layer (FC)
+                self.output = tf.layers.dense(inputs=self.fc,
+                    units=self.env.action_space.n,
+                    activation=None,
+                    kernel_initializer=tf.contrib.layers.xavier_initializer())
+
+                # Get the predicted Q value
+                self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions))
+
+                # Get the error (MSE)
+                self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
+
+                # Optimizer
+                self.optimizer = AdamOptimizer(self.learningRate).minimize(self.loss)
 
     #----
     # Train
@@ -143,71 +179,75 @@ class DQNetwork():
         --------
             None
         """
-        # Set up the decay step for the epsilon-greedy search
-        decay_step = 0
-        pbar = pyprind.ProgBar(self.nEpisodes)
-        for episode in range(self.nEpisodes):
-            #pbar.update()
-            print('\n')
-            print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
-            # Reset time spent on current episode
-            step = 0
-            # Track the rewards for the episode
-            episode_rewards = []
-            # Reset the environment
-            state = self.env.reset()
-            # Stack and process initial state. State is returned as a tensor of shape
-            # (frame_rows, frame_cols, stack_size). frame_stack is the same data, but
-            # in the form of a deque.
-            state, frame_stack = nu.stack_frames(None,
-                                                 state,
-                                                 True,
-                                                 self.stackSize,
-                                                 self.crop,
-                                                 self.shrink)
-            # Loop over the max amount of time the agent gets per episode
-            while step < self.maxEpSteps:
-                print('Step: %d / %d' % (step, self.maxEpSteps), end='\r')
-                # Increase step counters
-                step += 1
-                decay_step += 1
-                # Choose an action
-                action = self.choose_action(state, decay_step)
-                # Perform action
-                next_state, reward, done, _ = self.env.step(action)
-                # Track the reward
-                episode_rewards.append(reward)
-                # Add the next state to the stack of frames
-                next_state, frame_stack = nu.stack_frames(frame_stack,
-                                                          next_state,
-                                                          False,
-                                                          self.stackSize,
-                                                          self.crop,
-                                                          self.shrink)
-                # Save experience
-                experience = (state, action, reward, next_state, done)
-                self.memory.add(experience)
-                # Learn from the experience
-                loss = self.learn()
-                # Set up for next episode if we're in a terminal state
-                if done:
-                    # Get total reward for episode
-                    tot_reward = np.sum(episode_rewards)
-                    # Save total episode reward
-                    self.totalRewards.append(tot_reward)
-                    # Print info to screen
-                    print('Episode: {}\n'.format(episode),
-                            'Total Reward for episode: {}\n'.format(tot_reward),
-                            'Training loss: {:.4f}'.format(loss))
-                    break
-                # Set up for next step
-                else:
-                    state = next_state
+        # Reset the tensorflow graph
+        tf.reset_default_graph()
+        # Initialize the tensorflow session (uses default graph)
+        with tf.Session() as sess:
+            # Initialize tensorflow variables
+            sess.run(tf.global_variables_initializer())
+            # Set up the decay step for the epsilon-greedy search
+            decay_step = 0
+            # Loop over desired number of training episodes
+            for episode in range(self.nEpisodes):
+                print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
+                # Reset time spent on current episode
+                step = 0
+                # Track the rewards for the episode
+                episode_rewards = []
+                # Reset the environment
+                state = self.env.reset()
+                # Stack and process initial state. State is returned as a tensor of shape
+                # (frame_rows, frame_cols, stack_size). frame_stack is the same data, but
+                # in the form of a deque.
+                state, frame_stack = nu.stack_frames(None,
+                                                     state,
+                                                     True,
+                                                     self.stackSize,
+                                                     self.crop,
+                                                     self.shrink)
+                # Loop over the max amount of time the agent gets per episode
+                while step < self.maxEpSteps:
+                    print('Step: %d / %d' % (step, self.maxEpSteps), end='\r')
+                    # Increase step counters
+                    step += 1
+                    decay_step += 1
+                    # Choose an action
+                    action = self.choose_action(state, decay_step, sess)
+                    # Perform action
+                    next_state, reward, done, _ = self.env.step(action)
+                    # Track the reward
+                    episode_rewards.append(reward)
+                    # Add the next state to the stack of frames
+                    next_state, frame_stack = nu.stack_frames(frame_stack,
+                                                              next_state,
+                                                              False,
+                                                              self.stackSize,
+                                                              self.crop,
+                                                              self.shrink)
+                    # Save experience
+                    experience = (state, action, reward, next_state, done)
+                    self.memory.add(experience)
+                    # Learn from the experience
+                    loss = self.learn(sess)
+                    # Set up for next episode if we're in a terminal state
+                    if done:
+                        # Get total reward for episode
+                        tot_reward = np.sum(episode_rewards)
+                        # Save total episode reward
+                        self.totalRewards.append(tot_reward)
+                        # Print info to screen
+                        print('Episode: {}\n'.format(episode),
+                                'Total Reward for episode: {}\n'.format(tot_reward),
+                                'Training loss: {:.4f}'.format(loss))
+                        break
+                    # Set up for next step
+                    else:
+                        state = next_state
 
     #-----
     # Choose Action
     #-----
-    def choose_action(self, state, decay_step):
+    def choose_action(self, state, decay_step, sess):
         """
         This function uses the current state and the agent's current knowledge in
         order to choose an action. It employs the epsilon greedy strategy to handle
@@ -244,71 +284,96 @@ class DQNetwork():
             action = np.random.randint(0, self.env.action_space.n)
         # Exploit
         else:
-            Q_vals = self.model.predict(state)
-            # Choose the one with the highest Q value. I tested this and the predict
-            # method returns an array of shape (1, nfeatures). Therefore, to actually
-            # get at the values, we have to use [0] to access the values in the row
-            action = np.argmax(Q_vals[0])
+            # tf needs the batch size as part of the shape. See comment on
+            # self.input_shape in the constructor
+            state = state.reshape((1, state.shape[0], state.shape[1], state.shape[2]))
+            Q_vals = sess.run(self.output,
+                              feed_dict={self.inputs:state})
+            # Choose the one with the highest Q value
+            action = np.argmax(Q_vals)
         return action
 
     #-----
     # Learn
     #-----
-    def learn(self):
+    def learn(self, sess):
         """
         This function trains the network by sampling from the experience (memory)
         buffer and uses those experiences as the training set.
 
+        If the action taken in the current state results in a terminal state,
+        then there's nothing to update since the game is done. We just leave
+        the target Q value as whatever reward is given for getting to the
+        terminal state.
+
+        If the current action for the current state does not result in a
+        terminal state, then we need to make an estimate about what the max
+        discounted future reward will be.
+
+        This is done by comparing how well we would do continuing to play from the state
+        our current action brings us to with how well we would do by playing optimally
+        from our current state (where the optimal action is not necessarily the action we
+        chose). The idea is that, if we're playing optimally, then the two should match.
+        The trouble is that we don't actually know the Q table ahead of time, so we have
+        to use both estimates, along with the rewards received from the game, in order to
+        learn. This makes DRL a hybrid cross between supervised and unsupervised learning.
+
+        To estimate the maximum discounted future reward starting at the state the current
+        action brings us to, we use the Bellmann equation. That is, we're asking, "If I
+        play optimally from where my current action brought me, how well can I do?" This
+        is Q_target.
+
+        We then ask, "How well can I do if I play optimally from the current state onwards
+        (where the optimal action is not necessarily the chosen action)?" This is the value
+        we get from our Q table (network). These values are updated constantly as the agent
+        gets reward information from the environment.
+
         Returns:
-        --------
+        -------
             loss : float
                 The value of the loss function for the current training run
         """
-        # Get sample
+        # Get sample of experiences
         sample = self.memory.sample(self.batchSize)
 
-        # Loop over each experience tuple in the sample
+        # Loop over every experience in the sample in order to use them to update the Q
+        # table
         for state, action, reward, next_state, done in sample:
-            # If the action taken in the current state results in a terminal state,
-            # then there's nothing to update since the game is done. We just leave
-            # the target Q value as whatever reward is given for getting to the
-            # terminal state
+            # Begin by getting an estimate of the max discounted future reward we can
+            # achieve by taking the chosen action and then playing optimally from the
+            # state that action brings us to. This is called Q_target.
+
+            # If the action brings us to a terminal state, then the max discounted future
+            # reward we can achieve by playing optimally from the state our action
+            # brought us to is just the reward given by the terminal state (since there
+            # are no other states after it).
             if done:
                 Q_target = reward
-            # If the current action for the current state does not result in a
-            # terminal state, then we need to make an estimate about what the max
-            # discounted future reward is. This means we need to estimate what our
-            # maximum discounted future reward is starting at the state the current
-            # action brings us to. This is done via the Bellmann equation. That is,
-            # we're asking, "If I play optimally from where my current action brought
-            # me, how well can I do?" This is Q_target. We then ask, "How well can I
-            # do if I play optimally from the current state onwards (where the optimal
-            # action is not necessarily the chosen action)?" The idea is that the
-            # "how well can I do playing optimally from the next state onwards" should
-            # match the "how well can I do playing from the current state onwards"
-            # because that means our chosen action was optimal. We use the difference
-            # between the two, along with information about the rewards given, to
-            # update our Q table (network).
+            # Otherwise, use the Bellmann equation
             else:
-                # Get the "how well can I do playing optimally from next state on"
-                # The [0] is needed becauses of the shape of predict's return is (1,N)
                 Q_target = reward +\
                             self.discountRate *\
-                            np.amax(self.model.predict(next_state)[0])
-            # Get the "how well can I do playing from current state on"
-            Q_pred = self.model.predict(state)
-            # Now, we update our Q table. This is done by setting the entry for
-            # the current action and current state to the "how well can I do
-            # playing optimally from next state on?" That is, we're telling the
-            # network, "if you take the current action in the current state, this
-            # is how well you can do." The Q values for all the other actions
-            # remain untouched
-            Q_pred[0][action] = Q_target
-            # Now we update the weights for the network in order to reflect the
-            # changes we made to the Q table
-            hist = self.model.fit(state, Q_pred, epochs=1, verbose=0,
-                                callbacks=self.callbacks)
-        return hist.history['loss']
+                            np.amax(sess.run([self.output],
+                                feed_dict={self.inputs : next_state}))
+
+            # Now get an estimate of "how well can I do playing optimally from current
+            # state?" This is Q_prediction
+            Q_prediction = sess.run([self.output],
+                                    feed_dict={self.inputs : state})
+
+            # Use Q_target to update the Q table
+            Q_prediction[action] = Q_target
+
+            # Update network weights using the state as input and the updated Q values as
+            # "labels." tf evaluates each element in the list it's given and returns one
+            # value for each element
+            fd = {self.inputs : state,
+                    self.target_Q : Q_prediction,
+                    self.actions : action}
+            loss, _ = sess.run([self.loss, self.optimizer],
+                                feed_dict=fd)
+
+        return loss
 
     #-----
     # Test
