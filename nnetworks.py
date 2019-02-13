@@ -301,16 +301,27 @@ class DQNetwork():
         This function trains the network by sampling from the experience (memory)
         buffer and uses those experiences as the training set.
 
-        If the action taken in the current state results in a terminal state,
-        then there's nothing to update since the game is done. We just leave
-        the target Q value as whatever reward is given for getting to the
-        terminal state.
+        Our network is our Q table. It tells us, for every state, what the max discounted
+        future reward is for each action. Our policy is to select the action with the
+        largest max discounted future reward at each state. The network is an 
+        approximation to the full Q table, since the full thing is too large to be
+        represented exactly.
 
-        If the current action for the current state does not result in a
-        terminal state, then we need to make an estimate about what the max
-        discounted future reward will be.
+        We start by not knowing anything about the max discounted future reward for any
+        (state, action) pair. By playing, the environment (game) gives us rewards (either
+        positive or negative) for each action. This allows us to slowly fill in the Q
+        table.
 
-        This is done by comparing how well we would do continuing to play from the state
+        However, how do we train the network? That is, when we take an action, we are
+        given a reward, but is that the max reward for that state? Further, how do we
+        know what max discounted future reward each (state, action) pair gives rise to?
+        Additionally, at least initially, an action that gives rise to a large short-term
+        reward might not actually be the best long-term decision, which is why we need an
+        estimate of the "how well can I do playing optimally from the state my action
+        brings me to?" (i.e., the Bellmann equation) that we can compare to what our
+        network currently thinks the max discounted future reward is.
+
+        The answer is to compare how well we would do continuing to play from the state
         our current action brings us to with how well we would do by playing optimally
         from our current state (where the optimal action is not necessarily the action we
         chose). The idea is that, if we're playing optimally, then the two should match.
@@ -318,15 +329,30 @@ class DQNetwork():
         to use both estimates, along with the rewards received from the game, in order to
         learn. This makes DRL a hybrid cross between supervised and unsupervised learning.
 
-        To estimate the maximum discounted future reward starting at the state the current
-        action brings us to, we use the Bellmann equation. That is, we're asking, "If I
-        play optimally from where my current action brought me, how well can I do?" This
-        is Q_target.
+        The estimate of the "how well can I do playing optimally from the state my current
+        action brings me to?" is given by the Bellmann equation.
+
+        Begin by getting an estimate of the max discounted future reward we can
+        achieve by taking the chosen action and then playing optimally from the
+        state that action brings us to. This is called Q_target.
+
+        If the action brings us to a terminal state, then the max discounted future
+        reward we can achieve by playing optimally from the state our action
+        brought us to is just the reward given by the terminal state (since there
+        are no other states after it).
+
+        If the current action for the current state does not result in a
+        terminal state, then we need to make an estimate about what the max
+        discounted future reward will be (Bellmann equation)
 
         We then ask, "How well can I do if I play optimally from the current state onwards
         (where the optimal action is not necessarily the chosen action)?" This is the value
-        we get from our Q table (network). These values are updated constantly as the agent
-        gets reward information from the environment.
+        we get from our Q table (network) Q_prediction. These values are updated constantly
+        as the agent gets reward information from the environment.
+
+        This way, information about rewards lets us get better Q_target values, which
+        improve our Q_preidctions, which, along with more information about rewards,
+        allows us to improve Q_target, and so on, forming a feedback loop.
 
         Returns:
         -------
@@ -335,44 +361,46 @@ class DQNetwork():
         """
         # Get sample of experiences
         sample = self.memory.sample(self.batchSize)
-
+        # There's no need to call sess.run self.batchSize times to get Q_target. It's not
+        # wrong, but it is slow. It can be vectorized
+        states      = np.array([s[0] for s in sample], ndim=3)
+        actions     = np.array([s[1] for s in sample])
+        rewards     = np.array([s[2] for s in sample])
+        next_states = np.array([s[3] for s in sample], ndim=3)
+        dones       = np.array([s[4] for s in sample])
+        # This requires that actions be reshaped to a column vector
+        actions = actions.reshape((self.batchSize, 1))
+        Q_next = sess.run(self.output, feed_dict={self.inputs : next_states})
+        # Get an estimate of "how well can I do playing optimally from current state?"
+        # This is our current Q table estimate
+        Q_prediction = sess.run(self.output, feed_dict={self.inputs : states})
         # Loop over every experience in the sample in order to use them to update the Q
         # table
-        for state, action, reward, next_state, done in sample:
+        for i in range(self.batchSize):
             # Begin by getting an estimate of the max discounted future reward we can
             # achieve by taking the chosen action and then playing optimally from the
             # state that action brings us to. This is called Q_target.
-
             # If the action brings us to a terminal state, then the max discounted future
             # reward we can achieve by playing optimally from the state our action
             # brought us to is just the reward given by the terminal state (since there
             # are no other states after it).
-            if done:
-                Q_target = reward
+            if dones[i]:
+                Q_target = rewards[i]
             # Otherwise, use the Bellmann equation
             else:
-                Q_target = reward +\
-                            self.discountRate *\
-                            np.amax(sess.run([self.output],
-                                feed_dict={self.inputs : next_state}))
-
-            # Now get an estimate of "how well can I do playing optimally from current
-            # state?" This is Q_prediction
-            Q_prediction = sess.run([self.output],
-                                    feed_dict={self.inputs : state})
-
-            # Use Q_target to update the Q table
-            Q_prediction[action] = Q_target
-
-            # Update network weights using the state as input and the updated Q values as
-            # "labels." tf evaluates each element in the list it's given and returns one
-            # value for each element
-            fd = {self.inputs : state,
-                    self.target_Q : Q_prediction,
-                    self.actions : action}
-            loss, _ = sess.run([self.loss, self.optimizer],
-                                feed_dict=fd)
-
+                Q_target = rewards[i] + self.discountRate * np.amax(Q_next[i])
+            # Use Q_target to update the Q table. The values for the other actions stay
+            # the same
+            Q_prediction[i][action] = Q_target
+        # Update network weights using the state as input and the updated Q values as
+        # "labels." tf evaluates each element in the list it's given and returns one
+        # value for each element. Note that this is called outside of the above for
+        # loop in order to minimize the number of calls to sess.run that are needed
+        fd = {self.inputs : states,
+                self.target_Q : Q_prediction,
+                self.actions : actions}
+        loss, _ = sess.run([self.loss, self.optimizer],
+                            feed_dict=fd)
         return loss
 
     #-----
