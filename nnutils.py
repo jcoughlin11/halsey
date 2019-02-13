@@ -108,35 +108,6 @@ def read_hyperparams(fname):
 
 
 #============================================
-#            set_up_callbacks
-#============================================
-def set_up_callbacks():
-    """
-    This function handles setting up the callbacks to be used during training. There are
-    a whole bunch that are interesting. See: https://keras.io/callbacks/
-
-    Returns:
-    --------
-        callbacks : list
-            List of set up callbacks to use
-    """
-    callbacks = []
-    # Checkpoint (for saving progress during training)
-    fpath = os.path.join(os.getcwd(), './checkpoints/chkpt.hdf5')
-    ckpt = cb.ModelCheckpoint(filepath=fpath,
-                              monitor='loss',
-                              verbose=0,
-                              save_best_only=False,
-                              save_weights_only=False,
-                              mode='auto',
-                              period=5)
-    # Add callbacks to list
-    callbacks.append(ckpt)
-    return callbacks
-
-
-
-#============================================
 #             preprocess_frame
 #============================================
 def preprocess_frame(frame, crop, shrink):
@@ -226,13 +197,6 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
         frame_stack.append(state)
     # Create the tensorial version of the stack
     stacked_state = np.stack(frame_stack, axis=2)
-    # Keras requires that the batch size be given as part of the input array's shape.
-    # Since I'm training the network with one stack at a time, the batch will be 1.
-    # Reshape it here
-    stacked_state = stacked_state.reshape(1,
-                                          stacked_state.shape[0],
-                                          stacked_state.shape[1],
-                                          stacked_state.shape[2])
     return stacked_state, frame_stack
 
 

@@ -3,10 +3,11 @@ Title:   space_invaders.py
 Author:  Jared Coughlin
 Date:    1/23/19
 Purpose: Use DQN to teach an agent to play space invaders!
-Notes:  1. This is based on the version in ../course_version/, which, in turn, is from:
+Notes:  1. This is based on the version in ../../course_version/, which, in turn, is from:
             https://tinyurl.com/ya8d9wcd
-        2. The other version used straight tensorflow. I'm going to try this using the
-            Keras API in tensorflow because it's higher-level and easier to read
+        2. The other version used straight tensorflow, but was disorganized. This is an
+            attempt to clean it up. Keras works great, but is too slow on a laptop for
+            something like this.
 """
 import sys
 
@@ -38,12 +39,12 @@ dqn = nw.DQNetwork(hyperparams, env)
 if hyperparams['train_flag']:
     print('Training...')
     dqn.train()
-    dqn.model.save('./models/space_invaders.hdf5')
+    dqn.save('./models/space_invaders.ckpt')
 else:
     print('Loading model...')
     # Try loading the desired model
     try:
-        dqn = load_model('./models/space_invaders.hdf5')
+        dqn.load('./models/space_invaders.ckpt')
     except ValueError:
         print('Error, could not open model file to load!')
         sys.exit()
