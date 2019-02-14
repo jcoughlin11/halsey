@@ -38,17 +38,7 @@ dqn = nw.DQNetwork(hyperparams, env)
 # Train the network
 if hyperparams['train_flag']:
     print('Training...')
-    dqn.train()
-    dqn.save('./models/space_invaders.ckpt')
-else:
-    print('Loading model...')
-    # Try loading the desired model
-    try:
-        dqn.load('./models/space_invaders.ckpt')
-    except ValueError:
-        print('Error, could not open model file to load!')
-        sys.exit()
-
+    dqn.train(hyperparams['restart_training'])
 # Test the network
 print('Testing agent...')
 dqn.test(hyperparams['render_flag'])

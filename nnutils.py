@@ -47,9 +47,14 @@ def param_file_registers():
                     'render_flag',
                     'shrink_rows',
                     'shrink_cols',
-                    'pretrain_len']
+                    'pretrain_len',
+                    'save_period',
+                    'restart_training']
+    string_params = ['save_path',
+                     'ckpt_file']
     type_register = {'floats' : float_params,
-                    'ints' : int_params}
+                    'ints' : int_params,
+                    'stings' : string_params}
     return type_register
 
 
@@ -61,25 +66,29 @@ def read_hyperparams(fname):
     """
     This function reads in the parameter file that contains the network's hyperparameters.
     The layout is:
-    learning_rate  : learningRate (float, network learning rate)
-    n_episodes     : nEpisodes (int, number of episodes to train for)
-    max_steps      : maxEpisodeSteps (int, max number of steps per episode)
-    batch_size     : batchSize (int, size of batches used for training)
-    epsilon_start  : epsilonStart (float, initial value of explore-exploit parameter)
-    epsilon_stop   : epsilonStop (float, min value of explore-exploit parameter)
-    eps_decay_rate : epsDecayRate (float, rate at which explore-exploit param decays)
-    discount       : gamma (float, reward discount rate)
-    memory_size    : memSize (int, max number of experiences to store in memory buffer)
-    train_flag     : trainFlag (bool, if True, train the network. If False, load saved)
-    render_flag    : renderFlag (bool, if True, render scene during testing)
-    crop_top       : cropTop (int, number of rows to chop off top of frame)
-    crop_bot       : cropBot (int, number of rows to chop off bottom of frame)
-    crop_left      : cropLeft (int, number of cols to chop off left of frame)
-    crop_right     : cropRight (int, number of cols to chop off right of frame)
-    nstacked_frames: stackSize (int, number of frames to stack)
-    shrink_rows    : shrinkRows (int, x size of shrunk frame)
-    shrink_cols    : shrinkCols (int, y size of shrunk frame)
-    pretrain_len   : preTrainLen (int, number of experiences to initially fill mem with)
+    learning_rate    : learningRate (float, network learning rate)
+    n_episodes       : nEpisodes (int, number of episodes to train for)
+    max_steps        : maxEpisodeSteps (int, max number of steps per episode)
+    batch_size       : batchSize (int, size of batches used for training)
+    epsilon_start    : epsilonStart (float, initial value of explore-exploit parameter)
+    epsilon_stop     : epsilonStop (float, min value of explore-exploit parameter)
+    eps_decay_rate   : epsDecayRate (float, rate at which explore-exploit param decays)
+    discount         : gamma (float, reward discount rate)
+    memory_size      : memSize (int, max number of experiences to store in memory buffer)
+    train_flag       : trainFlag (bool, if True, train the network. If False, load saved)
+    render_flag      : renderFlag (bool, if True, render scene during testing)
+    crop_top         : cropTop (int, number of rows to chop off top of frame)
+    crop_bot         : cropBot (int, number of rows to chop off bottom of frame)
+    crop_left        : cropLeft (int, number of cols to chop off left of frame)
+    crop_right       : cropRight (int, number of cols to chop off right of frame)
+    nstacked_frames  : stackSize (int, number of frames to stack)
+    shrink_rows      : shrinkRows (int, x size of shrunk frame)
+    shrink_cols      : shrinkCols (int, y size of shrunk frame)
+    pretrain_len     : preTrainLen (int, number of experiences to initially fill mem with)
+    save_path        ; saveFilePath (string, path of checkpoint and train params file)
+    save_period      : savePeriod (int, save model every savePeriod episodes)
+    restart_training : restartTraining (int, if 1 start from beginning. If 0, cont)
+    ckpt_file        : ckptFile (string, name of the checkpoint file to use when saving)
     """
     # Assume the file is in the current working directory
     fname = os.path.join(os.getcwd(), fname)
@@ -103,6 +112,10 @@ def read_hyperparams(fname):
                 print('Hyperparameter not found!')
                 raise IOError
             hyperparams[key] = value
+    if hyperparams['restart_training'] == 1:
+        hyperparams['restart_training'] = True
+    else:
+        hyperparams['restart_training'] = False
     return hyperparams
 
 
@@ -338,3 +351,118 @@ class Memory():
         except ValueError:
             raise("Error, need batch_size < buf_size when sampling from memory!")
         return [self.buffer[i] for i in indices]
+
+
+
+#============================================
+#             save_train_params 
+#============================================
+def save_train_params(ep, decay, rewards, mem, path):
+    """
+    This function saves the crucial training parameters needed in order to continue
+    where training left off.
+
+    Parameters:
+    -----------
+        ep : int
+            The most recent episode to have finished
+
+        decay : int
+            The value of the decay_step used in explore-exploit epsilon greedy
+
+        rewards : list
+            List of the total reward earned for each completed episode
+
+        mem : deque
+            The memory buffer for the current training session
+
+        path : string
+            Place to save this information
+
+    Returns:
+    --------
+        None
+    """
+    # Episode, decay, and episode rewards
+    with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
+        f.write(str(ep) + '\n')
+        f.wrtie(str(decay) + '\n')
+        for i in range(len(rewards)):
+            f.write(str(rewards[i]) + '\n')
+    # States
+    states = np.array([s[0] for s in mem],ndim=3)
+    np.savez(os.path.join(path, 'exp_states'), *states)
+    # Actions
+    actions = np.array(s[1] for s in mem])
+    np.savez(os.path.join(path, 'exp_actions'), *actions)
+    # Rewards
+    exp_rewards = np.array([s[2] for s in mem])
+    np.savez(os.path.join(path, 'exp_rewards'), *exp_rewards)
+    # Next states
+    next_states = np.array([s[3] for s in mem], ndim=3)
+    np.savez(os.path.join(path, 'exp_next_states'), *next_states)
+    # Dones
+    dones = np.array([s[4] for s in mem])
+    np.savez(os.path.join(path, 'exp_dones'), *dones)
+
+
+
+#============================================
+#             load_train_params
+#============================================
+def load_train_params(path, max_len):
+    """
+    This function reads in the data saved to the files produced in save_train_params
+    so that training can continue where it left off.
+
+    Parameters:
+    -----------
+        path : string
+            The path to the required data files
+
+        max_len : int
+            The maximum length of the memory buffer
+
+    Returns:
+    --------
+        train_params : tuple
+            (start_episode, decay_step, totalRewards, memory)
+    """
+    # Read the ep_decay_reward file
+    with open(os.path.join(path, 'ep_decay_reward.txt'), 'r') as f:
+        # Get episode number. The +1 is because what's written is the most recently
+        # completed episode, so if we want to start at the next one, we add 1
+        ep = int(f.readline()) + 1
+        # Decay step
+        decay_step = int(f.readline())
+        # Episode rewards
+        ep_rewards = []
+        for line in f:
+            ep_rewards.append(float(line))
+        # Sanity check
+        if len(ep_rewards != (ep - 1)):
+            print('Error, number of episode rewards does not match episode number!')
+            sys.exit()
+    # Load the states, actions, rewards, next_states, and dones arrays
+    states = np.load(os.path.join(path, 'exp_states.npz'))
+    actions = np.load(os.path.join(path, 'exp_actions.npz'))
+    rewards = np.load(os.path.join(path, 'exp_rewards.npz'))
+    next_states = np.load(os.path.join(path, 'exp_next_states.npz'))
+    dones = np.load(os.path.join(path, 'exp_dones.npz'))
+    # Sanity check
+    nstates = len(states.files)
+    if len(actions.files) != nstates or\
+        len(rewards.files) != nstates or\
+        len(next_states.files) != nstates or\
+        len(dones.files) != nstates:
+        print('Error, length of read in states array does not match length of actions, '
+                'rewards, next_states, or dones!')
+        sys.exit()
+    # Get experience tuples to fill mem buffer (state, action, reward, next_state, done)
+    buf = collections.deque(maxlen=max_len)
+    for i in range(nstates):
+        exp = (states[i], actions[i], rewards[i], next_states[i], dones[i])
+        buf.append(exp)
+    # Package everything up
+    train_params = (ep, decay_step, ep_rewards, buf)
+    return train_params
