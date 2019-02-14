@@ -5,6 +5,8 @@ Date:    1/24/19
 Purpose: Contains the class definitions of neural networks
 Notes:
 """
+import os
+import sys
 import time
 
 import numpy as np
@@ -34,11 +36,21 @@ class DQNetwork():
         env : gym environment
             This is the game's environment, created by gym, that contains all of the
             relevant details about the game
+
+        name : string
+            The name that tensorflow assigns to the variable namespace
+
+        sess : tf.Session()
+            The tensorflow session used to evaluate tensors. Originally, I created new
+            sessions in the functions that needed to evaluate tensors, such as self.learn.
+            However, tf complained because the variables had not been initialzed for that
+            session, so by passing it, we create a persistent session that spans the scope
+            of the whole class.
     """
     #-----
     # Constructor
     #-----
-    def __init__(self, hyperparams, env, name):
+    def __init__(self, hyperparams, env, name, sess):
         # Initialize
         self.batchSize       = hyperparams['batch_size']
         self.callbacks       = None
@@ -64,6 +76,7 @@ class DQNetwork():
         self.savePeriod      = hyperparams['save_period']
         self.saver           = None
         self.saveFilePath    = hyperparams['save_path']
+        self.sess            = sess
         self.shrinkCols      = hyperparams['shrink_cols'] 
         self.shrinkRows      = hyperparams['shrink_rows']
         self.stackSize       = hyperparams['nstacked_frames']
@@ -115,7 +128,7 @@ class DQNetwork():
                 # Target Q. The max discounted future reward playing from next state
                 # after taking chosen action. Determined by Bellmann equation.
                 self.target_Q = tf.placeholder(tf.float32,
-                                               shape=[None],
+                                               shape=[None, self.env.action_space.n],
                                                name='target')
 
                 # First convolutional layer
@@ -193,114 +206,111 @@ class DQNetwork():
             None
         """
         early_abort = False
-        # Reset the tensorflow graph
-        tf.reset_default_graph()
         # Initialize the tensorflow session (uses default graph)
-        with tf.Session() as sess:
-            # See if we need to load a saved model to continue training
-            if restart is False:
-                self.saver.restore(sess, os.path.join(self.saveFilePath, 'si.ckpt'))
-                train_params = nnutils.load_train_params(self.saveFilePath,
-                                                        self.memory.maxlen)
-                start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
-            else:
-                # Initialize tensorflow variables
-                sess.run(tf.global_variables_initializer())
-                # Set up the decay step for the epsilon-greedy search
-                decay_step = 0
-                start_ep = 0
-            # Loop over desired number of training episodes
-            for episode in range(start_ep, self.nEpisodes):
-                print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
-                # Reset time spent on current episode
-                step = 0
-                # Track the rewards for the episode
-                episode_rewards = []
-                # Reset the environment
-                state = self.env.reset()
-                # Stack and process initial state. State is returned as a tensor of shape
-                # (frame_rows, frame_cols, stack_size). frame_stack is the same data, but
-                # in the form of a deque.
-                state, frame_stack = nu.stack_frames(None,
-                                                     state,
-                                                     True,
-                                                     self.stackSize,
-                                                     self.crop,
-                                                     self.shrink)
-                # Loop over the max amount of time the agent gets per episode
-                while step < self.maxEpSteps:
-                    print('Step: %d / %d' % (step, self.maxEpSteps), end='\r')
-                    # Increase step counters
-                    step += 1
-                    decay_step += 1
-                    # Choose an action
-                    action = self.choose_action(state, decay_step, sess)
-                    # Perform action
-                    next_state, reward, done, _ = self.env.step(action)
-                    # Track the reward
-                    episode_rewards.append(reward)
-                    # Add the next state to the stack of frames
-                    next_state, frame_stack = nu.stack_frames(frame_stack,
-                                                              next_state,
-                                                              False,
-                                                              self.stackSize,
-                                                              self.crop,
-                                                              self.shrink)
-                    # Save experience
-                    experience = (state, action, reward, next_state, done)
-                    self.memory.add(experience)
-                    # Learn from the experience
-                    loss = self.learn(sess)
-                    # Set up for next episode if we're in a terminal state
-                    if done:
-                        # Get total reward for episode
-                        tot_reward = np.sum(episode_rewards)
-                        # Save total episode reward
-                        self.totalRewards.append(tot_reward)
-                        # Print info to screen
-                        print('Episode: {}\n'.format(episode),
-                                'Total Reward for episode: {}\n'.format(tot_reward),
-                                'Training loss: {:.4f}'.format(loss))
-                        # See if training is being ended early
-                        if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
-                            early_abort = True
-                            subprocess32.call(['rm', os.path.join(os.getcwd(), 'stop')])
-                            break
+        # See if we need to load a saved model to continue training
+        if restart is False:
+            self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+            train_params = nnutils.load_train_params(self.saveFilePath,
+                                                    self.memory.maxlen)
+            start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
+        else:
+            # Initialize tensorflow variables
+            self.sess.run(tf.global_variables_initializer())
+            # Set up the decay step for the epsilon-greedy search
+            decay_step = 0
+            start_ep = 0
+        # Loop over desired number of training episodes
+        for episode in range(start_ep, self.nEpisodes):
+            print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
+            # Reset time spent on current episode
+            step = 0
+            # Track the rewards for the episode
+            episode_rewards = []
+            # Reset the environment
+            state = self.env.reset()
+            # Stack and process initial state. State is returned as a tensor of shape
+            # (frame_rows, frame_cols, stack_size). frame_stack is the same data, but
+            # in the form of a deque.
+            state, frame_stack = nu.stack_frames(None,
+                                                 state,
+                                                 True,
+                                                 self.stackSize,
+                                                 self.crop,
+                                                 self.shrink)
+            # Loop over the max amount of time the agent gets per episode
+            while step < self.maxEpSteps:
+                print('Step: %d / %d' % (step, self.maxEpSteps), end='\r')
+                # Increase step counters
+                step += 1
+                decay_step += 1
+                # Choose an action
+                action = self.choose_action(state, decay_step)
+                # Perform action
+                next_state, reward, done, _ = self.env.step(action)
+                # Track the reward
+                episode_rewards.append(reward)
+                # Add the next state to the stack of frames
+                next_state, frame_stack = nu.stack_frames(frame_stack,
+                                                          next_state,
+                                                          False,
+                                                          self.stackSize,
+                                                          self.crop,
+                                                          self.shrink)
+                # Save experience
+                experience = (state, action, reward, next_state, done)
+                self.memory.add(experience)
+                # Learn from the experience
+                loss = self.learn()
+                # Set up for next episode if we're in a terminal state
+                if done:
+                    # Get total reward for episode
+                    tot_reward = np.sum(episode_rewards)
+                    # Save total episode reward
+                    self.totalRewards.append(tot_reward)
+                    # Print info to screen
+                    print('Episode: {}\n'.format(episode),
+                            'Total Reward for episode: {}\n'.format(tot_reward),
+                            'Training loss: {:.4f}'.format(loss))
+                    # See if training is being ended early
+                    if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
+                        early_abort = True
+                        subprocess32.call(['rm', os.path.join(os.getcwd(), 'stop')])
                         break
-                    # Set up for next step
-                    else:
-                        state = next_state
-                        # See if training is being ended early
-                        if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
-                            early_abort = True
-                            subprocess32.call(['rm', os.path.join(os.getcwd(), 'stop')])
-                            break
-                # If we finish because of a time out (i.e, we reach the max number of
-                # steps, then we want to get the total episode reward
-                if (step == self.maxEpSteps) and (done is False):
-                    self.totalRewards.append(np.sum(episode_rewards))
-                # Save the model
-                if ((episode % self.savePeriod == 0) and (done is True)) or\
-                    ((episode % self.savePeriod == 0) and (step == self.maxEpSteps)):
-                    self.saver.save(sess, os.path.join(self.saveFilePath, 'si.ckpt'))
-                    nnutils.save_train_params(episode,
-                                                decay_step,
-                                                self.totalRewards,
-                                                self.memory.buffer,
-                                                self.saveFilePath)
-                if early_abort is True:
                     break
-                    
-            # Save the final, trained model
-            if early_abort is False:
-                self.saver.save(sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+                # Set up for next step
+                else:
+                    state = next_state
+                    # See if training is being ended early
+                    if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
+                        early_abort = True
+                        subprocess32.call(['rm', os.path.join(os.getcwd(), 'stop')])
+                        break
+            # If we finish because of a time out (i.e, we reach the max number of
+            # steps, then we want to get the total episode reward
+            if (step == self.maxEpSteps) and (done is False):
+                self.totalRewards.append(np.sum(episode_rewards))
+            # Save the model
+            if ((episode % self.savePeriod == 0) and (done is True)) or\
+                ((episode % self.savePeriod == 0) and (step == self.maxEpSteps)):
+                self.saver.save(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+                nnutils.save_train_params(episode,
+                                            decay_step,
+                                            self.totalRewards,
+                                            self.memory.buffer,
+                                            self.saveFilePath)
+            if early_abort is True:
+                break
+                
+        # Save the final, trained model
+        if early_abort is False:
+            self.saver.save(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
         if early_abort is True:
             sys.exit()
 
     #-----
     # Choose Action
     #-----
-    def choose_action(self, state, decay_step, sess):
+    def choose_action(self, state, decay_step):
         """
         This function uses the current state and the agent's current knowledge in
         order to choose an action. It employs the epsilon greedy strategy to handle
@@ -340,7 +350,7 @@ class DQNetwork():
             # tf needs the batch size as part of the shape. See comment on
             # self.input_shape in the constructor
             state = state.reshape((1, state.shape[0], state.shape[1], state.shape[2]))
-            Q_vals = sess.run(self.output,
+            Q_vals = self.sess.run(self.output,
                               feed_dict={self.inputs:state})
             # Choose the one with the highest Q value
             action = np.argmax(Q_vals)
@@ -349,7 +359,7 @@ class DQNetwork():
     #-----
     # Learn
     #-----
-    def learn(self, sess):
+    def learn(self):
         """
         This function trains the network by sampling from the experience (memory)
         buffer and uses those experiences as the training set.
@@ -421,10 +431,10 @@ class DQNetwork():
         rewards     = np.array([s[2] for s in sample])
         next_states = np.array([s[3] for s in sample], ndmin=3)
         dones       = np.array([s[4] for s in sample])
-        Q_next = sess.run(self.output, feed_dict={self.inputs : next_states})
+        Q_next = self.sess.run(self.output, feed_dict={self.inputs : next_states})
         # Get an estimate of "how well can I do playing optimally from current state?"
         # This is our current Q table estimate
-        Q_prediction = sess.run(self.output, feed_dict={self.inputs : states})
+        Q_prediction = self.sess.run(self.output, feed_dict={self.inputs : states})
         # Loop over every experience in the sample in order to use them to update the Q
         # table
         for i in range(self.batchSize):
@@ -452,7 +462,7 @@ class DQNetwork():
         fd = {self.inputs : states,
                 self.target_Q : Q_prediction,
                 self.actions : actions}
-        loss, _ = sess.run([self.loss, self.optimizer],
+        loss, _ = self.sess.run([self.loss, self.optimizer],
                             feed_dict=fd)
         return loss
 
@@ -475,45 +485,40 @@ class DQNetwork():
         --------
             None
         """
-        # Reset the default graph (I'm not sure if this needs to be done)
-        tf.reset_default_graph()
-        with tf.Session() as sess:
-            # Load model
-            self.saver.restore(sess, os.path.join(self.saveFilePath, 'si.ckpt'))
-            # Play game
-            for episode in range(1):
-                episode_reward = 0
-                state = self.env.reset()
-                state, frame_stack = nu.stacK_frames(None,
-                                                     state,
-                                                     True,
-                                                     self.stackSize,
-                                                     self.crop,
-                                                     self.shrink)
-                # Loop until the agent fails
-                while True:
-                    with tf.Session() as sess:
-                        # Get what network thinks is the best action for current state
-                        Q_values = sess.run(self.output, feed_dict={self.inputs : state})
-                        action = np.argmax(Q_values)
-                        # Take chosen action
-                        next_state, reward, done, _ = self.env.step(action)
-                        if render_flag:
-                            self.env.render()
-                        episode_reward += reward
-                        # Check for terminal state
-                        if done:
-                            print('Total score: %d' % (episode_reward))
-                            break
-                        # If not done, get the next state and add it to the stack of frames
-                        else:
-                            next_state, frame_stack = nu.stack_frames(frame_stack,
-                                                                      next_state,
-                                                                      False,
-                                                                      self.stackSize,
-                                                                      self.crop,
-                                                                      self.shrink)
-                            state = next_state
-
+        # Load model
+        self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+        # Play game
+        for episode in range(1):
+            episode_reward = 0
+            state = self.env.reset()
+            state, frame_stack = nu.stacK_frames(None,
+                                                 state,
+                                                 True,
+                                                 self.stackSize,
+                                                 self.crop,
+                                                 self.shrink)
+            # Loop until the agent fails
+            while True:
+                # Get what network thinks is the best action for current state
+                Q_values = self.sess.run(self.output, feed_dict={self.inputs : state})
+                action = np.argmax(Q_values)
+                # Take chosen action
+                next_state, reward, done, _ = self.env.step(action)
+                if render_flag:
+                    self.env.render()
+                episode_reward += reward
+                # Check for terminal state
+                if done:
+                    print('Total score: %d' % (episode_reward))
+                    break
+                # If not done, get the next state and add it to the stack of frames
+                else:
+                    next_state, frame_stack = nu.stack_frames(frame_stack,
+                                                              next_state,
+                                                              False,
+                                                              self.stackSize,
+                                                              self.crop,
+                                                              self.shrink)
+                    state = next_state
         # Close the environment when we're done
         self.env.close()

@@ -12,7 +12,6 @@ import warnings
 
 import numpy as np
 import skimage
-import tensorflow.keras.callbacks as cb
 
 
 

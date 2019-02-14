@@ -12,7 +12,7 @@ Notes:  1. This is based on the version in ../../course_version/, which, in turn
 import sys
 
 import gym
-from tensorflow.keras.models import load_model
+import tensorflow as tf
 
 import nnetworks as nw
 import nnutils as nu
@@ -33,12 +33,15 @@ env = gym.make('SpaceInvaders-v0')
 
 # Set up the network
 print('Setting up network...')
-dqn = nw.DQNetwork(hyperparams, env, 'dqn')
+tf.reset_default_graph()
+with tf.Session() as sess:
+    dqn = nw.DQNetwork(hyperparams, env, 'dqn', sess)
 
-# Train the network
-if hyperparams['train_flag']:
-    print('Training...')
-    dqn.train(hyperparams['restart_training'])
-# Test the network
-print('Testing agent...')
-dqn.test(hyperparams['render_flag'])
+    # Train the network
+    if hyperparams['train_flag']:
+        print('Training...')
+        dqn.train(hyperparams['restart_training'])
+
+    # Test the network
+    print('Testing agent...')
+    dqn.test(hyperparams['render_flag'])
