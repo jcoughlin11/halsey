@@ -17,3 +17,7 @@ nstacked_frames : 4
 shrink_rows     : 110
 shrink_cols     : 84
 pretrain_len    : 64
+save_path       : ./checkpoints
+save_period     : 2
+restart_training: 1
+ckpt_file       : si.ckpt
