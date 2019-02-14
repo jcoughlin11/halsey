@@ -33,7 +33,7 @@ env = gym.make('SpaceInvaders-v0')
 
 # Set up the network
 print('Setting up network...')
-dqn = nw.DQNetwork(hyperparams, env)
+dqn = nw.DQNetwork(hyperparams, env, 'dqn')
 
 # Train the network
 if hyperparams['train_flag']:

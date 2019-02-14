@@ -38,7 +38,7 @@ class DQNetwork():
     #-----
     # Constructor
     #-----
-    def __init__(self, hyperparams, env):
+    def __init__(self, hyperparams, env, name):
         # Initialize
         self.batchSize       = hyperparams['batch_size']
         self.callbacks       = None
@@ -56,12 +56,13 @@ class DQNetwork():
         self.maxEpSteps      = hyperparams['max_steps']
         self.memSize         = hyperparams['memory_size']
         self.model           = None
+        self.name            = name
         self.nEpisodes       = hyperparams['n_episodes']
         self.preTrainLen     = hyperparams['pretrain_len']
         self.renderFlag      = hyperparams['render_flag']
         self.restartTraining = hyperparams['restart_training']
         self.savePeriod      = hyperparams['save_period']
-        self.saver           = tf.train.Saver()
+        self.saver           = None
         self.saveFilePath    = hyperparams['save_path']
         self.shrinkCols      = hyperparams['shrink_cols'] 
         self.shrinkRows      = hyperparams['shrink_rows']
@@ -101,7 +102,7 @@ class DQNetwork():
         if self.model is not None:
             raise("Error, model aleady built!")
         else:
-            with tf.variable_scope(name):
+            with tf.variable_scope(self.name):
                 # Placeholders (anything that needs to be fed from the outside)
                 # Input. This is the stack of frames from the game
                 self.inputs = tf.placeholder(tf.float32,
@@ -172,6 +173,7 @@ class DQNetwork():
 
                 # Optimizer
                 self.optimizer = AdamOptimizer(self.learningRate).minimize(self.loss)
+        self.saver = tf.train.Saver()
 
     #----
     # Train
@@ -208,7 +210,7 @@ class DQNetwork():
                 decay_step = 0
                 start_ep = 0
             # Loop over desired number of training episodes
-            while episode in range(start_ep, self.nEpisodes) or early_abort = False:
+            for episode in range(start_ep, self.nEpisodes):
                 print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
                 # Reset time spent on current episode
                 step = 0
@@ -286,8 +288,8 @@ class DQNetwork():
                                                 self.totalRewards,
                                                 self.memory.buffer,
                                                 self.saveFilePath)
-                # Increment episode
-                episode += 1
+                if early_abort is True:
+                    break
                     
             # Save the final, trained model
             if early_abort is False:
@@ -414,10 +416,10 @@ class DQNetwork():
         sample = self.memory.sample(self.batchSize)
         # There's no need to call sess.run self.batchSize times to get Q_target. It's not
         # wrong, but it is slow. It can be vectorized
-        states      = np.array([s[0] for s in sample], ndim=3)
+        states      = np.array([s[0] for s in sample], ndmin=3)
         actions     = np.array([s[1] for s in sample])
         rewards     = np.array([s[2] for s in sample])
-        next_states = np.array([s[3] for s in sample], ndim=3)
+        next_states = np.array([s[3] for s in sample], ndmin=3)
         dones       = np.array([s[4] for s in sample])
         Q_next = sess.run(self.output, feed_dict={self.inputs : next_states})
         # Get an estimate of "how well can I do playing optimally from current state?"
@@ -477,7 +479,7 @@ class DQNetwork():
         tf.reset_default_graph()
         with tf.Session() as sess:
             # Load model
-            self.saver.restore(sess, os.path.join(self.saveFilePath, 'si.ckpt')
+            self.saver.restore(sess, os.path.join(self.saveFilePath, 'si.ckpt'))
             # Play game
             for episode in range(1):
                 episode_reward = 0

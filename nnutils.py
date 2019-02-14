@@ -54,7 +54,7 @@ def param_file_registers():
                      'ckpt_file']
     type_register = {'floats' : float_params,
                     'ints' : int_params,
-                    'stings' : string_params}
+                    'strings' : string_params}
     return type_register
 
 
@@ -108,7 +108,7 @@ def read_hyperparams(fname):
                 value = float(value)
             elif key in type_register['ints']:
                 value = int(value)
-            else:
+            elif key not in type_register['strings']:
                 print('Hyperparameter not found!')
                 raise IOError
             hyperparams[key] = value
@@ -390,16 +390,16 @@ def save_train_params(ep, decay, rewards, mem, path):
         for i in range(len(rewards)):
             f.write(str(rewards[i]) + '\n')
     # States
-    states = np.array([s[0] for s in mem],ndim=3)
+    states = np.array([s[0] for s in mem], ndmin=3)
     np.savez(os.path.join(path, 'exp_states'), *states)
     # Actions
-    actions = np.array(s[1] for s in mem])
+    actions = np.array([s[1] for s in mem])
     np.savez(os.path.join(path, 'exp_actions'), *actions)
     # Rewards
     exp_rewards = np.array([s[2] for s in mem])
     np.savez(os.path.join(path, 'exp_rewards'), *exp_rewards)
     # Next states
-    next_states = np.array([s[3] for s in mem], ndim=3)
+    next_states = np.array([s[3] for s in mem], ndmin=3)
     np.savez(os.path.join(path, 'exp_next_states'), *next_states)
     # Dones
     dones = np.array([s[4] for s in mem])
