@@ -18,6 +18,6 @@ shrink_rows     : 110
 shrink_cols     : 84
 pretrain_len    : 64
 save_path       : /home/latitude/Code/practice/python/ai/reinforcement_learning/space_invaders/my_version/tf_version/checkpoints
-save_period     : 2
-restart_training: 1
+save_period     : 1
+restart_training: 0
 ckpt_file       : si.ckpt

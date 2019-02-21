@@ -6,6 +6,7 @@ Purpose: Contains the class definitions of neural networks
 Notes:
 """
 import os
+import subprocess32
 import sys
 import time
 
@@ -210,7 +211,7 @@ class DQNetwork():
         # See if we need to load a saved model to continue training
         if restart is False:
             self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
-            train_params = nnutils.load_train_params(self.saveFilePath,
+            train_params = nu.load_train_params(self.saveFilePath,
                                                     self.memory.maxlen)
             start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
         else:
@@ -292,8 +293,11 @@ class DQNetwork():
             # Save the model
             if ((episode % self.savePeriod == 0) and (done is True)) or\
                 ((episode % self.savePeriod == 0) and (step == self.maxEpSteps)):
-                self.saver.save(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
-                nnutils.save_train_params(episode,
+                # Make sure the directory exists
+                if not os.path.exists(self.saveFilePath):
+                    os.mkdir(self.saveFilePath)
+                self.saver.save(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
+                nu.save_train_params(episode,
                                             decay_step,
                                             self.totalRewards,
                                             self.memory.buffer,
@@ -303,7 +307,9 @@ class DQNetwork():
                 
         # Save the final, trained model
         if early_abort is False:
-            self.saver.save(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+            if not os.path.exists(self.saveFilePath):
+                os.mkdir(self.saveFilePath)
+            self.saver.save(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
         if early_abort is True:
             sys.exit()
 

@@ -107,7 +107,9 @@ def read_hyperparams(fname):
                 value = float(value)
             elif key in type_register['ints']:
                 value = int(value)
-            elif key not in type_register['strings']:
+            elif key in type_register['strings']:
+                value = value.strip()
+            else:
                 print('Hyperparameter not found!')
                 raise IOError
             hyperparams[key] = value
@@ -385,7 +387,7 @@ def save_train_params(ep, decay, rewards, mem, path):
     # Episode, decay, and episode rewards
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
         f.write(str(ep) + '\n')
-        f.wrtie(str(decay) + '\n')
+        f.write(str(decay) + '\n')
         for i in range(len(rewards)):
             f.write(str(rewards[i]) + '\n')
     # States
