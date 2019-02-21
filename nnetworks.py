@@ -212,7 +212,7 @@ class DQNetwork():
         if restart is False:
             self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
             train_params = nu.load_train_params(self.saveFilePath,
-                                                    self.memory.maxlen)
+                                                    self.memory.max_size)
             start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
         else:
             # Initialize tensorflow variables

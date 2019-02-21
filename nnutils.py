@@ -386,7 +386,9 @@ def save_train_params(ep, decay, rewards, mem, path):
     """
     # Episode, decay, and episode rewards
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
-        f.write(str(ep) + '\n')
+        # The +1 is because episode is indexed from 0, so in order to have it match with
+        # len(ep_rewards) when loading, I add the +1
+        f.write(str(ep + 1) + '\n')
         f.write(str(decay) + '\n')
         for i in range(len(rewards)):
             f.write(str(rewards[i]) + '\n')
@@ -441,7 +443,7 @@ def load_train_params(path, max_len):
         for line in f:
             ep_rewards.append(float(line))
         # Sanity check
-        if len(ep_rewards != (ep - 1)):
+        if (len(ep_rewards) != (ep - 1)):
             print('Error, number of episode rewards does not match episode number!')
             sys.exit()
     # Load the states, actions, rewards, next_states, and dones arrays
