@@ -464,7 +464,8 @@ def load_train_params(path, max_len):
     # Get experience tuples to fill mem buffer (state, action, reward, next_state, done)
     buf = collections.deque(maxlen=max_len)
     for i in range(nstates):
-        exp = (states[i], actions[i], rewards[i], next_states[i], dones[i])
+        key = 'arr_' + str(i)
+        exp = (states[key], actions[key], rewards[key], next_states[key], dones[key])
         buf.append(exp)
     # Package everything up
     train_params = (ep, decay_step, ep_rewards, buf)
