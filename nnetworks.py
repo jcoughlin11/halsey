@@ -297,8 +297,7 @@ class DQNetwork():
                 if not os.path.exists(self.saveFilePath):
                     os.mkdir(self.saveFilePath)
                 self.saver.save(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
-                nu.save_train_params(episode,
-                                            decay_step,
+                nu.save_train_params(decay_step,
                                             self.totalRewards,
                                             self.memory.buffer,
                                             self.saveFilePath)
@@ -349,7 +348,7 @@ class DQNetwork():
         if explore_prob >= exploit_prob:
             # Choose randomly. randint selects integers in the range [a,b). So, if
             # there are 5 possible actions, we want to select 0, 1, 2, 3, or 4.
-            # [0,5) gives us what we want
+            # [0,5) gives us what we want. Can just be action_space.sample?
             action = np.random.randint(0, self.env.action_space.n)
         # Exploit
         else:

@@ -1,0 +1,8 @@
+# Compiled python modules (leading slash anchors the path to root)
+/*.pyc
+
+# Checkpoints
+/checkpoints/
+
+# Cache
+/__pycache__/

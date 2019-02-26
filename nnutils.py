@@ -358,7 +358,7 @@ class Memory():
 #============================================
 #             save_train_params 
 #============================================
-def save_train_params(ep, decay, rewards, mem, path):
+def save_train_params(decay, rewards, mem, path):
     """
     This function saves the crucial training parameters needed in order to continue
     where training left off.
@@ -386,9 +386,6 @@ def save_train_params(ep, decay, rewards, mem, path):
     """
     # Episode, decay, and episode rewards
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
-        # The +1 is because episode is indexed from 0, so in order to have it match with
-        # len(ep_rewards) when loading, I add the +1
-        f.write(str(ep + 1) + '\n')
         f.write(str(decay) + '\n')
         for i in range(len(rewards)):
             f.write(str(rewards[i]) + '\n')
@@ -433,19 +430,14 @@ def load_train_params(path, max_len):
     """
     # Read the ep_decay_reward file
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'r') as f:
-        # Get episode number. The +1 is because what's written is the most recently
-        # completed episode, so if we want to start at the next one, we add 1
-        ep = int(f.readline()) + 1
         # Decay step
         decay_step = int(f.readline())
         # Episode rewards
         ep_rewards = []
         for line in f:
             ep_rewards.append(float(line))
-        # Sanity check
-        if (len(ep_rewards) != (ep - 1)):
-            print('Error, number of episode rewards does not match episode number!')
-            sys.exit()
+    # Get the most recently finished episode
+    ep = len(ep_rewards)
     # Load the states, actions, rewards, next_states, and dones arrays
     states = np.load(os.path.join(path, 'exp_states.npz'))
     actions = np.load(os.path.join(path, 'exp_actions.npz'))
