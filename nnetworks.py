@@ -210,7 +210,7 @@ class DQNetwork():
         # Initialize the tensorflow session (uses default graph)
         # See if we need to load a saved model to continue training
         if restart is False:
-            self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+            self.saver.restore(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
             train_params = nu.load_train_params(self.saveFilePath,
                                                     self.memory.max_size)
             start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
@@ -491,12 +491,12 @@ class DQNetwork():
             None
         """
         # Load model
-        self.saver.restore(self.sess, os.path.join(self.saveFilePath, 'si.ckpt'))
+        self.saver.restore(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
         # Play game
         for episode in range(1):
             episode_reward = 0
             state = self.env.reset()
-            state, frame_stack = nu.stacK_frames(None,
+            state, frame_stack = nu.stack_frames(None,
                                                  state,
                                                  True,
                                                  self.stackSize,
@@ -504,6 +504,9 @@ class DQNetwork():
                                                  self.shrink)
             # Loop until the agent fails
             while True:
+                # tf needs the batch size as part of the shape. See comment on
+                # self.input_shape in the constructor
+                state = state.reshape((1, state.shape[0], state.shape[1], state.shape[2]))
                 # Get what network thinks is the best action for current state
                 Q_values = self.sess.run(self.output, feed_dict={self.inputs : state})
                 action = np.argmax(Q_values)
