@@ -6,3 +6,6 @@
 
 # Cache
 /__pycache__/
+
+# Trained models directory
+/trained_models

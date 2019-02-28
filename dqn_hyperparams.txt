@@ -7,7 +7,7 @@ epsilon_stop    : 0.01
 eps_decay_rate  : 0.00001
 discount        : 0.9
 memory_size     : 1000000
-train_flag      : 1
+train_flag      : 0
 render_flag     : 1
 crop_top        : 8
 crop_bot        : 12
@@ -17,7 +17,7 @@ nstacked_frames : 4
 shrink_rows     : 110
 shrink_cols     : 84
 pretrain_len    : 64
-save_path       : /home/latitude/Code/practice/python/ai/reinforcement_learning/space_invaders/my_version/tf_version/checkpoints
+save_path       : /home/latitude/Code/practice/python/ai/reinforcement_learning/space_invaders/my_version/tf_version/trained_models
 save_period     : 1
 restart_training: 0
 ckpt_file       : si.ckpt
