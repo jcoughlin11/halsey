@@ -122,6 +122,59 @@ def read_hyperparams(fname):
 
 
 #============================================
+#                 crop_frame
+#============================================
+def crop_frame(frame, crop):
+    """
+    This function handles the different cases for cropping the frame to the proper
+    size. It doesn't matter whether crop[0] and/or crop[2] are zero or not because the
+    first term in a slice is always included, whereas the last one is not.
+
+    Parameters:
+    -----------
+        frame : ndarray
+            The game frame
+
+        crop : tuple
+            The number of rows to chop off from the top and bottom and number of columns
+            to chop off from the left and right.
+
+    Returns:
+    --------
+        cropFrame : ndarray
+            The cropped version of frame
+    """
+    cropFrame = None
+    # Sanity check (this part could go in another function that gets called initially,
+    # since it only needs to happen once)
+    if (crop[0] >= frame.shape[0]) or (crop[1] >= frame.shape[0]):
+        raise ValueError("Error, can't crop more rows than are in frame!")
+    if (crop[2] >= frame.shape[1]) or (crop[3] >= frame.shape[1]):
+        raise ValueError("Error, can't crop more cols than are in frame!")
+    if crop[0] + crop[1] >= frame.shape[0]:
+        raise ValueError("Error, total crop from bot and top too big!")
+    if crop[2] + crop[3] >= frame.shape[1]:
+        raise ValueError("Error, total crop from left and right too big!")
+    if (crop[1] != 0) and (crop[3] != 0):
+        cropFrame = frame[crop[0]:-crop[1], crop[2]:-crop[3]]
+    elif (crop[1] == 0) and (crop[3] != 0): 
+        cropFrame = frame[crop[0]:, crop[2]:-crop[3]]
+    elif (crop[1] == 0) and (crop[3] == 0):
+        cropFrame = frame[crop[0]:, crop[2]:]
+    elif (crop[1] != 0) and (crop[3] == 0):
+        cropFrame = frame[crop[0]:-crop[1], crop[2]:]
+    # Sanity check
+    if cropFrame is None:
+        raise ValueError("Error in crop_frame, cropFrame not set!")
+    if (sum(crop) != 0) and (cropFrame.shape == frame.shape):
+        raise ValueError("Error in crop_frame, shapes equal when they shouldn't be!")
+    elif (sum(crop) == 0) and (cropFrame.shape != frame.shape):
+        raise ValueError("Error in crop_Frame, shapes not equal when they should be!") 
+    return cropFrame
+
+
+
+#============================================
 #             preprocess_frame
 #============================================
 def preprocess_frame(frame, crop, shrink):
@@ -148,8 +201,10 @@ def preprocess_frame(frame, crop, shrink):
     # Grayscale the image
     frame = skimage.color.rgb2grey(frame)
     # Crop the image. We don't need blank space or things on the screen that aren't game
-    # objects
-    frame = frame[crop[0]:-crop[1], crop[2]:-crop[3]]
+    # objects. The crop tuple contains the number of pixels to chop off each dimension.
+    # This poses a problem when that number is 0 (e.g. the slice 0:0 will create an empty
+    # slice).
+    frame = crop_frame(frame, crop)
     # Normalize the image
     frame = frame / 255.
     # To reduce the computational complexity, we can shrink the image
@@ -296,7 +351,7 @@ class Memory():
             # If we're in a terminal state, we need to reset things
             if done:
                 state = env.reset()
-                state, frame_stack = ntack_frames(None, state, True, stack_size, crop,
+                state, frame_stack = stack_frames(None, state, True, stack_size, crop,
                                                   shrink)
             # Otherwise, update the state and continue
             else:
