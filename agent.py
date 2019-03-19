@@ -290,8 +290,8 @@ class Agent():
             # tf needs the batch size as part of the shape. See comment on
             # self.input_shape in the constructor
             state = state.reshape((1, state.shape[0], state.shape[1], state.shape[2]))
-            Q_vals = self.sess.run(self.output,
-                              feed_dict={self.inputs:state})
+            Q_vals = self.sess.run(self.qNet.output,
+                              feed_dict={self.qNet.inputs:state})
             # Choose the one with the highest Q value
             action = np.argmax(Q_vals)
         return action
