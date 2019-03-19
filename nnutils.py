@@ -18,6 +18,9 @@ import skimage
 # Skimage produces a lot of warnings
 warnings.filterwarnings('ignore')
 
+# Architecture register
+archRegister = ['conv1']
+
 # Paradigm register
 paradigmRegister = ['dqn',
                     'fixed-Q']
@@ -57,7 +60,8 @@ def param_file_registers():
     string_params = ['save_path',
                      'ckpt_file',
                      'env_name',
-                     'paradigm']
+                     'paradigm',
+                     'architecture']
     type_register = {'floats' : float_params,
                     'ints' : int_params,
                     'strings' : string_params}
@@ -98,6 +102,7 @@ def read_hyperparams(fname):
     test_flag        : testFlag (bool, whether or not to test the agent)
     env_name         : envName (string, name of the gym environment (game) to use)
     paradigm         : paradigm (string, technique used (e.g., dqn, fixed-Q, etc.))
+    architecture     : architecture (string, the network architecture to use)
     """
     # Assume the file is in the current working directory
     fname = os.path.join(os.getcwd(), fname)
@@ -129,6 +134,8 @@ def read_hyperparams(fname):
         hyperparams['restart_training'] = False
     if hyperparams['paradigm'] not in paradigmRegister:
         raise ValueError("Error, unrecognized paradigm!")
+    if hyperparams['architecture'] not in archRegister:
+        raise ValueError("Error, unrecognized network architecture!")
     return hyperparams
 
 
