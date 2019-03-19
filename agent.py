@@ -333,7 +333,8 @@ class Agent():
         learn. This makes DRL a hybrid cross between supervised and unsupervised learning.
 
         The estimate of the "how well can I do playing optimally from the state my current
-        action brings me to?" is given by the Bellmann equation.
+        action brings me to?" is given by the Bellmann equation. These are the target Q
+        values.
 
         Begin by getting an estimate of the max discounted future reward we can
         achieve by taking the chosen action and then playing optimally from the
@@ -371,10 +372,16 @@ class Agent():
         rewards     = np.array([s[2] for s in sample])
         next_states = np.array([s[3] for s in sample], ndmin=3)
         dones       = np.array([s[4] for s in sample])
-        Q_next = self.sess.run(self.output, feed_dict={self.inputs : next_states})
+        if self.paradigm == 'dqn':
+            Q_next = self.sess.run(self.qNet.output,
+                                    feed_dict={self.qNet.inputs : next_states})
+        elif self.paradigm == 'fixed-Q':
+            Q_next = self.sess.run(self.targetQNet.output,
+                                    feed_dict={self.targetQNet.inputs : next_states})
         # Get an estimate of "how well can I do playing optimally from current state?"
         # This is our current Q table estimate
-        Q_prediction = self.sess.run(self.output, feed_dict={self.inputs : states})
+        Q_prediction = self.sess.run(self.qNet.output,
+                                    feed_dict={self.qNet.inputs : states})
         # Loop over every experience in the sample in order to use them to update the Q
         # table
         for i in range(self.batchSize):
@@ -399,11 +406,10 @@ class Agent():
         # loop in order to minimize the number of calls to sess.run that are needed
         # This requires that actions be reshaped to a column vector
         actions = actions.reshape((self.batchSize, 1))
-        fd = {self.inputs : states,
-                self.target_Q : Q_prediction,
-                self.actions : actions}
-        loss, _ = self.sess.run([self.loss, self.optimizer],
-                            feed_dict=fd)
+        fd = {self.qNet.inputs : states,
+                self.qNet.target_Q : Q_prediction,
+                self.qNet.actions : actions}
+        loss, _ = self.sess.run([self.qNet.loss, self.qNet.optimizer], feed_dict=fd)
         return loss
 
     #-----
