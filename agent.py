@@ -221,7 +221,12 @@ class Agent():
                 # Make sure the directory exists
                 if not os.path.exists(self.saveFilePath):
                     os.mkdir(self.saveFilePath)
-                self.saver.save(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
+                self.qNet.saver.save(self.sess, os.path.join(self.saveFilePath,
+                                    self.ckptFile + '.ckpt'))
+                if self.paradigm == 'fixed-Q':
+                    self.targetQNet.saver.save(self.sess,
+                                            os.path.join(self.saveFilePath,
+                                            self.ckptFile + '-target.ckpt'))
                 nu.save_train_params(decay_step,
                                             self.totalRewards,
                                             self.memory.buffer,
@@ -233,7 +238,12 @@ class Agent():
         if early_abort is False:
             if not os.path.exists(self.saveFilePath):
                 os.mkdir(self.saveFilePath)
-            self.saver.save(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
+            self.qNet.saver.save(self.sess, os.path.join(self.saveFilePath,
+                                self.ckptFile + '.ckpt'))
+            if self.paradigm == 'fixed-Q':
+                self.targetQNet.saver.save(self.sess,
+                                        os.path.join(self.saveFilePath,
+                                        self.ckptFile + '-target.ckpt'))
         if early_abort is True:
             sys.exit()
 
