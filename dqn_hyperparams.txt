@@ -21,3 +21,5 @@ save_path       : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
 save_period     : 1
 restart_training: 1
 ckpt_file       : brick.ckpt
+test_flag       : 0
+env_name        : SpaceInvaders-v0

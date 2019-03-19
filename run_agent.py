@@ -1,13 +1,10 @@
 """
-Title:   space_invaders.py
+Title:   run_agent.py
 Author:  Jared Coughlin
-Date:    1/23/19
-Purpose: Use DQN to teach an agent to play space invaders!
+Date:    3/19/19
+Purpose: Driver code for using DQL to train an agent to play a game
 Notes:  1. This is based on the version in ../../course_version/, which, in turn, is from:
             https://tinyurl.com/ya8d9wcd
-        2. The other version used straight tensorflow, but was disorganized. This is an
-            attempt to clean it up. Keras works great, but is too slow on a laptop for
-            something like this.
 """
 import sys
 
@@ -29,19 +26,20 @@ except (IOError, IndexError) as e:
 
 # Create the gym environment
 print('Building the environment...')
-env = gym.make('SpaceInvaders-v0')
+env = gym.make(hyperparams['envName'])
 
 # Set up the network
 print('Setting up network...')
 tf.reset_default_graph()
 with tf.Session() as sess:
-    dqn = nw.DQNetwork(hyperparams, env, 'dqn', sess)
+    agent = nw.Agent(hyperparams, env, 'agent', sess)
 
     # Train the network
     if hyperparams['train_flag']:
         print('Training...')
-        dqn.train(hyperparams['restart_training'])
+        agent.train(hyperparams['restart_training'])
 
     # Test the network
-    print('Testing agent...')
-    dqn.test(hyperparams['render_flag'])
+    if hyperparams['test_flag']:
+        print('Testing agent...')
+        agent.test(hyperparams['render_flag'])
