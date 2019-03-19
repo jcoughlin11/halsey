@@ -243,7 +243,8 @@ class Agent():
                 nu.save_train_params(decay_step,
                                             self.totalRewards,
                                             self.memory.buffer,
-                                            self.saveFilePath)
+                                            self.saveFilePath,
+                                            fixed_Q_step)
             if early_abort is True:
                 break
                 
