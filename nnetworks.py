@@ -21,9 +21,9 @@ import nnutils as nu
 
 
 #============================================
-#              Deep-Q Network
+#                    Agent
 #============================================
-class DQNetwork():
+class Agent():
     """
     This is the Deep-Q Network class. It defines the network architecture for training the
     agent using Deep-Q learning.

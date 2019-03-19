@@ -48,9 +48,11 @@ def param_file_registers():
                     'shrink_cols',
                     'pretrain_len',
                     'save_period',
-                    'restart_training']
+                    'restart_training',
+                    'test_flag']
     string_params = ['save_path',
-                     'ckpt_file']
+                     'ckpt_file',
+                     'env_name']
     type_register = {'floats' : float_params,
                     'ints' : int_params,
                     'strings' : string_params}
@@ -88,6 +90,8 @@ def read_hyperparams(fname):
     save_period      : savePeriod (int, save model every savePeriod episodes)
     restart_training : restartTraining (int, if 1 start from beginning. If 0, cont)
     ckpt_file        : ckptFile (string, name of the checkpoint file to use when saving)
+    test_flag        : testFlag (bool, whether or not to test the agent)
+    env_name         : envName (string, name of the gym environment (game) to use)
     """
     # Assume the file is in the current working directory
     fname = os.path.join(os.getcwd(), fname)

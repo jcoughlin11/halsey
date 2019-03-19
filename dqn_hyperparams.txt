@@ -18,8 +18,8 @@ shrink_rows     : 110
 shrink_cols     : 84
 pretrain_len    : 64
 save_path       : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
-save_period     : 1
+save_period     : 5
 restart_training: 1
-ckpt_file       : brick.ckpt
+ckpt_file       : si.ckpt
 test_flag       : 0
 env_name        : SpaceInvaders-v0
