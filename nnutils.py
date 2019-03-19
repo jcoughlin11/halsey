@@ -56,7 +56,8 @@ def param_file_registers():
                     'pretrain_len',
                     'save_period',
                     'restart_training',
-                    'test_flag']
+                    'test_flag',
+                    'fixed_Q_steps']
     string_params = ['save_path',
                      'ckpt_file',
                      'env_name',

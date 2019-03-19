@@ -11,7 +11,7 @@ import sys
 import gym
 import tensorflow as tf
 
-import nnetworks as nw
+import agent
 import nnutils as nu
 
 
@@ -32,14 +32,14 @@ env = gym.make(hyperparams['env_name'])
 print('Setting up network...')
 tf.reset_default_graph()
 with tf.Session() as sess:
-    agent = nw.Agent(hyperparams, env, 'agent', sess)
+    ag = agent.Agent(hyperparams, env, sess)
 
     # Train the network
     if hyperparams['train_flag']:
         print('Training...')
-        agent.train(hyperparams['restart_training'])
+        ag.train(hyperparams['restart_training'])
 
     # Test the network
     if hyperparams['test_flag']:
         print('Testing agent...')
-        agent.test(hyperparams['render_flag'])
+        ag.test(hyperparams['render_flag'])

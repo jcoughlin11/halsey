@@ -12,9 +12,8 @@ import time
 
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras as keras
-from tensorflow.train import AdamOptimizer
 
+import nnetworks as nw
 import nnutils as nu
 
 
@@ -25,8 +24,9 @@ import nnutils as nu
 #============================================
 class Agent():
     """
-    This is the Deep-Q Network class. It defines the network architecture for training the
-    agent using Deep-Q learning.
+    This is the Agent class. It contains all of the methods for using various RL
+    techniques in order to learn to play games based on just the pixels on the game
+    screen.
 
     Parameters:
     -----------
@@ -65,14 +65,14 @@ class Agent():
         self.epsDecayRate    = hyperparams['eps_decay_rate']
         self.epsilonStart    = hyperparams['epsilon_start']
         self.epsilonStop     = hyperparams['epsilon_stop']
+        self.fixedQSteps     = hyperparams['fixed_Q_steps']
         self.learningRate    = hyperparams['learning_rate']
         self.maxEpSteps      = hyperparams['max_steps']
         self.memSize         = hyperparams['memory_size']
-        self.model           = None
-        self.name            = name
         self.nEpisodes       = hyperparams['n_episodes']
         self.paradigm        = hyperparams['paradigm']
         self.preTrainLen     = hyperparams['pretrain_len']
+        self.qNet            = None
         self.renderFlag      = hyperparams['render_flag']
         self.restartTraining = hyperparams['restart_training']
         self.savePeriod      = hyperparams['save_period']
@@ -82,6 +82,7 @@ class Agent():
         self.shrinkCols      = hyperparams['shrink_cols'] 
         self.shrinkRows      = hyperparams['shrink_rows']
         self.stackSize       = hyperparams['nstacked_frames']
+        self.targetQNet      = None
         self.totalRewards    = []
         # Seed rng
         np.random.seed(int(time.time()))
@@ -104,93 +105,10 @@ class Agent():
                                 self.crop,
                                 self.shrink)
         # Build the network
-        self.model = self.build(self.name)
-        if self.paradigm == 'fixed-Q':
-            self.targetModel = self.build()
-
-    #-----
-    # Build
-    #-----
-    def build(self, netName):
-        """
-        This function constructs the layers of the network.
-        """
-        # Make sure model has not already been initialized
-        if self.model is not None:
-            raise("Error, model aleady built!")
-        else:
-            with tf.variable_scope(netName):
-                # Placeholders (anything that needs to be fed from the outside)
-                # Input. This is the stack of frames from the game
-                self.inputs = tf.placeholder(tf.float32,
-                                            shape=self.input_shape,
-                                            name='inputs')
-                # Actions. The action the agent chose. Used to get the predicted Q value
-                self.actions = tf.placeholder(tf.float32,
-                                              shape=[None, 1],
-                                              name='actions')
-                # Target Q. The max discounted future reward playing from next state
-                # after taking chosen action. Determined by Bellmann equation.
-                self.target_Q = tf.placeholder(tf.float32,
-                                               shape=[None, self.env.action_space.n],
-                                               name='target')
-
-                # First convolutional layer
-                self.conv1 = tf.layers.conv2d(inputs=self.inputs,
-                    filters=32,
-                    kernel_size=[8,8],
-                    strides=[4,4],
-                    padding='VALID',
-                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-                    name='conv1')
-                # First convolutional layer activation
-                self.conv1_out = tf.nn.elu(self.conv1, name='conv1_out')
-
-                # Second convolutional layer
-                self.conv2 = tf.layers.conv2d(inputs=self.conv1_out,
-                    filters=64,
-                    kernel_size=[4,4],
-                    strides=[2,2],
-                    padding='VALID',
-                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-                    name='conv2')
-                # Second convolutional layer activation
-                self.conv2_out = tf.nn.elu(self.conv2, name='conv2_out')
-
-                # Third convolutional layer
-                self.conv3 = tf.layers.conv2d(inputs=self.conv2_out,
-                    filters=64,
-                    kernel_size=[3,3],
-                    strides=[2,2],
-                    padding='VALID',
-                    kernel_initializer=tf.contrib.layers.xavier_initializer_conv2d(),
-                    name='conv3')
-                # Third convolutional layer activation
-                self.conv3_out = tf.nn.elu(self.conv3, name='conv3_out')
-
-                # Flatten
-                self.flatten = tf.contrib.layers.flatten(self.conv3_out)
-                # FC layer
-                self.fc = tf.layers.dense(inputs=self.flatten,
-                    units=512,
-                    activation=tf.nn.elu,
-                    kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                    name='fc1')
-                # Output layer (FC)
-                self.output = tf.layers.dense(inputs=self.fc,
-                    units=self.env.action_space.n,
-                    activation=None,
-                    kernel_initializer=tf.contrib.layers.xavier_initializer())
-
-                # Get the predicted Q value
-                self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions))
-
-                # Get the error (MSE)
-                self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
-
-                # Optimizer
-                self.optimizer = AdamOptimizer(self.learningRate).minimize(self.loss)
-        self.saver = tf.train.Saver()
+        self.qNet = nw.DQN('qnet', hyperparams['architecture'])
+        # If applicable, build the second network for use with the fixed-Q technique
+        if hyperparams['paradigm'] == 'fixed-Q':
+            self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'])
 
     #----
     # Train
