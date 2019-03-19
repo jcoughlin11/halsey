@@ -138,13 +138,18 @@ class Agent():
                                             self.ckptFile + '-target.ckpt'))
             train_params = nu.load_train_params(self.saveFilePath,
                                                     self.memory.max_size)
-            start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
+            start_ep,\
+            decay_step,\
+            self.totalRewards,\
+            self.memory.buffer,\
+            fixed_Q_step = train_params
         else:
             # Initialize tensorflow variables
             self.sess.run(tf.global_variables_initializer())
             # Set up the decay step for the epsilon-greedy search
             decay_step = 0
             start_ep = 0
+            fixed_Q_step = 0
         # Loop over desired number of training episodes
         for episode in range(start_ep, self.nEpisodes):
             print('Episode: %d / %d' % (episode + 1, self.nEpisodes))
@@ -169,6 +174,7 @@ class Agent():
                 # Increase step counters
                 step += 1
                 decay_step += 1
+                fixed_Q_step += 1
                 # Choose an action
                 action = self.choose_action(state, decay_step)
                 # Perform action
@@ -187,6 +193,13 @@ class Agent():
                 self.memory.add(experience)
                 # Learn from the experience
                 loss = self.learn()
+                # Update the targetQNet if applicable
+                if self.paradigm == 'fixed-Q':
+                    if fixed_Q_step > self.fixedQSteps:
+                        fixed_Q_step = 0
+                        updateTarget = self.update_target_graph()
+                        self.sess.run(updateTarget)
+                        print("Target network updated!")
                 # Set up for next episode if we're in a terminal state
                 if done:
                     # Get total reward for episode
@@ -473,3 +486,34 @@ class Agent():
                     state = next_state
         # Close the environment when we're done
         self.env.close()
+
+    #-----
+    # update_target_graph
+    #-----
+    def update_target_graph(self):
+        """
+        This function handles copying over the parameters from qNet to targetQNet in
+        order to update the target network when using the fixed-Q paradigm. See notes
+        from 3/6/19.
+
+        Parameters:
+        -----------
+            None
+
+        Returns:
+        --------
+            opHolder : list
+                This is a list of tensorflow variables from qNet to be copied over to
+                targetQNet
+        """
+        # Get variables to copy
+        fromVars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'qNet')
+        # Get variables to be updated
+        toVars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 'targetQNet')
+        # Initialize the list to hold variables to be updated and the values to update
+        # them with
+        opHolder = []
+        # Fill in the list
+        for fromVar, toVar in zip(fromVars, toVars):
+            opHolder.append(toVar.assign(fromVar))
+        return opHolder
