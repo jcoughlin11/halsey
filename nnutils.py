@@ -433,7 +433,7 @@ class Memory():
 #============================================
 #             save_train_params 
 #============================================
-def save_train_params(decay, rewards, mem, path):
+def save_train_params(decay, rewards, mem, path, qstep):
     """
     This function saves the crucial training parameters needed in order to continue
     where training left off.
@@ -455,6 +455,10 @@ def save_train_params(decay, rewards, mem, path):
         path : string
             Place to save this information
 
+        qstep : int
+            The current step that we're on with regards to when the targetQNet should
+            be updated. Only matters if paradigm == fixed-Q.
+
     Returns:
     --------
         None
@@ -462,6 +466,7 @@ def save_train_params(decay, rewards, mem, path):
     # Episode, decay, and episode rewards
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
         f.write(str(decay) + '\n')
+        f.write(str(qstep) + '\n')
         for i in range(len(rewards)):
             f.write(str(rewards[i]) + '\n')
     # States
@@ -501,12 +506,13 @@ def load_train_params(path, max_len):
     Returns:
     --------
         train_params : tuple
-            (start_episode, decay_step, totalRewards, memory)
+            (start_episode, decay_step, totalRewards, memory, qstep)
     """
     # Read the ep_decay_reward file
     with open(os.path.join(path, 'ep_decay_reward.txt'), 'r') as f:
         # Decay step
         decay_step = int(f.readline())
+        qstep = int(f.readline())
         # Episode rewards
         ep_rewards = []
         for line in f:
@@ -535,5 +541,5 @@ def load_train_params(path, max_len):
         exp = (states[key], actions[key], rewards[key], next_states[key], dones[key])
         buf.append(exp)
     # Package everything up
-    train_params = (ep, decay_step, ep_rewards, buf)
+    train_params = (ep, decay_step, ep_rewards, buf, qstep)
     return train_params
