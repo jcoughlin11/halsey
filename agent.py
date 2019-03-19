@@ -432,7 +432,8 @@ class Agent():
             None
         """
         # Load model
-        self.saver.restore(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
+        self.qNet.saver.restore(self.sess, os.path.join(self.saveFilePath,
+                                self.ckptFilei + '.ckpt'))
         # Play game
         for episode in range(1):
             episode_reward = 0
@@ -449,7 +450,8 @@ class Agent():
                 # self.input_shape in the constructor
                 state = state.reshape((1, state.shape[0], state.shape[1], state.shape[2]))
                 # Get what network thinks is the best action for current state
-                Q_values = self.sess.run(self.output, feed_dict={self.inputs : state})
+                Q_values = self.sess.run(self.qNet.output,
+                                        feed_dict={self.qNet.inputs : state})
                 action = np.argmax(Q_values)
                 # Take chosen action
                 next_state, reward, done, _ = self.env.step(action)
