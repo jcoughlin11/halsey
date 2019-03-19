@@ -26,7 +26,7 @@ except (IOError, IndexError) as e:
 
 # Create the gym environment
 print('Building the environment...')
-env = gym.make(hyperparams['envName'])
+env = gym.make(hyperparams['env_name'])
 
 # Set up the network
 print('Setting up network...')
