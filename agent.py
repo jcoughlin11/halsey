@@ -51,7 +51,7 @@ class Agent():
     #-----
     # Constructor
     #-----
-    def __init__(self, hyperparams, env, name, sess):
+    def __init__(self, hyperparams, env, sess):
         # Initialize
         self.batchSize       = hyperparams['batch_size']
         self.callbacks       = None
@@ -131,7 +131,11 @@ class Agent():
         # Initialize the tensorflow session (uses default graph)
         # See if we need to load a saved model to continue training
         if restart is False:
-            self.saver.restore(self.sess, os.path.join(self.saveFilePath, self.ckptFile))
+            self.qNet.saver.restore(self.sess, os.path.join(self.saveFilePath,
+                                    self.ckptFile + '.ckpt'))
+            if self.paradigm == 'fixed-Q':
+                self.targetQNet.saver.restore(self.sess, os.path.join(self.saveFilePath,
+                                            self.ckptFile + '-target.ckpt'))
             train_params = nu.load_train_params(self.saveFilePath,
                                                     self.memory.max_size)
             start_ep, decay_step, self.totalRewards, self.memory.buffer = train_params
