@@ -114,7 +114,7 @@ class DQN():
                 activation=None,
                 kernel_initializer=tf.contrib.layers.xavier_initializer())
 
-            # Get the predicted Q value
+            # Get the predicted Q value. 
             self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions))
 
             # Get the error (MSE)

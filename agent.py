@@ -147,6 +147,13 @@ class Agent():
         else:
             # Initialize tensorflow variables
             self.sess.run(tf.global_variables_initializer())
+            # Now that the global variable initializer has been run, we can copy the
+            # weights from qNet to targetQNet if using the fixed-Q paradigm. If I've
+            # done this right, this should make it so both networks now have the same
+            # weights when training starts
+            if self.paradigm == 'fixed-Q':
+                updateTarget = self.update_target_graph()
+                self.sess.run(updateTarget)
             # Set up the decay step for the epsilon-greedy search
             decay_step = 0
             start_ep = 0
