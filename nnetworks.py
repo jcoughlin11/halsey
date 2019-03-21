@@ -114,7 +114,7 @@ class DQN():
                 name='fc1')
             # Output layer (FC)
             self.output = tf.layers.dense(inputs=self.fc,
-                units=self.nAction,
+                units=self.nActions,
                 activation=None,
                 kernel_initializer=tf.contrib.layers.xavier_initializer())
 
