@@ -37,11 +37,12 @@ class DQN():
     #-----
     # Constructor
     #-----
-    def __init__(self, netName, architecture, inputShape, nActions):
+    def __init__(self, netName, architecture, inputShape, nActions, learningRate):
         self.name  = netName
         self.arch  = architecture
         self.inputShape = inputShape
         self.nActions = nActions
+        self.learningRate = learningRate
         # Build the network
         if self.arch == 'conv1':
             self.build_conv1_net()
