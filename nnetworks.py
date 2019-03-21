@@ -30,14 +30,18 @@ class DQN():
         inputShape : tuple
             This is the dimensions of the input image stack. It's
             batchSize x nrows x ncols x nstacked.
+
+        nActions : int
+            The size of the environment's action space
     """
     #-----
     # Constructor
     #-----
-    def __init__(self, netName, architecture, inputShape):
+    def __init__(self, netName, architecture, inputShape, nActions):
         self.name  = netName
         self.arch  = architecture
         self.inputShape = inputShape
+        self.nActions = nActions
         # Build the network
         if self.arch == 'conv1':
             self.build_conv1_net()
@@ -110,7 +114,7 @@ class DQN():
                 name='fc1')
             # Output layer (FC)
             self.output = tf.layers.dense(inputs=self.fc,
-                units=self.env.action_space.n,
+                units=self.nAction,
                 activation=None,
                 kernel_initializer=tf.contrib.layers.xavier_initializer())
 
