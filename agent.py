@@ -400,12 +400,9 @@ class Agent():
         elif self.paradigm == 'fixed-Q':
             Q_next = self.sess.run(self.targetQNet.output,
                                     feed_dict={self.targetQNet.inputs : next_states})
-        # Get an estimate of "how well can I do playing optimally from current state?"
-        # This is our current Q table estimate
-        Q_prediction = self.sess.run(self.qNet.output,
-                                    feed_dict={self.qNet.inputs : states})
         # Loop over every experience in the sample in order to use them to update the Q
         # table
+        targetQ = np.zeros(self.batchSize)
         for i in range(self.batchSize):
             # Begin by getting an estimate of the max discounted future reward we can
             # achieve by taking the chosen action and then playing optimally from the
@@ -415,13 +412,10 @@ class Agent():
             # brought us to is just the reward given by the terminal state (since there
             # are no other states after it).
             if dones[i]:
-                Q_target = rewards[i]
+                targetQ[i] = rewards[i]
             # Otherwise, use the Bellmann equation
             else:
-                Q_target = rewards[i] + self.discountRate * np.amax(Q_next[i])
-            # Use Q_target to update the Q table. The values for the other actions stay
-            # the same
-            Q_prediction[i][actions[i]] = Q_target
+                targetQ[i] = rewards[i] + self.discountRate * np.amax(Q_next[i])
         # Update network weights using the state as input and the updated Q values as
         # "labels." tf evaluates each element in the list it's given and returns one
         # value for each element. Note that this is called outside of the above for
@@ -429,7 +423,7 @@ class Agent():
         # This requires that actions be reshaped to a column vector
         actions = actions.reshape((self.batchSize, 1))
         fd = {self.qNet.inputs : states,
-                self.qNet.target_Q : Q_prediction,
+                self.qNet.target_Q : targetQ,
                 self.qNet.actions : actions}
         loss, _ = self.sess.run([self.qNet.loss, self.qNet.optimizer], feed_dict=fd)
         return loss

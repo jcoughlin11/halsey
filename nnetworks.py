@@ -64,7 +64,7 @@ class DQN():
             # Target Q. The max discounted future reward playing from next state
             # after taking chosen action. Determined by Bellmann equation.
             self.target_Q = tf.placeholder(tf.float32,
-                                           shape=[None, self.env.action_space.n],
+                                           shape=[None],
                                            name='target')
 
             # First convolutional layer
