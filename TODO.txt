@@ -1,5 +1,1 @@
-1.) Make sure that the way I update my Q table is correct. Compare it to algorithm 1 in the
-    Nature paper. They don't do the Q_prediction[][] = Q_target thing. They just have the
-    loss be (target - pred)^2. My network is set up that way, but I think I'm calling it
-    wrong.
-2.) Make sure I implemented fixed-Q correctly in learn()
+All good!
