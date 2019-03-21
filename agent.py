@@ -209,7 +209,6 @@ class Agent():
                         fixed_Q_step = 0
                         updateTarget = self.update_target_graph()
                         self.sess.run(updateTarget)
-                        print("Target network updated!")
                 # Set up for next episode if we're in a terminal state
                 if done:
                     # Get total reward for episode
