@@ -105,10 +105,11 @@ class Agent():
                                 self.crop,
                                 self.shrink)
         # Build the network
-        self.qNet = nw.DQN('qnet', hyperparams['architecture'])
+        self.qNet = nw.DQN('qnet', hyperparams['architecture'], self.input_shape)
         # If applicable, build the second network for use with the fixed-Q technique
         if hyperparams['paradigm'] == 'fixed-Q':
-            self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'])
+            self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'],
+                                    self.input_shape)
 
     #----
     # Train

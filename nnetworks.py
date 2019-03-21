@@ -26,13 +26,18 @@ class DQN():
         architecture : string
             The network architecture to use. These are specified as methods within this
             class, so this class can be used as a black box.
+
+        inputShape : tuple
+            This is the dimensions of the input image stack. It's
+            batchSize x nrows x ncols x nstacked.
     """
     #-----
     # Constructor
     #-----
-    def __init__(self, netName, architecture):
+    def __init__(self, netName, architecture, inputShape):
         self.name  = netName
         self.arch  = architecture
+        self.inputShape = inputShape
         # Build the network
         if self.arch == 'conv1':
             self.build_conv1_net()
@@ -50,7 +55,7 @@ class DQN():
             # Placeholders (anything that needs to be fed from the outside)
             # Input. This is the stack of frames from the game
             self.inputs = tf.placeholder(tf.float32,
-                                        shape=self.input_shape,
+                                        shape=self.inputShape,
                                         name='inputs')
             # Actions. The action the agent chose. Used to get the predicted Q value
             self.actions = tf.placeholder(tf.float32,
