@@ -108,7 +108,9 @@ class Agent():
         # Build the network
         self.qNet = nw.DQN('qnet', hyperparams['architecture'], self.input_shape,
                             self.env.action_space.n, self.learningRate)
-        # If applicable, build the second network for use with the fixed-Q technique
+        # If applicable, build the second network for use with the fixed-Q technique.
+        # This also creates the second network for double dqn since fixed-Q is required
+        # for that
         if hyperparams['fixedQ'] == 1:
             self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'],
                                     self.input_shape, self.env.action_space.n,
@@ -396,8 +398,24 @@ class Agent():
         rewards     = np.array([s[2] for s in sample])
         next_states = np.array([s[3] for s in sample], ndmin=3)
         dones       = np.array([s[4] for s in sample])
+        # Double dqn
+        if self.doubleDQN == 1:
+            # Double dqn attempts to deal with the following issue: when we choose the
+            # action that gives rise to the highest Q value for the next state, how do
+            # we know that that's actually the best action? Since we're learning from
+            # experience, our estimated Q values depend on which actions have been tried
+            # and which neighboring states have been visited. As such, double dqn
+            # separates out the estimate of the Q value and the determination of the best
+            # action to take at the next state. We use our primary network to choose an
+            # action for the next state and then pass that action to our target network,
+            # which handles calculating the target Q value. That is:
+            # Q_target(s,a) = r(s,a) + gamma * Q_target(s', argmax(Q(s',a)))
+            Q_next = self.sess.run(self.qNet.output,
+                                    feed_dict={self.qNet.inputs : next_states})
+            Q_target_next = self.sess.run(self.targetQNet.output,
+                                        feed_dict={self.targetQNet.inputs : next_states})
         # Fixed Q
-        if self.fixedQ == '1':
+        elif self.fixedQ == 1:
             Q_next = self.sess.run(self.targetQNet.output,
                                     feed_dict={self.targetQNet.inputs : next_states})
         # Standard dqn
@@ -419,7 +437,14 @@ class Agent():
                 targetQ[i] = rewards[i]
             # Otherwise, use the Bellmann equation
             else:
-                targetQ[i] = rewards[i] + self.discountRate * np.amax(Q_next[i])
+                # If using double dqn, this is where we apply the Q value for the action
+                # chosen by our target network (see eq in double_dqn if block above)
+                if self.doubleDQN == 1:
+                    action = np.argmax(Q_next[i])
+                    targetQ[i] = rewards[i] + self.discountRate * Q_target_next[i][action]
+                # Normal DQL method: uses action that gives max Q value for next state
+                else:
+                    targetQ[i] = rewards[i] + self.discountRate * np.amax(Q_next[i])
         # Update network weights using the state as input and the updated Q values as
         # "labels." tf evaluates each element in the list it's given and returns one
         # value for each element. Note that this is called outside of the above for
