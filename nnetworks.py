@@ -131,7 +131,7 @@ class DQN():
     #-----
     # build_dueling1_net
     #-----
-    def build_dueling_net(self):
+    def build_dueling1_net(self):
         """
         This function constructs the layers of the network. Three conv layers followed by
         dueling DQN, which splits into two streams: one for value and one for advantage
