@@ -61,16 +61,17 @@ class Agent():
         self.cropRight       = hyperparams['crop_right']
         self.cropTop         = hyperparams['crop_top']
         self.discountRate    = hyperparams['discount']
+        self.doubleDQN       = hyperparams['double_dqn']
         self.env             = env
         self.epsDecayRate    = hyperparams['eps_decay_rate']
         self.epsilonStart    = hyperparams['epsilon_start']
         self.epsilonStop     = hyperparams['epsilon_stop']
+        self.fixedQ          = hyperparams['fixed_Q']
         self.fixedQSteps     = hyperparams['fixed_Q_steps']
         self.learningRate    = hyperparams['learning_rate']
         self.maxEpSteps      = hyperparams['max_steps']
         self.memSize         = hyperparams['memory_size']
         self.nEpisodes       = hyperparams['n_episodes']
-        self.paradigm        = hyperparams['paradigm']
         self.preTrainLen     = hyperparams['pretrain_len']
         self.qNet            = None
         self.renderFlag      = hyperparams['render_flag']
@@ -108,7 +109,7 @@ class Agent():
         self.qNet = nw.DQN('qnet', hyperparams['architecture'], self.input_shape,
                             self.env.action_space.n, self.learningRate)
         # If applicable, build the second network for use with the fixed-Q technique
-        if hyperparams['paradigm'] == 'fixed-Q':
+        if hyperparams['fixedQ'] == 1:
             self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'],
                                     self.input_shape, self.env.action_space.n,
                                     self.learningRate)
@@ -136,7 +137,7 @@ class Agent():
         if restart is False:
             self.qNet.saver.restore(self.sess, os.path.join(self.saveFilePath,
                                     self.ckptFile + '.ckpt'))
-            if self.paradigm == 'fixed-Q':
+            if self.fixedQ == 1:
                 self.targetQNet.saver.restore(self.sess, os.path.join(self.saveFilePath,
                                             self.ckptFile + '-target.ckpt'))
             train_params = nu.load_train_params(self.saveFilePath,
@@ -150,10 +151,10 @@ class Agent():
             # Initialize tensorflow variables
             self.sess.run(tf.global_variables_initializer())
             # Now that the global variable initializer has been run, we can copy the
-            # weights from qNet to targetQNet if using the fixed-Q paradigm. If I've
+            # weights from qNet to targetQNet if using fixed-Q . If I've
             # done this right, this should make it so both networks now have the same
             # weights when training starts
-            if self.paradigm == 'fixed-Q':
+            if self.fixedQ == 1:
                 updateTarget = self.update_target_graph()
                 self.sess.run(updateTarget)
             # Set up the decay step for the epsilon-greedy search
@@ -204,7 +205,7 @@ class Agent():
                 # Learn from the experience
                 loss = self.learn()
                 # Update the targetQNet if applicable
-                if self.paradigm == 'fixed-Q':
+                if self.fixedQ == 1:
                     if fixed_Q_step > self.fixedQSteps:
                         fixed_Q_step = 0
                         updateTarget = self.update_target_graph()
@@ -245,7 +246,7 @@ class Agent():
                     os.mkdir(self.saveFilePath)
                 self.qNet.saver.save(self.sess, os.path.join(self.saveFilePath,
                                     self.ckptFile + '.ckpt'))
-                if self.paradigm == 'fixed-Q':
+                if self.fixedQ == 1:
                     self.targetQNet.saver.save(self.sess,
                                             os.path.join(self.saveFilePath,
                                             self.ckptFile + '-target.ckpt'))
@@ -263,7 +264,7 @@ class Agent():
                 os.mkdir(self.saveFilePath)
             self.qNet.saver.save(self.sess, os.path.join(self.saveFilePath,
                                 self.ckptFile + '.ckpt'))
-            if self.paradigm == 'fixed-Q':
+            if self.fixedQ == 1:
                 self.targetQNet.saver.save(self.sess,
                                         os.path.join(self.saveFilePath,
                                         self.ckptFile + '-target.ckpt'))
@@ -395,12 +396,14 @@ class Agent():
         rewards     = np.array([s[2] for s in sample])
         next_states = np.array([s[3] for s in sample], ndmin=3)
         dones       = np.array([s[4] for s in sample])
-        if self.paradigm == 'dqn':
-            Q_next = self.sess.run(self.qNet.output,
-                                    feed_dict={self.qNet.inputs : next_states})
-        elif self.paradigm == 'fixed-Q':
+        # Fixed Q
+        if self.fixedQ == '1':
             Q_next = self.sess.run(self.targetQNet.output,
                                     feed_dict={self.targetQNet.inputs : next_states})
+        # Standard dqn
+        else:
+            Q_next = self.sess.run(self.qNet.output,
+                                    feed_dict={self.qNet.inputs : next_states})
         # Loop over every experience in the sample in order to use them to update the Q
         # table
         targetQ = np.zeros(self.batchSize)
@@ -497,7 +500,7 @@ class Agent():
     def update_target_graph(self):
         """
         This function handles copying over the parameters from qNet to targetQNet in
-        order to update the target network when using the fixed-Q paradigm. See notes
+        order to update the target network when using fixed-Q. See notes
         from 3/6/19.
 
         Parameters:

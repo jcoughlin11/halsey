@@ -23,6 +23,7 @@ restart_training: 1
 ckpt_file       : si
 test_flag       : 0
 env_name        : SpaceInvaders-v0
-paradigm        : fixed-Q
 architecture    : conv1
+fixed_Q         : 1
 fixed_Q_steps   : 10
+double_dqn      : 1

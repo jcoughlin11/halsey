@@ -21,10 +21,6 @@ warnings.filterwarnings('ignore')
 # Architecture register
 archRegister = ['conv1']
 
-# Paradigm register
-paradigmRegister = ['dqn',
-                    'fixed-Q']
-
 
 
 #============================================
@@ -57,16 +53,48 @@ def param_file_registers():
                     'save_period',
                     'restart_training',
                     'test_flag',
-                    'fixed_Q_steps']
+                    'fixed_Q_steps',
+                    'fixed_Q',
+                    'double_dqn']
     string_params = ['save_path',
                      'ckpt_file',
                      'env_name',
-                     'paradigm',
                      'architecture']
     type_register = {'floats' : float_params,
                     'ints' : int_params,
                     'strings' : string_params}
     return type_register
+
+
+
+#============================================
+#        check_agent_option_conflicts
+#============================================
+def check_agent_option_conflicts(params):
+    """
+    This function checks for any conflicts between techniques that have been turned on
+    in the parameter file.
+
+    Parameters:
+    -----------
+        params : dict
+            The parameters read in from the parameter file. It was easier to pass the
+            whole dict rather than specific options since I don't yet know all of the
+            options that will be included
+
+    Returns:
+    --------
+        conflict_flag : int
+            If 0, a conflict was found and the code will abort. The error message is
+            generated nad printed from within this function. If 1, then everything is
+            fine (hopefully!)
+    """
+    conflict_flag = 1
+    # Double DQN requires fixed-Q
+    if (params['double_dqn'] == 1) and (params['fixed_Q'] != 1):
+        print("Error, double dqn requires the use of fixed Q!")
+        conflict_flag = 0
+    return conflict_flag
 
 
 
@@ -102,8 +130,10 @@ def read_hyperparams(fname):
     ckpt_file        : ckptFile (string, name of the checkpoint file to use when saving)
     test_flag        : testFlag (bool, whether or not to test the agent)
     env_name         : envName (string, name of the gym environment (game) to use)
-    paradigm         : paradigm (string, technique used (e.g., dqn, fixed-Q, etc.))
     architecture     : architecture (string, the network architecture to use)
+    fixed_Q          : fixedQ (int, 0 if not using, 1 if using the fixed-Q technique)
+    fixed_Q_steps    : fixedQSteps (int, steps between weights copies w/ fixed-Q)
+    double_dqn       : doubleDQN (int, 0 if not using, 1 if using double DQN technique)
     """
     # Assume the file is in the current working directory
     fname = os.path.join(os.getcwd(), fname)
@@ -129,14 +159,17 @@ def read_hyperparams(fname):
                 print('Hyperparameter not found!')
                 raise IOError
             hyperparams[key] = value
+    # Convert from int to bool where appropriate (see TODO)
     if hyperparams['restart_training'] == 1:
         hyperparams['restart_training'] = True
     else:
         hyperparams['restart_training'] = False
-    if hyperparams['paradigm'] not in paradigmRegister:
-        raise ValueError("Error, unrecognized paradigm!")
+    # Check to make sure the architecture has been defined
     if hyperparams['architecture'] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
+    # Check for option conflicts
+    if check_agent_option_conflicts(hyperparams) == 0:
+        sys.exit(0)
     return hyperparams
 
 
@@ -457,7 +490,7 @@ def save_train_params(decay, rewards, mem, path, qstep):
 
         qstep : int
             The current step that we're on with regards to when the targetQNet should
-            be updated. Only matters if paradigm == fixed-Q.
+            be updated. Only matters if using fixed-Q.
 
     Returns:
     --------
