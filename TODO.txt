@@ -1,4 +1,2 @@
 1.) Add a boolean register to nnutils so that flags in the param file can be more easily
 converted to bool values
-2.) Add a function to the agent that checks for option conflicts. Not needed right now
-since nothing is mutally exclusive, but there might be such options in the future
