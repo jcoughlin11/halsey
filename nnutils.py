@@ -577,3 +577,118 @@ def load_train_params(path, max_len):
     # Package everything up
     train_params = (ep, decay_step, ep_rewards, buf, qstep)
     return train_params
+
+
+
+#============================================
+#               Sumtree Class
+#============================================
+class Sumtree():
+    """
+    Prioritized experience replay makes use of a sum tree to efficiently store and fetch
+    data. A sum tree is a binary tree where the value of each node is the sum of the
+    values in the nodes in its left and right subtrees. Here, the actual priorities are
+    stored in the leaf nodes of the tree. This is an unsorted tree.
+    
+    Assuming a perfectly balanced tree, the number of nodes in the tree is 
+    nNodes = 2 * nLeafs - 1. This is because, in a binary tree, the number of nodes at
+    a given level is twice the number of nodes in the level before it. We then have to
+    subract off 1 because at the root level there is only one node. This assumes a 
+    perfectly balanced tree (that is, every node has both a left and right child and
+    that each subtree descends to the same level), i.e.,
+
+                                    o
+                                   / \
+                                  o   o
+                                 / \ / \
+                                o  o o  o
+
+    The nodes are stored in an array level-wise. That is, root is index 0, root's left
+    child is at index 1, root's right child is at index 2, then we go to the next level
+    down and go across left to right. As such, the indices of the leaf nodes start at
+    nLeafs - 1 and continue on to the end of the array. 
+
+    Parameters:
+    -----------
+        nLeafs : int
+            The number of leaf nodes the tree will have. This is equal to the number of
+            experiences we want to store, since the priorities for each experience go
+            into the leaf nodes.
+`
+    Attributes:
+    -----------
+        dataPointer : int
+            The leaves of the tree are filled from left to right. This is an index that
+            keeps track of where we are in the leaf row of the tree.
+
+        tree : ndarray
+            This is an array used to store the actual sum tree.
+
+        data : ndarray
+            Attached to each leaf is a priority (stored in the tree attribute) as well as
+            the actual experience that has that priority. This array holds the experience
+            tuples.
+
+    Methods:
+    --------
+    """
+    #-----
+    # Constructor
+    #-----
+    def __init__(self, nLeafs):
+        self.nLeafs = nLeafs
+        self.dataPointer = 0
+        self.tree = np.zeros(2 * self.nLeafs - 1)
+        self.data = np.zeros(self.nLeafs, dtype=object)
+
+    #-----
+    # add
+    #-----
+    def add(self, priority, data):
+        """
+        This function takes in an experience as well as the priority assigned to that
+        experience, and assigns it to a leaf node in the tree, propagating the the
+        changes throughout the rest of the tree.
+
+        Parameters:
+        -----------
+            priority : float
+                The priority that has been assigned to this particular experience
+
+            data : tuple
+                The experience tuple being added to the tree
+
+        Returns:
+        --------
+            None
+        """
+        # Get the index of the array corresponding to the current leaf node
+        tree_index = self.dataPointer + self.nLeafs - 1
+        # Insert the experience at this location (NOTE: doesn't this overwrite the
+        # experience that's currently stored there? Wouldn't you want to first make
+        # a copy so that it can be properly shifted to a new leaf node?)
+        self.data[self.dataPointer] = data
+        # Update the tree
+        self.update(tree_index, priority)
+        # Advance to the next leaf
+        self.dataPointer += 1
+        # If we're above the max value, then we go back to the beginning
+        if self.dataPointer >= self.nLeafs:
+            self.dataPointer = 0
+
+    #-----
+    # update
+    #-----
+    def update(self, tree_index, priority):
+        """
+        This function handles updating the current leaf's priority score and then
+        propagating that change throughout the rest of the tree.
+
+        Parameters:
+        -----------
+            tree_index : int
+                The index of self.tree that corresponds to the current leaf node
+
+            priority : float
+                The value of the priority to assign to the current leaf node
+        """
