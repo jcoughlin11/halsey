@@ -111,7 +111,7 @@ class Agent():
         # If applicable, build the second network for use with the fixed-Q technique.
         # This also creates the second network for double dqn since fixed-Q is required
         # for that
-        if hyperparams['fixedQ'] == 1:
+        if self.fixedQ == 1:
             self.targetQNet = nw.DQN('targetQNet', hyperparams['architecture'],
                                     self.input_shape, self.env.action_space.n,
                                     self.learningRate)
