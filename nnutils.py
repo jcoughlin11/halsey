@@ -19,7 +19,8 @@ import skimage
 warnings.filterwarnings('ignore')
 
 # Architecture register
-archRegister = ['conv1']
+archRegister = ['conv1',
+                'dueling1']
 
 
 
