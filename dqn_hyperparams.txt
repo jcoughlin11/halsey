@@ -31,3 +31,4 @@ per             : 1
 per_a           : 0.6
 per_b           : 0.4
 per_e           : 0.01
+per_b_anneal    : 0.001
