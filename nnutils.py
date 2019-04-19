@@ -692,3 +692,81 @@ class Sumtree():
             priority : float
                 The value of the priority to assign to the current leaf node
         """
+
+
+
+#============================================
+#           PriorityMemory Class
+#============================================
+class PriorityMemory(Memory):
+    """
+    This class serves as the memory buffer in the case that prioritized experience
+    replay is being used. It functions in much the same way as Memory(), but employs a
+    SumTree() instead of a deque. This means that the adding and sampling methods are
+    different.
+
+    Parameters:
+    -----------
+        max_size : int
+            The max number of experience tuples the buffer can hold before it begins to
+            "forget" experiences (i.e., they are overwritten)
+
+        pretrain_len : int
+            The number of initial, samply/dummy experiences to full the buffer with so
+            we don't run into the empty memory problem when trying to train initially
+
+        env : gym environment
+            The environment for the game. Used to pre-populate the memory buffer
+
+        stack_size : int
+            Number of frames to stack
+
+        crop : tuple
+            (top, bot, left, right) to chop off each edge of the frame
+
+        shrink : tuple
+            (x,y) size of the shrunk frame
+
+    Methods:
+    --------
+        pass
+
+    Attributes:
+    -----------
+        pass
+    """
+    #-----
+    # Constructor
+    #-----
+    def __init__(self, max_size, pretrain_len, env, stack_size, crop, shrink):
+        # Call parent's constructor
+        super().__init__(max_size, pretrain_len, env, stack_size, crop, shrink)
+        # Overload the buffer
+        self.buffer = SumTree(self.max_size)
+
+    #-----
+    # Add
+    #-----
+    def add(self, experience):
+        """
+        This function stores the newest experience tuple, along with a priority, to the
+        buffer. According to Schaul16 algorithm 1, the new experiences are added with a
+        priority equal to the current max priority in the tree.
+
+        Parameters:
+        -----------
+            experience : tuple
+                Contains the state, action ,reward, next_state, and done flag
+
+        Returns:
+        --------
+            None
+        """
+        # Get the current max priority in the tree. Recall that the left nodes hold the
+        # priority and that they are stored as the last max_size elements in the array
+        # that holds the tree
+        maxPriority = np.max(self.buffer.tree[-self.buffer.max_size:])
+        # If the maxPriority is 0, then we need to set it to the predefined upperPriority
+        # because a priority of 0 means that the experience will never be chosen; and we
+        # want every experience to have a chance at being chosen.
+        self.buffer.add(experience)
