@@ -36,7 +36,11 @@ def param_file_registers():
                     'epsilon_start',
                     'epsilon_stop',
                     'eps_decay_rate',
-                    'discount']
+                    'discount',
+                    'per_a',
+                    'per_b',
+                    'per_e',
+                    'per_b_anneal']
     int_params = ['n_episodes',
                     'max_steps',
                     'batch_size',
@@ -56,7 +60,8 @@ def param_file_registers():
                     'test_flag',
                     'fixed_Q_steps',
                     'fixed_Q',
-                    'double_dqn']
+                    'double_dqn',
+                    'per']
     string_params = ['save_path',
                      'ckpt_file',
                      'env_name',
@@ -135,6 +140,11 @@ def read_hyperparams(fname):
     fixed_Q          : fixedQ (int, 0 if not using, 1 if using the fixed-Q technique)
     fixed_Q_steps    : fixedQSteps (int, steps between weights copies w/ fixed-Q)
     double_dqn       : doubleDQN (int, 0 if not using, 1 if using double DQN technique)
+    per              : per (int, 1 if using prioritized experience replay, 0 if not)
+    per_a            : perA (float, the alpha parameter in eq. 1 of Schaul16)
+    per_b            : perB (float, the beta parameter in IS weights of Schaul16)
+    per_e            : perE (float, the epsilon parameter in prop. prior. of Schaul16)
+    per_b_anneal     : perBAnneal (float, annealment rate of IS weights)
     """
     # Assume the file is in the current working directory
     fname = os.path.join(os.getcwd(), fname)
