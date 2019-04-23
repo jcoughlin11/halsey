@@ -72,6 +72,11 @@ class Agent():
         self.maxEpSteps      = hyperparams['max_steps']
         self.memSize         = hyperparams['memory_size']
         self.nEpisodes       = hyperparams['n_episodes']
+        self.per             = hyperparams['per']
+        self.perA            = hyperparams['per_a']
+        self.perB            = hyperparams['per_b']
+        self.perBAnneal      = hyperparams['per_b_anneal']
+        self.perE            = hyperparams['per_e']
         self.preTrainLen     = hyperparams['pretrain_len']
         self.qNet            = None
         self.renderFlag      = hyperparams['render_flag']
@@ -99,12 +104,26 @@ class Agent():
                             self.shrinkCols,
                             self.stackSize)
         # Set up memory
-        self.memory = nu.Memory(self.memSize,
-                                self.preTrainLen,
-                                self.env,
-                                self.stackSize,
-                                self.crop,
-                                self.shrink)
+        if self.per == 1:
+            perParams = [self.perA,
+                        self.perB,
+                        self.perBAnneal,
+                        self.perE
+                        ]
+            self.memory = nu.Memory(self.memSize,
+                                    self.preTrainLen,
+                                    self.env,
+                                    self.stackSize,
+                                    self.crop,
+                                    self.shrink,
+                                    perParams)
+        else:
+            self.memory = nu.Memory(self.memSize,
+                                    self.preTrainLen,
+                                    self.env,
+                                    self.stackSize,
+                                    self.crop,
+                                    self.shrink)
         # Build the network
         self.qNet = nw.DQN('qnet', hyperparams['architecture'], self.input_shape,
                             self.env.action_space.n, self.learningRate)

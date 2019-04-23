@@ -861,6 +861,9 @@ class PriorityMemory(Memory):
         shrink : tuple
             (x,y) size of the shrunk frame
 
+        perParams : list
+            A list of alpha, beta, epsilon, and the annealment rate
+
     Methods:
     --------
         pass
@@ -872,9 +875,14 @@ class PriorityMemory(Memory):
     #-----
     # Constructor
     #-----
-    def __init__(self, max_size, pretrain_len, env, stack_size, crop, shrink):
+    def __init__(self, max_size, pretrain_len, env, stack_size, crop, shrink, perParams):
         # Call parent's constructor
         super().__init__(max_size, pretrain_len, env, stack_size, crop, shrink)
+        # Set per parameters
+        self.perA = perParams[0]
+        self.perB = perParams[1]
+        self.perBAnneal = perParams[2]
+        self.perE = perParams[3]
         # Overload the buffer
         self.buffer = SumTree(self.max_size)
         self.upperPriority = 1.0
