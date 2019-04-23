@@ -936,9 +936,15 @@ class PriorityMemory(Memory):
 
         Returns:
         --------
-            batch : list
+            indices : ndarray
+                An array of tree indices corresponding to the sampled experiences
+
+            experiences : ndarray
                 A list of batchSize experiences chosen with probabilities given by
                 Schaul16 equation 1
+
+            isWeights : ndarray
+                An array containing the IS weights for each sampled experience
         """
         # We need to return the selected samples (to be used in training), the indices
         # of these samples (so that the tree can be properly updated), and the importance

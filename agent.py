@@ -409,7 +409,10 @@ class Agent():
                 The value of the loss function for the current training run
         """
         # Get sample of experiences
-        sample = self.memory.sample(self.batchSize)
+        if self.per == 1:
+            treeInds, sample, isWeights = self.memory.sample(self.batchSize)
+        else:
+            sample = self.memory.sample(self.batchSize)
         # There's no need to call sess.run self.batchSize times to get Q_target. It's not
         # wrong, but it is slow. It can be vectorized
         states      = np.array([s[0] for s in sample], ndmin=3)
@@ -470,10 +473,20 @@ class Agent():
         # loop in order to minimize the number of calls to sess.run that are needed
         # This requires that actions be reshaped to a column vector
         actions = actions.reshape((self.batchSize, 1))
-        fd = {self.qNet.inputs : states,
-                self.qNet.target_Q : targetQ,
-                self.qNet.actions : actions}
-        loss, _ = self.sess.run([self.qNet.loss, self.qNet.optimizer], feed_dict=fd)
+        if self.per == 1:
+            fd = {self.qNet.inputs : states,
+                    self.qNet.target_Q : targetQ,
+                    self.qNet.actions : actions,
+                    self.qNet.isWeights : isWeights}
+            _, loss, errors = self.sess.run([self.qNet.optimizer, self.qNet.loss,
+                                            self.qNet.errors], feed_dict=fd)
+            # Update the priorities in the tree
+            self.memory.update(treeInds, errors)
+        else:
+            fd = {self.qNet.inputs : states,
+                    self.qNet.target_Q : targetQ,
+                    self.qNet.actions : actions}
+            loss, _ = self.sess.run([self.qNet.loss, self.qNet.optimizer], feed_dict=fd)
         return loss
 
     #-----
