@@ -949,6 +949,8 @@ class PriorityMemory(Memory):
         # We need to break up the range [0, p_tot] equally into batchSize segments, so
         # here we get the width of each segment
         segmentWidth = self.buffer.total_priority / batchSize
+        # Anneal the strength of the IS weights (cap the parameter at 1)
+        self.perB = np.min([1., self.perB + self.perBAnneal])
         # Loop over the desired number of samples
         for i in range(batchSize):
             # We need to uniformly select a value from each segment, so here we get the
