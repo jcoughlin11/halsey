@@ -979,7 +979,7 @@ class PriorityMemory(Memory):
     #-----
     # Update
     #-----
-    def update(self, indices, errors):
+    def update(self, indices, absErrors):
         """
         This function uses the new errors generated from training in order to update the
         priorities for those experiences that were selected in sample().
@@ -990,15 +990,15 @@ class PriorityMemory(Memory):
                 Array of tree indices corresponding to those experiences used in the
                 training batch
 
-            errors : ndarray
-                Array of TD errors for the chosen experiences
+            absErrors : ndarray
+                Array of the absolute value of the TD errors for the chosen experiences
 
         Returns:
         --------
             None
         """
         # Calculate priorities from errors (proportional prioritization)
-        priorities = np.abs(errors) + self.perE
+        priorities = absErrors + self.perE
         # Clip the errors for stability
         priorities = np.min([priorities, self.upperPriority])
         # Apply alpha
