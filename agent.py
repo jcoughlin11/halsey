@@ -478,10 +478,10 @@ class Agent():
                     self.qNet.target_Q : targetQ,
                     self.qNet.actions : actions,
                     self.qNet.isWeights : isWeights}
-            _, loss, errors = self.sess.run([self.qNet.optimizer, self.qNet.loss,
-                                            self.qNet.errors], feed_dict=fd)
+            _, loss, absErrors = self.sess.run([self.qNet.optimizer, self.qNet.loss,
+                                            self.qNet.absErrors], feed_dict=fd)
             # Update the priorities in the tree
-            self.memory.update(treeInds, errors)
+            self.memory.update(treeInds, absErrors)
         else:
             fd = {self.qNet.inputs : states,
                     self.qNet.target_Q : targetQ,
