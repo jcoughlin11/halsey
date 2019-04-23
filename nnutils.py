@@ -587,8 +587,8 @@ class Sumtree():
     """
     Prioritized experience replay makes use of a sum tree to efficiently store and fetch
     data. A sum tree is a binary tree where the value of each node is the sum of the
-    values in the nodes in its left and right subtrees. Here, the actual priorities are
-    stored in the leaf nodes of the tree. This is an unsorted tree.
+    values in its child nodes. Here, the actual priorities are stored in the leaf nodes
+    of the tree. This is an unsorted tree.
     
     Assuming a perfectly balanced tree, the number of nodes in the tree is 
     nNodes = 2 * nLeafs - 1. This is because, in a binary tree, the number of nodes at
@@ -644,7 +644,7 @@ class Sumtree():
     #-----
     # add
     #-----
-    def add(self, priority, data):
+    def add(self, data, priority):
         """
         This function takes in an experience as well as the priority assigned to that
         experience, and assigns it to a leaf node in the tree, propagating the the
@@ -664,9 +664,8 @@ class Sumtree():
         """
         # Get the index of the array corresponding to the current leaf node
         tree_index = self.dataPointer + self.nLeafs - 1
-        # Insert the experience at this location (NOTE: doesn't this overwrite the
-        # experience that's currently stored there? Wouldn't you want to first make
-        # a copy so that it can be properly shifted to a new leaf node?)
+        # Insert the experience at this location (like the deque, this starts to 'forget'
+        # experiences once the max capacity is reached, i.e., they are overwritten)
         self.data[self.dataPointer] = data
         # Update the tree
         self.update(tree_index, priority)
@@ -684,6 +683,36 @@ class Sumtree():
         This function handles updating the current leaf's priority score and then
         propagating that change throughout the rest of the tree.
 
+                                            0
+                                           / \
+                                          1   2
+                                        /  \  / \
+                                       3   4  5  6
+
+        The numbers above are the indices of the nodes. If the tree looks like:
+
+                                            48
+                                           / \
+                                          13   35
+                                        /  \  / \
+                                       4   9  33  2
+
+        and the value of node 6 changes to 8, the new sumtree will look like:
+
+                                            54
+                                           / \
+                                          13   41
+                                        /  \  / \
+                                       4   9  33  8
+
+        That is, we need to update the value of each of the changed node's ancestors.
+        We get at the parent node by doing (currentNodeIndex - 1) // 2. E.g.,
+        (6-1) // 2 = 2, then (2-1)//2 = 0, which gives us the indices of the two nodes
+        we would need to update in this case (2 and 0). The update is to simply add the
+        change made to the current node to the value of it's parent. E.g., here node 6
+        has change = 8 - 2 = 6, so the update to node 2 is: change2 = 35 + change = 41.
+        We then repeat this process until we've updated root.
+
         Parameters:
         -----------
             tree_index : int
@@ -691,7 +720,102 @@ class Sumtree():
 
             priority : float
                 The value of the priority to assign to the current leaf node
+
+        Returns:
+        --------
+            None
         """
+        # Get the difference between the new priority and the old priority
+        deltaPriority = priority - self.tree[tree_index]
+        # Update the node with the new priority
+        self.tree[tree_index] = priority
+        # Propogate the change throughout the rest of the tree (we're done after we
+        # update root, which has an index of 0)
+        while tree_index != 0:
+            tree_index = (tree_index - 1) // 2
+            self.tree[tree_index] += deltaPriority
+
+    #-----
+    # get_leaf
+    #-----
+    def get_leaf(self, value):
+        """
+        This function returns the experience whose priority is the closest to the passed
+        value.
+
+                                            48
+                                           / \
+                                          13   35
+                                        /  \  / \
+                                       4   9  33  2
+
+        For the above tree (the numbers are the priorities, not indices), let's say we're
+        in the situation where batchSize = 6, so we've broken up the range [0,48] into 6
+        equal ranges. If we're on the first one, it will span [0,8). We choose a random
+        number from there, which is value, so let's say we get value = 7. This function
+        would then return node 4, which has a value of 9 and is the closest to the passed
+        value of 7.
+
+        Parameters:
+        -----------
+            value : float
+                We want to find the experience whose priority is the closest to this
+                number
+
+        Returns:
+        --------
+            index : int
+                The index of the tree corresponding to the chosen experience
+
+            priority : float
+                The priority of the chosen experience
+
+            experience : tuple
+                The experience whose priority is closest to value
+        """
+        # Start at root
+        parentIndex = 0
+        # Search the whole tree
+        while True:
+            # Get the indices of the current node's left and right children
+            leftIndex = 2 * parentIndex + 1
+            rightIndex = leftIndex + 1
+            # Check exit condition
+            if leftIndex > len(self.tree):
+                leafIndex = parentIndex
+                break
+            # Otherwise, continue the search
+            else:
+                if value <= self.tree[leftIndex]:
+                    parentIndex = leftIndex
+                else:
+                    value -= self.tree[leftIndex]
+                    parentIndex = rightIndex
+        # Get the experience corresponding to the selected leaf
+        dataIndex = leafIndex - self.nLeafs + 1
+        return leafIndex, self.tree[leafIndex], self.data[dataIndex]
+
+    #-----
+    # total_priority
+    #-----
+    @property
+    def total_priority(self):
+        """
+        This function returns the root node of the tree, which is just the sum of all of
+        the priorities. The property decorator lets us access it as if it were an
+        attribute.
+
+        Parameters:
+        -----------
+            None
+
+        Returns:
+        --------
+            totalPriority : float
+                The sum of each leaf's priority in the tree, which is just the root node
+                since this is a sum tree
+        """
+        return self.tree[0]
 
 
 
@@ -743,6 +867,7 @@ class PriorityMemory(Memory):
         super().__init__(max_size, pretrain_len, env, stack_size, crop, shrink)
         # Overload the buffer
         self.buffer = SumTree(self.max_size)
+        self.upperPriority = 1.0
 
     #-----
     # Add
@@ -769,4 +894,89 @@ class PriorityMemory(Memory):
         # If the maxPriority is 0, then we need to set it to the predefined upperPriority
         # because a priority of 0 means that the experience will never be chosen; and we
         # want every experience to have a chance at being chosen.
-        self.buffer.add(experience)
+        if maxPriority == 0:
+            maxPriority = self.upperPriority
+        self.buffer.add(experience, maxPriority)
+
+    #-----
+    # Sample
+    #-----
+    def sample(self, batchSize):
+        """
+        This function returns a subsample of experiences from the memory buffer to be used
+        in training. The probability for a particular experience to be chosen is given by
+        equation 1 in Schaul16. The details of how to sample from the sumtree are given in
+        Appendix B.2.1: Proportional prioritization in Schaul16. Essentially, we break up
+        the range [0, priority_total] into batchSize segments of equal size. We then
+        uniformly choose a value from each segment and get the experiences that correspond
+        to each of these sampled values.
+
+        Parameters:
+        -----------
+            batchSize : int
+                The size of the sample to return
+
+        Returns:
+        --------
+            batch : list
+                A list of batchSize experiences chosen with probabilities given by
+                Schaul16 equation 1
+        """
+        # We need to return the selected samples (to be used in training), the indices
+        # of these samples (so that the tree can be properly updated), and the importance
+        # sampling weights to be used in training
+        indices = np.zeros(batchSize)
+        priorities = np.zeros(batchSize)
+        experiences = np.zeros(batchSize)
+        # We need to break up the range [0, p_tot] equally into batchSize segments, so
+        # here we get the width of each segment
+        segmentWidth = self.buffer.total_priority / batchSize
+        # Loop over the desired number of samples
+        for i in range(batchSize):
+            # We need to uniformly select a value from each segment, so here we get the
+            # lower and upper bounds of the segment
+            lowerBound = i * segmentWidth
+            upperBound = (i + 1) * segmentWidth
+            # Choose a value from within the segment
+            value = np.random.uniform(lowerBound, upperBound)
+            # Retrieve the experience whose priority matches value from the tree
+            index, priority, experience = self.buffer.get_leaf(value)
+            indices[i] = index
+            priorities[i] = priority
+            experiences[i] = experience
+        # Calculate the importance sampling weights
+        samplingProbabilities = priorities / self.buffer.total_priority
+        isWeights = np.power(batchSize * samplingProbabilities, -self.perB)
+        isWeights = isWeights / np.max(isWeights)
+        return indices, experiences, isWeights
+
+    #-----
+    # Update
+    #-----
+    def update(self, indices, errors):
+        """
+        This function uses the new errors generated from training in order to update the
+        priorities for those experiences that were selected in sample().
+
+        Parameters:
+        -----------
+            indices : ndarray
+                Array of tree indices corresponding to those experiences used in the
+                training batch
+
+            errors : ndarray
+                Array of TD errors for the chosen experiences
+
+        Returns:
+        --------
+            None
+        """
+        # Calculate priorities from errors (proportional prioritization)
+        priorities = np.abs(errors) + self.perE
+        # Clip the errors for stability
+        priorities = np.min(priorities, self.upperPriority)
+        # Apply alpha
+        priorities = np.power(priorities, self.perA)
+        # Update the tree
+        for ind, p in zip(indices, priorities):
+            self.tree.update(ind, p)
