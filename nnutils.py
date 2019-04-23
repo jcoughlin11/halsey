@@ -20,7 +20,8 @@ warnings.filterwarnings('ignore')
 
 # Architecture register
 archRegister = ['conv1',
-                'dueling1']
+                'dueling1',
+                'perdueling1']
 
 
 
