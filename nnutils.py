@@ -939,7 +939,7 @@ class PriorityMemory(Memory):
             indices : ndarray
                 An array of tree indices corresponding to the sampled experiences
 
-            experiences : ndarray
+            experiences : list
                 A list of batchSize experiences chosen with probabilities given by
                 Schaul16 equation 1
 
@@ -949,9 +949,9 @@ class PriorityMemory(Memory):
         # We need to return the selected samples (to be used in training), the indices
         # of these samples (so that the tree can be properly updated), and the importance
         # sampling weights to be used in training
-        indices = np.zeros(batchSize)
-        priorities = np.zeros(batchSize)
-        experiences = np.zeros(batchSize)
+        indices = np.zeros((batchSize,))
+        priorities = np.zeros((batchSize, 1))
+        experiences = []
         # We need to break up the range [0, p_tot] equally into batchSize segments, so
         # here we get the width of each segment
         segmentWidth = self.buffer.total_priority / batchSize
@@ -968,8 +968,8 @@ class PriorityMemory(Memory):
             # Retrieve the experience whose priority matches value from the tree
             index, priority, experience = self.buffer.get_leaf(value)
             indices[i] = index
-            priorities[i] = priority
-            experiences[i] = experience
+            priorities[i, 0] = priority
+            experiences.append(experience)
         # Calculate the importance sampling weights
         samplingProbabilities = priorities / self.buffer.total_priority
         isWeights = np.power(batchSize * samplingProbabilities, -self.perB)
