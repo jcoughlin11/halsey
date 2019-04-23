@@ -999,4 +999,4 @@ class PriorityMemory(Memory):
         priorities = np.power(priorities, self.perA)
         # Update the tree
         for ind, p in zip(indices, priorities):
-            self.tree.update(ind, p)
+            self.buffer.update(ind, p)
