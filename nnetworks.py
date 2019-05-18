@@ -51,7 +51,7 @@ class DQN():
             self.build_conv1_net()
         elif self.arch == 'dueling1':
             self.build_dueling1_net()
-        elif self.arch == 'perdueling1'
+        elif self.arch == 'perdueling1':
             self.build_perdueling1_net()
         else:
             raise ValueError("Error, unrecognized network architecture!")

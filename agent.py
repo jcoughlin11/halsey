@@ -110,7 +110,7 @@ class Agent():
                         self.perBAnneal,
                         self.perE
                         ]
-            self.memory = nu.Memory(self.memSize,
+            self.memory = nu.PriorityMemory(self.memSize,
                                     self.preTrainLen,
                                     self.env,
                                     self.stackSize,
