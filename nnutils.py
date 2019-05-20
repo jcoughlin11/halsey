@@ -1000,7 +1000,7 @@ class PriorityMemory(Memory):
         # Calculate priorities from errors (proportional prioritization)
         priorities = absErrors + self.perE
         # Clip the errors for stability
-        priorities = np.min([priorities, self.upperPriority])
+        priorities = np.minimum(priorities, self.upperPriority)
         # Apply alpha
         priorities = np.power(priorities, self.perA)
         # Update the tree
