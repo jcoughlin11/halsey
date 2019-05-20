@@ -112,18 +112,11 @@ class Agent():
                         ]
             self.memory = nu.PriorityMemory(self.memSize,
                                     self.preTrainLen,
-                                    self.env,
-                                    self.stackSize,
-                                    self.crop,
-                                    self.shrink,
                                     perParams)
         else:
             self.memory = nu.Memory(self.memSize,
-                                    self.preTrainLen,
-                                    self.env,
-                                    self.stackSize,
-                                    self.crop,
-                                    self.shrink)
+                                    self.preTrainLen)
+        self.memory.pre_populate(self.env, self.stackSize, self.crop, self.shrink)
         # Build the network
         self.qNet = nw.DQN('qnet', hyperparams['architecture'], self.input_shape,
                             self.env.action_space.n, self.learningRate)

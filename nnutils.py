@@ -366,11 +366,10 @@ class Memory():
     #-----
     # Constructor
     #-----
-    def __init__(self, max_size, pretrain_len, env, stack_size, crop, shrink):
+    def __init__(self, max_size, pretrain_len):
         self.max_size = max_size
         self.pretrain_len = pretrain_len
         self.buffer = collections.deque(maxlen = self.max_size)
-        self.pre_populate(env, stack_size, crop, shrink)
 
     #-----
     # Pre-Populate
@@ -594,7 +593,7 @@ def load_train_params(path, max_len):
 #============================================
 #               Sumtree Class
 #============================================
-class Sumtree():
+class SumTree():
     """
     Prioritized experience replay makes use of a sum tree to efficiently store and fetch
     data. A sum tree is a binary tree where the value of each node is the sum of the
@@ -876,9 +875,9 @@ class PriorityMemory(Memory):
     #-----
     # Constructor
     #-----
-    def __init__(self, max_size, pretrain_len, env, stack_size, crop, shrink, perParams):
+    def __init__(self, max_size, pretrain_len, perParams):
         # Call parent's constructor
-        super().__init__(max_size, pretrain_len, env, stack_size, crop, shrink)
+        super().__init__(max_size, pretrain_len)
         # Set per parameters
         self.perA = perParams[0]
         self.perB = perParams[1]
