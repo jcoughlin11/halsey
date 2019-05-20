@@ -949,7 +949,7 @@ class PriorityMemory(Memory):
         # We need to return the selected samples (to be used in training), the indices
         # of these samples (so that the tree can be properly updated), and the importance
         # sampling weights to be used in training
-        indices = np.zeros((batchSize,))
+        indices = np.zeros((batchSize,), dtype=np.int)
         priorities = np.zeros((batchSize, 1))
         experiences = []
         # We need to break up the range [0, p_tot] equally into batchSize segments, so
