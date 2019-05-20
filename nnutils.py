@@ -791,7 +791,7 @@ class SumTree():
             leftIndex = 2 * parentIndex + 1
             rightIndex = leftIndex + 1
             # Check exit condition
-            if leftIndex > len(self.tree):
+            if leftIndex >= len(self.tree):
                 leafIndex = parentIndex
                 break
             # Otherwise, continue the search
