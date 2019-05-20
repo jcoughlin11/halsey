@@ -908,7 +908,7 @@ class PriorityMemory(Memory):
         # Get the current max priority in the tree. Recall that the left nodes hold the
         # priority and that they are stored as the last max_size elements in the array
         # that holds the tree
-        maxPriority = np.max(self.buffer.tree[-self.buffer.max_size:])
+        maxPriority = np.max(self.buffer.tree[-self.buffer.nLeafs:])
         # If the maxPriority is 0, then we need to set it to the predefined upperPriority
         # because a priority of 0 means that the experience will never be chosen; and we
         # want every experience to have a chance at being chosen.
