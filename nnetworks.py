@@ -229,7 +229,7 @@ class DQN():
         with tf.variable_scope(self.name):
             # Placeholders
             self.inputs = tf.placeholder(tf.float32,
-                                        shape=self.intputShape,
+                                        shape=self.inputShape,
                                         name="inputs")
             self.isWeights = tf.placeholder(tf.float32,
                                             shape=[None,1],
@@ -298,11 +298,11 @@ class DQN():
             self.output = self.value + tf.subtract(self.advantage,
                           tf.reduce_mean(self.advantage, axis=1, keepdims=True))
             # Predicted Q value.
-            self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions_), axis=1)
+            self.Q = tf.reduce_sum(tf.multiply(self.output, self.actions), axis=1)
             # Get absolute errors, which are used to update the sum tree
             self.absErrors = tf.abs(self.target_Q - self.Q)
             # The mse loss is modified because of PER 
             self.loss = tf.reduce_mean(self.isWeights *
                                         tf.squared_difference(self.target_Q, self.Q))
-            self.optimizer = RMSPropOptimizer(self.learning_rate).minimize(self.loss)
+            self.optimizer = RMSPropOptimizer(self.learningRate).minimize(self.loss)
         self.saver = tf.train.Saver()
