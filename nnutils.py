@@ -14,69 +14,67 @@ import numpy as np
 import skimage
 
 
-
 # Skimage produces a lot of warnings
-warnings.filterwarnings('ignore')
+warnings.filterwarnings("ignore")
 
 # Architecture register
-archRegister = ['conv1',
-                'dueling1',
-                'perdueling1']
+archRegister = ["conv1", "dueling1", "perdueling1"]
 
 
-
-#============================================
+# ============================================
 #           param_file_registers
-#============================================
+# ============================================
 def param_file_registers():
     """
     This function sets up the registers containing the types associated with each
     parameter.
     """
-    float_params = ['learning_rate',
-                    'epsilon_start',
-                    'epsilon_stop',
-                    'eps_decay_rate',
-                    'discount',
-                    'per_a',
-                    'per_b',
-                    'per_e',
-                    'per_b_anneal']
-    int_params = ['n_episodes',
-                    'max_steps',
-                    'batch_size',
-                    'memory_size',
-                    'crop_top',
-                    'crop_bot',
-                    'crop_left',
-                    'crop_right',
-                    'nstacked_frames',
-                    'train_flag',
-                    'render_flag',
-                    'shrink_rows',
-                    'shrink_cols',
-                    'pretrain_len',
-                    'save_period',
-                    'restart_training',
-                    'test_flag',
-                    'fixed_Q_steps',
-                    'fixed_Q',
-                    'double_dqn',
-                    'per']
-    string_params = ['save_path',
-                     'ckpt_file',
-                     'env_name',
-                     'architecture']
-    type_register = {'floats' : float_params,
-                    'ints' : int_params,
-                    'strings' : string_params}
+    float_params = [
+        "learning_rate",
+        "epsilon_start",
+        "epsilon_stop",
+        "eps_decay_rate",
+        "discount",
+        "per_a",
+        "per_b",
+        "per_e",
+        "per_b_anneal",
+    ]
+    int_params = [
+        "n_episodes",
+        "max_steps",
+        "batch_size",
+        "memory_size",
+        "crop_top",
+        "crop_bot",
+        "crop_left",
+        "crop_right",
+        "nstacked_frames",
+        "train_flag",
+        "render_flag",
+        "shrink_rows",
+        "shrink_cols",
+        "pretrain_len",
+        "save_period",
+        "restart_training",
+        "test_flag",
+        "fixed_Q_steps",
+        "fixed_Q",
+        "double_dqn",
+        "per",
+    ]
+    string_params = ["save_path", "ckpt_file", "env_name", "architecture"]
+    type_register = {
+        "floats": float_params,
+        "ints": int_params,
+        "strings": string_params,
+    }
     return type_register
 
 
-
-#============================================
+# ============================================
 #        check_agent_option_conflicts
-#============================================
+# ============================================
 def check_agent_option_conflicts(params):
     """
     This function checks for any conflicts between techniques that have been turned on
@@ -98,16 +96,15 @@ def check_agent_option_conflicts(params):
     """
     conflict_flag = 1
     # Double DQN requires fixed-Q
-    if (params['double_dqn'] == 1) and (params['fixed_Q'] != 1):
+    if (params["double_dqn"] == 1) and (params["fixed_Q"] != 1):
         print("Error, double dqn requires the use of fixed Q!")
         conflict_flag = 0
     return conflict_flag
 
 
-
-#============================================
+# ============================================
 #             read_hyperparams
-#============================================
+# ============================================
 def read_hyperparams(fname):
     """
     This function reads in the parameter file that contains the network's hyperparameters.
@@ -156,28 +153,28 @@ def read_hyperparams(fname):
     type_register = param_file_registers()
     # Read file
     hyperparams = {}
-    with open(fname, 'r') as f:
+    with open(fname, "r") as f:
         for line in f:
-            key, value = line.split(':')
+            key, value = line.split(":")
             key = key.strip()
             # Cast the parameter to the appropriate type
-            if key in type_register['floats']:
+            if key in type_register["floats"]:
                 value = float(value)
-            elif key in type_register['ints']:
+            elif key in type_register["ints"]:
                 value = int(value)
-            elif key in type_register['strings']:
+            elif key in type_register["strings"]:
                 value = value.strip()
             else:
-                print('Hyperparameter not found!')
+                print("Hyperparameter not found!")
                 raise IOError
             hyperparams[key] = value
     # Convert from int to bool where appropriate (see TODO)
-    if hyperparams['restart_training'] == 1:
-        hyperparams['restart_training'] = True
+    if hyperparams["restart_training"] == 1:
+        hyperparams["restart_training"] = True
     else:
-        hyperparams['restart_training'] = False
+        hyperparams["restart_training"] = False
     # Check to make sure the architecture has been defined
-    if hyperparams['architecture'] not in archRegister:
+    if hyperparams["architecture"] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
     # Check for option conflicts
     if check_agent_option_conflicts(hyperparams) == 0:
@@ -185,10 +182,9 @@ def read_hyperparams(fname):
     return hyperparams
 
 
-
-#============================================
+# ============================================
 #                 crop_frame
-#============================================
+# ============================================
 def crop_frame(frame, crop):
     """
     This function handles the different cases for cropping the frame to the proper
@@ -221,27 +217,30 @@ def crop_frame(frame, crop):
     if crop[2] + crop[3] >= frame.shape[1]:
         raise ValueError("Error, total crop from left and right too big!")
     if (crop[1] != 0) and (crop[3] != 0):
-        cropFrame = frame[crop[0]:-crop[1], crop[2]:-crop[3]]
-    elif (crop[1] == 0) and (crop[3] != 0): 
-        cropFrame = frame[crop[0]:, crop[2]:-crop[3]]
+        cropFrame = frame[crop[0] : -crop[1], crop[2] : -crop[3]]
+    elif (crop[1] == 0) and (crop[3] != 0):
+        cropFrame = frame[crop[0] :, crop[2] : -crop[3]]
     elif (crop[1] == 0) and (crop[3] == 0):
-        cropFrame = frame[crop[0]:, crop[2]:]
+        cropFrame = frame[crop[0] :, crop[2] :]
     elif (crop[1] != 0) and (crop[3] == 0):
-        cropFrame = frame[crop[0]:-crop[1], crop[2]:]
+        cropFrame = frame[crop[0] : -crop[1], crop[2] :]
     # Sanity check
     if cropFrame is None:
         raise ValueError("Error in crop_frame, cropFrame not set!")
     if (sum(crop) != 0) and (cropFrame.shape == frame.shape):
-        raise ValueError("Error in crop_frame, shapes equal when they shouldn't be!")
+        raise ValueError(
+            "Error in crop_frame, shapes equal when they shouldn't be!"
+        )
     elif (sum(crop) == 0) and (cropFrame.shape != frame.shape):
-        raise ValueError("Error in crop_Frame, shapes not equal when they should be!") 
+        raise ValueError(
+            "Error in crop_Frame, shapes not equal when they should be!"
+        )
     return cropFrame
 
 
-
-#============================================
+# ============================================
 #             preprocess_frame
-#============================================
+# ============================================
 def preprocess_frame(frame, crop, shrink):
     """
     This function handles grayscaling the frame and cropping the frame to the proper size
@@ -271,16 +270,15 @@ def preprocess_frame(frame, crop, shrink):
     # slice).
     frame = crop_frame(frame, crop)
     # Normalize the image
-    frame = frame / 255.
+    frame = frame / 255.0
     # To reduce the computational complexity, we can shrink the image
     frame = skimage.transform.resize(frame, [shrink[0], shrink[1]])
     return frame
 
 
-
-#============================================
+# ============================================
 #               stack_frames
-#============================================
+# ============================================
 def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
     """
     This function does two things: it takes in the current state and preprocesses it.
@@ -317,15 +315,20 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
             The deque version of the stack of frames
     """
     # Error check
-    if (new_episode is False) and (isinstance(frame_stack, collections.deque) is False):
-        print('Error, must pass existing frame stack if not starting a new episode!')
+    if (new_episode is False) and (
+        isinstance(frame_stack, collections.deque) is False
+    ):
+        print(
+            "Error, must pass existing frame stack if not starting a new episode!"
+        )
         sys.exit()
     # Preprocess the given state
     state = preprocess_frame(state, crop, shrink)
     # Start fresh if this is a new episode
     if new_episode:
-        frame_stack = collections.deque([state for i in range(stack_size)],
-                                        maxlen=stack_size)
+        frame_stack = collections.deque(
+            [state for i in range(stack_size)], maxlen=stack_size
+        )
     # Otherwise, add the frame to the stack
     else:
         frame_stack.append(state)
@@ -334,11 +337,10 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
     return stacked_state, frame_stack
 
 
-
-#============================================
+# ============================================
 #               Memory Class
-#============================================
-class Memory():
+# ============================================
+class Memory:
     """
     This class holds and manages the experience buffer for DQNs.
 
@@ -363,17 +365,18 @@ class Memory():
         shrink : tuple
             (x,y) size of the shrunk frame
     """
-    #-----
+
+    # -----
     # Constructor
-    #-----
+    # -----
     def __init__(self, max_size, pretrain_len):
         self.max_size = max_size
         self.pretrain_len = pretrain_len
-        self.buffer = collections.deque(maxlen = self.max_size)
+        self.buffer = collections.deque(maxlen=self.max_size)
 
-    #-----
+    # -----
     # Pre-Populate
-    #-----
+    # -----
     def pre_populate(self, env, stack_size, crop, shrink):
         """
         This function initially fills the experience buffer with sample experience
@@ -400,7 +403,9 @@ class Memory():
         # Get initial state
         state = env.reset()
         # Process and stack initial frames
-        state, frame_stack = stack_frames(None, state, True, stack_size, crop, shrink)
+        state, frame_stack = stack_frames(
+            None, state, True, stack_size, crop, shrink
+        )
         # Loop over the desired number of sample experiences
         for i in range(self.pretrain_len):
             # Choose a random action. randint chooses in [a,b)
@@ -408,22 +413,24 @@ class Memory():
             # Take action
             next_state, reward, done, _ = env.step(action)
             # Add next state to stack of frames
-            next_state, frame_stack = stack_frames(frame_stack, next_state, False,
-                                                        stack_size, crop, shrink)
+            next_state, frame_stack = stack_frames(
+                frame_stack, next_state, False, stack_size, crop, shrink
+            )
             # Add experience to memory
             self.add((state, action, reward, next_state, done))
             # If we're in a terminal state, we need to reset things
             if done:
                 state = env.reset()
-                state, frame_stack = stack_frames(None, state, True, stack_size, crop,
-                                                  shrink)
+                state, frame_stack = stack_frames(
+                    None, state, True, stack_size, crop, shrink
+                )
             # Otherwise, update the state and continue
             else:
                 state = next_state
 
-    #-----
+    # -----
     # Add
-    #-----
+    # -----
     def add(self, experience):
         """
         This function just adds the newest experience tuple to the buffer
@@ -439,9 +446,9 @@ class Memory():
         """
         self.buffer.append(experience)
 
-    #-----
+    # -----
     # Sample
-    #-----
+    # -----
     def sample(self, batch_size):
         """
         This function returns a randomly selected subsample of size batch_size from
@@ -465,18 +472,19 @@ class Memory():
         # Make sure the batch_size isn't larger than the current buffer size or np will
         # complain
         try:
-            indices = np.random.choice(np.arange(len(self.buffer)),
-                                        size = batch_size,
-                                        replace = False)
+            indices = np.random.choice(
+                np.arange(len(self.buffer)), size=batch_size, replace=False
+            )
         except ValueError:
-            raise("Error, need batch_size < buf_size when sampling from memory!")
+            raise (
+                "Error, need batch_size < buf_size when sampling from memory!"
+            )
         return [self.buffer[i] for i in indices]
 
 
-
-#============================================
-#             save_train_params 
-#============================================
+# ============================================
+#             save_train_params
+# ============================================
 def save_train_params(decay, rewards, mem, path, qstep):
     """
     This function saves the crucial training parameters needed in order to continue
@@ -508,32 +516,31 @@ def save_train_params(decay, rewards, mem, path, qstep):
         None
     """
     # Episode, decay, and episode rewards
-    with open(os.path.join(path, 'ep_decay_reward.txt'), 'w') as f:
-        f.write(str(decay) + '\n')
-        f.write(str(qstep) + '\n')
+    with open(os.path.join(path, "ep_decay_reward.txt"), "w") as f:
+        f.write(str(decay) + "\n")
+        f.write(str(qstep) + "\n")
         for i in range(len(rewards)):
-            f.write(str(rewards[i]) + '\n')
+            f.write(str(rewards[i]) + "\n")
     # States
     states = np.array([s[0] for s in mem], ndmin=3)
-    np.savez(os.path.join(path, 'exp_states'), *states)
+    np.savez(os.path.join(path, "exp_states"), *states)
     # Actions
     actions = np.array([s[1] for s in mem])
-    np.savez(os.path.join(path, 'exp_actions'), *actions)
+    np.savez(os.path.join(path, "exp_actions"), *actions)
     # Rewards
     exp_rewards = np.array([s[2] for s in mem])
-    np.savez(os.path.join(path, 'exp_rewards'), *exp_rewards)
+    np.savez(os.path.join(path, "exp_rewards"), *exp_rewards)
     # Next states
     next_states = np.array([s[3] for s in mem], ndmin=3)
-    np.savez(os.path.join(path, 'exp_next_states'), *next_states)
+    np.savez(os.path.join(path, "exp_next_states"), *next_states)
     # Dones
     dones = np.array([s[4] for s in mem])
-    np.savez(os.path.join(path, 'exp_dones'), *dones)
+    np.savez(os.path.join(path, "exp_dones"), *dones)
 
 
-
-#============================================
+# ============================================
 #             load_train_params
-#============================================
+# ============================================
 def load_train_params(path, max_len):
     """
     This function reads in the data saved to the files produced in save_train_params
@@ -553,7 +560,7 @@ def load_train_params(path, max_len):
             (start_episode, decay_step, totalRewards, memory, qstep)
     """
     # Read the ep_decay_reward file
-    with open(os.path.join(path, 'ep_decay_reward.txt'), 'r') as f:
+    with open(os.path.join(path, "ep_decay_reward.txt"), "r") as f:
         # Decay step
         decay_step = int(f.readline())
         qstep = int(f.readline())
@@ -564,36 +571,45 @@ def load_train_params(path, max_len):
     # Get the most recently finished episode
     ep = len(ep_rewards)
     # Load the states, actions, rewards, next_states, and dones arrays
-    states = np.load(os.path.join(path, 'exp_states.npz'))
-    actions = np.load(os.path.join(path, 'exp_actions.npz'))
-    rewards = np.load(os.path.join(path, 'exp_rewards.npz'))
-    next_states = np.load(os.path.join(path, 'exp_next_states.npz'))
-    dones = np.load(os.path.join(path, 'exp_dones.npz'))
+    states = np.load(os.path.join(path, "exp_states.npz"))
+    actions = np.load(os.path.join(path, "exp_actions.npz"))
+    rewards = np.load(os.path.join(path, "exp_rewards.npz"))
+    next_states = np.load(os.path.join(path, "exp_next_states.npz"))
+    dones = np.load(os.path.join(path, "exp_dones.npz"))
     # Sanity check
     nstates = len(states.files)
-    if len(actions.files) != nstates or\
-        len(rewards.files) != nstates or\
-        len(next_states.files) != nstates or\
-        len(dones.files) != nstates:
-        print('Error, length of read in states array does not match length of actions, '
-                'rewards, next_states, or dones!')
+    if (
+        len(actions.files) != nstates
+        or len(rewards.files) != nstates
+        or len(next_states.files) != nstates
+        or len(dones.files) != nstates
+    ):
+        print(
+            "Error, length of read in states array does not match length of actions, "
+            "rewards, next_states, or dones!"
+        )
         sys.exit()
     # Get experience tuples to fill mem buffer (state, action, reward, next_state, done)
     buf = collections.deque(maxlen=max_len)
     for i in range(nstates):
-        key = 'arr_' + str(i)
-        exp = (states[key], actions[key], rewards[key], next_states[key], dones[key])
+        key = "arr_" + str(i)
+        exp = (
+            states[key],
+            actions[key],
+            rewards[key],
+            next_states[key],
+            dones[key],
+        )
         buf.append(exp)
     # Package everything up
     train_params = (ep, decay_step, ep_rewards, buf, qstep)
     return train_params
 
 
-
-#============================================
+# ============================================
 #               Sumtree Class
-#============================================
-class SumTree():
+# ============================================
+class SumTree:
     """
     Prioritized experience replay makes use of a sum tree to efficiently store and fetch
     data. A sum tree is a binary tree where the value of each node is the sum of the
@@ -642,18 +658,19 @@ class SumTree():
     Methods:
     --------
     """
-    #-----
+
+    # -----
     # Constructor
-    #-----
+    # -----
     def __init__(self, nLeafs):
         self.nLeafs = nLeafs
         self.dataPointer = 0
         self.tree = np.zeros(2 * self.nLeafs - 1)
         self.data = np.zeros(self.nLeafs, dtype=object)
 
-    #-----
+    # -----
     # add
-    #-----
+    # -----
     def add(self, data, priority):
         """
         This function takes in an experience as well as the priority assigned to that
@@ -685,9 +702,9 @@ class SumTree():
         if self.dataPointer >= self.nLeafs:
             self.dataPointer = 0
 
-    #-----
+    # -----
     # update
-    #-----
+    # -----
     def update(self, tree_index, priority):
         """
         This function handles updating the current leaf's priority score and then
@@ -745,9 +762,9 @@ class SumTree():
             tree_index = (tree_index - 1) // 2
             self.tree[tree_index] += deltaPriority
 
-    #-----
+    # -----
     # get_leaf
-    #-----
+    # -----
     def get_leaf(self, value):
         """
         This function returns the experience whose priority is the closest to the passed
@@ -805,9 +822,9 @@ class SumTree():
         dataIndex = leafIndex - self.nLeafs + 1
         return leafIndex, self.tree[leafIndex], self.data[dataIndex]
 
-    #-----
+    # -----
     # total_priority
-    #-----
+    # -----
     @property
     def total_priority(self):
         """
@@ -828,10 +845,9 @@ class SumTree():
         return self.tree[0]
 
 
-
-#============================================
+# ============================================
 #           PriorityMemory Class
-#============================================
+# ============================================
 class PriorityMemory(Memory):
     """
     This class serves as the memory buffer in the case that prioritized experience
@@ -872,9 +888,10 @@ class PriorityMemory(Memory):
     -----------
         pass
     """
-    #-----
+
+    # -----
     # Constructor
-    #-----
+    # -----
     def __init__(self, max_size, pretrain_len, perParams):
         # Call parent's constructor
         super().__init__(max_size, pretrain_len)
@@ -887,9 +904,9 @@ class PriorityMemory(Memory):
         self.buffer = SumTree(self.max_size)
         self.upperPriority = 1.0
 
-    #-----
+    # -----
     # Add
-    #-----
+    # -----
     def add(self, experience):
         """
         This function stores the newest experience tuple, along with a priority, to the
@@ -908,7 +925,7 @@ class PriorityMemory(Memory):
         # Get the current max priority in the tree. Recall that the left nodes hold the
         # priority and that they are stored as the last max_size elements in the array
         # that holds the tree
-        maxPriority = np.max(self.buffer.tree[-self.buffer.nLeafs:])
+        maxPriority = np.max(self.buffer.tree[-self.buffer.nLeafs :])
         # If the maxPriority is 0, then we need to set it to the predefined upperPriority
         # because a priority of 0 means that the experience will never be chosen; and we
         # want every experience to have a chance at being chosen.
@@ -916,9 +933,9 @@ class PriorityMemory(Memory):
             maxPriority = self.upperPriority
         self.buffer.add(experience, maxPriority)
 
-    #-----
+    # -----
     # Sample
-    #-----
+    # -----
     def sample(self, batchSize):
         """
         This function returns a subsample of experiences from the memory buffer to be used
@@ -956,7 +973,7 @@ class PriorityMemory(Memory):
         # here we get the width of each segment
         segmentWidth = self.buffer.total_priority / batchSize
         # Anneal the strength of the IS weights (cap the parameter at 1)
-        self.perB = np.min([1., self.perB + self.perBAnneal])
+        self.perB = np.min([1.0, self.perB + self.perBAnneal])
         # Loop over the desired number of samples
         for i in range(batchSize):
             # We need to uniformly select a value from each segment, so here we get the
@@ -976,9 +993,9 @@ class PriorityMemory(Memory):
         isWeights = isWeights / np.max(isWeights)
         return indices, experiences, isWeights
 
-    #-----
+    # -----
     # Update
-    #-----
+    # -----
     def update(self, indices, absErrors):
         """
         This function uses the new errors generated from training in order to update the

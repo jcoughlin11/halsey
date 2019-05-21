@@ -15,31 +15,30 @@ import agent
 import nnutils as nu
 
 
-
 # Read hyperparameters from parameter file
 try:
-    print('Reading hyperparameters...')
+    print("Reading hyperparameters...")
     hyperparams = nu.read_hyperparams(sys.argv[1])
 except (IOError, IndexError) as e:
-    print('Error, could not open file for reading hyperparameters!')
+    print("Error, could not open file for reading hyperparameters!")
     sys.exit()
 
 # Create the gym environment
-print('Building the environment...')
-env = gym.make(hyperparams['env_name'])
+print("Building the environment...")
+env = gym.make(hyperparams["env_name"])
 
 # Set up the network
-print('Setting up network...')
+print("Setting up network...")
 tf.reset_default_graph()
 with tf.Session() as sess:
     ag = agent.Agent(hyperparams, env, sess)
 
     # Train the network
-    if hyperparams['train_flag']:
-        print('Training...')
-        ag.train(hyperparams['restart_training'])
+    if hyperparams["train_flag"]:
+        print("Training...")
+        ag.train(hyperparams["restart_training"])
 
     # Test the network
-    if hyperparams['test_flag']:
-        print('Testing agent...')
-        ag.test(hyperparams['render_flag'])
+    if hyperparams["test_flag"]:
+        print("Testing agent...")
+        ag.test(hyperparams["render_flag"])
