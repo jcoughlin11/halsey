@@ -3,8 +3,8 @@ Title:   run_agent.py
 Author:  Jared Coughlin
 Date:    3/19/19
 Purpose: Driver code for using DQL to train an agent to play a game
-Notes:  1. This is based on the version in ../../course_version/, which, in turn, is from:
-            https://tinyurl.com/ya8d9wcd
+Notes:  1. This is based on the version in ../../course_version/, which,
+            in turn, is from: https://tinyurl.com/ya8d9wcd
 """
 import sys
 
