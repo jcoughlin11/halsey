@@ -17,32 +17,51 @@ from tensorflow.train import RMSPropOptimizer
 # ============================================
 class DQN:
     """
-    This is the Deep-Q Network class. It defines the network architecture for training the
-    agent using Deep-Q learning.
+    Defines the network architecture for training the agent using Deep-Q
+    learning.
 
-    Parameters:
+    Attributes:
     -----------
-        name : string
-            The name that tensorflow assigns to the variable namespace
+        pass
 
-        architecture : string
-            The network architecture to use. These are specified as methods within this
-            class, so this class can be used as a black box.
+    Methods:
+    --------
+        pass
 
-        inputShape : tuple
-            This is the dimensions of the input image stack. It's
-            batchSize x nrows x ncols x nstacked.
-
-        nActions : int
-            The size of the environment's action space
     """
 
     # -----
     # Constructor
     # -----
     def __init__(
-        self, netName, architecture, inputShape, nActions, learningRate
-    ):
+        self, netName, architecture, inputShape, nActions, learningRate):
+        """
+        Parameters:
+        -----------
+            name : string
+                The name that tensorflow assigns to the variable
+                namespace.
+
+            architecture : string
+                The network architecture to use. These are specified as
+                methods within this class, so this class can be used as
+                a black box.
+
+            inputShape : tuple
+                This is the dimensions of the input image stack. It's
+                batchSize x nrows x ncols x nstacked.
+
+            nActions : int
+                The size of the environment's action space
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
         self.name = netName
         self.arch = architecture
         self.inputShape = inputShape
@@ -63,21 +82,36 @@ class DQN:
     # -----
     def build_conv1_net(self):
         """
-        This function constructs the layers of the network. Uses three convolutional
-        layers followed by a FC and then output layer
+        Constructs the layers of the network. Uses three convolutional
+        layers followed by a FC and then output layer.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
         """
         with tf.variable_scope(self.name):
-            # Placeholders (anything that needs to be fed from the outside)
+            # Placeholders (anything that needs to be fed from the
+            # outside)
             # Input. This is the stack of frames from the game
             self.inputs = tf.placeholder(
                 tf.float32, shape=self.inputShape, name="inputs"
             )
-            # Actions. The action the agent chose. Used to get the predicted Q value
+            # Actions. The action the agent chose. Used to get the
+            # predicted Q value
             self.actions = tf.placeholder(
                 tf.float32, shape=[None, 1], name="actions"
             )
-            # Target Q. The max discounted future reward playing from next state
-            # after taking chosen action. Determined by Bellmann equation.
+            # Target Q. The max discounted future reward playing from
+            # next state after taking chosen action. Determined by
+            # Bellmann equation.
             self.target_Q = tf.placeholder(
                 tf.float32, shape=[None], name="target"
             )
@@ -149,22 +183,26 @@ class DQN:
     # -----
     def build_dueling1_net(self):
         """
-        This function constructs the layers of the network. Three conv layers followed by
-        dueling DQN, which splits into two streams: one for value and one for advantage
-        before recominging them with an aggregation layer
+        Constructs the layers of the network. Three conv layers followed
+        by dueling DQN, which splits into two streams: one for value and
+        one for advantage before recominging them with an aggregation
+        layer.
         """
         with tf.variable_scope(self.name):
-            # Placeholders (anything that needs to be fed from the outside)
+            # Placeholders (anything that needs to be fed from the
+            # outside)
             # Input. This is the stack of frames from the game
             self.inputs = tf.placeholder(
                 tf.float32, shape=self.inputShape, name="inputs"
             )
-            # Actions. The action the agent chose. Used to get the predicted Q value
+            # Actions. The action the agent chose. Used to get the
+            # predicted Q value
             self.actions = tf.placeholder(
                 tf.float32, shape=[None, 1], name="actions"
             )
-            # Target Q. The max discounted future reward playing from next state
-            # after taking chosen action. Determined by Bellmann equation.
+            # Target Q. The max discounted future reward playing from
+            # next state after taking chosen action. Determined by
+            # Bellmann equation
             self.target_Q = tf.placeholder(
                 tf.float32, shape=[None], name="target"
             )
@@ -236,7 +274,8 @@ class DQN:
                 kernel_initializer=xavier_initializer(),
                 name="advantage",
             )
-            # Aggregation layer: Q(s,a) = V(s) + [A(s,a) - 1/|A| * sum_{a'} A(s,a')]
+            # Aggregation layer: Q(s,a) = V(s) + [A(s,a) - 1/|A| *
+            # sum_{a'} A(s,a')]
             self.output = self.value + tf.subtract(
                 self.advantage,
                 tf.reduce_mean(self.advantage, axis=1, keepdims=True),
@@ -257,8 +296,21 @@ class DQN:
     # -----
     def build_perdueling1_net(self):
         """
-        This function is identical to dueling1, except that it has extra parameters in
-        order to facilitate PER (prioritized experience replay)
+        This function is identical to dueling1, except that it has extra
+        parameters in order to facilitate PER (prioritized experience
+        replay).
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
         """
         with tf.variable_scope(self.name):
             # Placeholders
@@ -342,7 +394,8 @@ class DQN:
                 kernel_initializer=xavier_initializer(),
                 name="advantage",
             )
-            # Aggregation layer: Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
+            # Aggregation layer: Q(s,a) = V(s) + (A(s,a) - 1/|A| *
+            # sum A(s,a'))
             self.output = self.value + tf.subtract(
                 self.advantage,
                 tf.reduce_mean(self.advantage, axis=1, keepdims=True),
