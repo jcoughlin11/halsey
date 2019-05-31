@@ -146,7 +146,7 @@ class DQN:
                 kernel_size=[3, 3],
                 strides=[2, 2],
                 padding="VALID",
-                kernel_initializer=tf.xavier_initializer_conv2d(),
+                kernel_initializer=xavier_initializer_conv2d(),
                 name="conv3",
             )
             # Third convolutional layer activation
@@ -158,7 +158,7 @@ class DQN:
                 inputs=self.flatten,
                 units=512,
                 activation=tf.nn.elu,
-                kernel_initializer=tf.xavier_initializer(),
+                kernel_initializer=xavier_initializer(),
                 name="fc1",
             )
             # Output layer (FC)

@@ -598,7 +598,7 @@ class Agent:
         """
         # Load model
         self.qNet.saver.restore(
-            self.sess, os.path.join(self.saveFilePath, self.ckptFilei + ".ckpt")
+            self.sess, os.path.join(self.saveFilePath, self.ckptFile + ".ckpt")
         )
         # Play game
         for episode in range(1):

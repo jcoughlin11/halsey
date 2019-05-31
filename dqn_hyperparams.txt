@@ -7,8 +7,8 @@ epsilon_stop    : 0.01
 eps_decay_rate  : 0.00001
 discount        : 0.9
 memory_size     : 1000000
-train_flag      : 1
-render_flag     : 0
+train_flag      : 0
+render_flag     : 1
 crop_top        : 8
 crop_bot        : 12
 crop_left       : 4
@@ -19,15 +19,15 @@ shrink_cols     : 84
 pretrain_len    : 64
 save_path       : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
 save_period     : 5
-restart_training: 1
+restart_training: 0
 ckpt_file       : si
-test_flag       : 0
+test_flag       : 1
 env_name        : SpaceInvaders-v0
-architecture    : perdueling1
-fixed_Q         : 1
+architecture    : conv1
+fixed_Q         : 0
 fixed_Q_steps   : 100
-double_dqn      : 1
-per             : 1
+double_dqn      : 0
+per             : 0
 per_a           : 0.6
 per_b           : 0.4
 per_e           : 0.01
