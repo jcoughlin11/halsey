@@ -18,7 +18,7 @@ import skimage
 warnings.filterwarnings("ignore")
 
 # Architecture register
-archRegister = ["conv1", "dueling1", "perdueling1"]
+archRegister = ["conv1", "dueling1", "perdueling1", "rnn1"]
 
 
 # ============================================
@@ -113,8 +113,11 @@ def check_agent_option_conflicts(params):
     """
     conflict_flag = 1
     # Double DQN requires fixed-Q
-    if (params["double_dqn"] == 1) and (params["fixed_Q"] != 1):
+    if params["double_dqn"] == 1 and params["fixed_Q"] != 1:
         print("Error, double dqn requires the use of fixed Q!")
+        conflict_flag = 0
+    if params["architecture"] == "rnn1" and params["per"] == 1:
+        print("Error, cannot use PER with an RNN!")
         conflict_flag = 0
     return conflict_flag
 
