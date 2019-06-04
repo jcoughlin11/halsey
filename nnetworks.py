@@ -74,6 +74,8 @@ class DQN:
             self.build_dueling1_net()
         elif self.arch == "perdueling1":
             self.build_perdueling1_net()
+        elif self.arch == "rnn1":
+            self.build_rnn1_net()
         else:
             raise ValueError("Error, unrecognized network architecture!")
 
@@ -410,6 +412,156 @@ class DQN:
             self.loss = tf.reduce_mean(
                 self.isWeights * tf.squared_difference(self.target_Q, self.Q)
             )
+            self.optimizer = RMSPropOptimizer(self.learningRate).minimize(
+                self.loss
+            )
+        self.saver = tf.train.Saver()
+
+    #-----
+    # build_rnn1_net
+    #-----
+    def build_rnn1_net(self):
+        """
+        Builds the DQ network, but instead of a FC layer before the
+        output layer, there's a LSTM layer. This allows for only one
+        frame to be passed instead of a stack of four. See:
+        https://tinyurl.com/y4l8mxsm
+
+        Parameters:
+        -----------
+            None
+
+        Raises:
+        -------
+            None
+
+        Returns:
+        --------
+            None
+        """
+        # Create the cell for the recurrent layer. It has the same
+        # number of units as the output of the last convolutional
+        # layer (this is in keeping with Hausknecht17, who were looking
+        # at the effects of only adding recurrence to DQN and nothing
+        # else. Since the FC layer before the output layer in DQN has
+        # the same number of units as the output of the last conv layer
+        # then that's what they did for their recurrent layer, as well.
+        rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=512)
+        with tf.variable_scope(self.name):
+            # Input
+            self.inputs =  tf.placeholder(
+                tf.float32, shape=self.inputShape, name="inputs")
+            # Actions. The action the agent chose. Used to get the
+            # predicted Q value
+            self.actions = tf.placeholder(
+                tf.float32, shape=[None, 1], name="actions"
+            )
+            # Target Q. The max discounted future reward playing from
+            # next state after taking chosen action. Determined by
+            # Bellmann equation
+            self.target_Q = tf.placeholder(
+                tf.float32, shape=[None], name="target"
+            )
+            # Batchsize for the rnn
+            self.batchSize = tf.placeholder(
+                tf.float32, shape=[], name="batchSize")
+            # First convolutional layer
+            self.conv1 = tf.layers.conv2d(
+                inputs=self.inputs,
+                filters=32,
+                kernel_size=[8, 8],
+                strides=[4, 4],
+                padding="VALID",
+                kernel_initializer=xavier_initializer_conv2d(),
+                name="conv1",
+            )
+            # First convolutional layer activation
+            self.conv1_out = tf.nn.elu(self.conv1, name="conv1_out")
+            # Second convolutional layer
+            self.conv2 = tf.layers.conv2d(
+                inputs=self.conv1_out,
+                filters=64,
+                kernel_size=[4, 4],
+                strides=[2, 2],
+                padding="VALID",
+                kernel_initializer=xavier_initializer_conv2d(),
+                name="conv2",
+            )
+            # Second convolutional layer activation
+            self.conv2_out = tf.nn.elu(self.conv2, name="conv2_out")
+            # Third convolutional layer
+            self.conv3 = tf.layers.conv2d(
+                inputs=self.conv2_out,
+                filters=64,
+                kernel_size=[3, 3],
+                strides=[2, 2],
+                padding="VALID",
+                kernel_initializer=xavier_initializer_conv2d(),
+                name="conv3",
+            )
+            # Third convolutional layer activation
+            self.conv3_out = tf.nn.elu(self.conv3, name="conv3_out")
+            # Flatten
+            self.flatten = tf.contrib.layers.flatten(self.conv3_out)
+            # Create the initial rnn state
+            self.rnnInitState = rnn_cell.zero_state(self.BatchSize, tf.float32)
+            # Recurrent network
+            self.rnn, self.rnn_state = tf.nn.dynamic_rnn(
+                inputs=self.flatten,
+                cell=rnn_cell,
+                dtype=tf.float32,
+                initial_state=self.rnnInitState
+            )
+            # Reshape rnn to work with FC layers. Recall the a -1 in a
+            # shape means to set the value for that dimension
+            # automatically such that the total size of the tensor is
+            # retained. It's used when the size of one of the dims is
+            # not known. At most one dimension can have -1 as its shape
+            # value
+            self.rnn = tf.reshape(self.rnn, shape=[-1, 512])
+            # Split the output of the rnn into two streams
+            # Value stream
+            self.value_fc = tf.layers.dense(
+                inputs=self.rnn,
+                units=512,
+                activation=tf.nn.elu,
+                kernel_initializer=xavier_initializer(),
+                name="value_fc",
+            )
+            self.value = tf.layers.dense(
+                inputs=self.value_fc,
+                units=1,
+                activation=None,
+                kernel_initializer=xavier_initializer(),
+                name="value",
+            )
+            # Advantage stream
+            self.advantage_fc = tf.layers.dense(
+                inputs=self.rnn,
+                units=512,
+                activation=tf.nn.elu,
+                kernel_initializer=xavier_initializer(),
+                name="advantage_fc",
+            )
+            self.advantage = tf.layers.dense(
+                inputs=self.advantage_fc,
+                units=self.nActions,
+                activation=None,
+                kernel_initializer=xavier_initializer(),
+                name="advantage",
+            )
+            # Aggregation layer: Q(s,a) = V(s) + [A(s,a) - 1/|A| *
+            # sum_{a'} A(s,a')]
+            self.output = self.value + tf.subtract(
+                self.advantage,
+                tf.reduce_mean(self.advantage, axis=1, keepdims=True),
+            )
+            # Predicted Q value
+            self.Q = tf.reduce_sum(
+                tf.multiply(self.output, self.actions), axis=1
+            )
+            # Loss: mse between predicted and target Q values
+            self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
             self.optimizer = RMSPropOptimizer(self.learningRate).minimize(
                 self.loss
             )
