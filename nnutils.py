@@ -1229,3 +1229,185 @@ class PriorityMemory(Memory):
         # Update the tree
         for ind, p in zip(indices, priorities):
             self.buffer.update(ind, p)
+
+
+#============================================
+#                EpisodeMemory
+#============================================
+class EpisodeMemory(Memory):
+    """
+    Same idea as the Memory class, but holds entire episodes in its
+    buffer instead of individual experience tuples. As such, episodes
+    are sampled rather than random experience tuples. A random string,
+    or trace, of frames of a particular length is chosen from each
+    episdoe. These traces are used to train a RNN.
+
+    Attributes:
+    -----------
+        pass
+
+    Methods:
+    --------
+        pass
+    """
+
+    #-----
+    # Constructor
+    #-----
+    def __init__(self, max_size, pretrain_len):
+        """
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Call parent's constructor
+        super().__init__(max_size, pretrain_len)
+ 
+    # -----
+    # Pre-Populate
+    # -----
+    def pre_populate(self, env, stack_size, crop, shrink, maxEpisodeLength):
+        """
+        This function initially fills the experience buffer with sample
+        episodes in order to avoid the empty memory problem. It's a
+        little frustrating since it's so similar to Memory's
+        pre_populate, but I figured this was better than doing an
+        instance check or passing a flag to that function.
+
+        Parameters:
+        -----------
+            env : gym environment
+                The environment for the game that's being learned by
+                the agent.
+
+            stack_size : int
+                The number of frames to stack together for temporal
+                differencing.
+
+            crop : tuple
+                (top, bot, left, right) to chop off each edge of the
+                frame.
+
+            shrink : tuple
+                (x, y) size of the shrunk frame.
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            None
+        """
+        # Get initial state
+        state = env.reset()
+        # Process and stack initial frames
+        state, frame_stack = stack_frames(
+            None, state, True, stack_size, crop, shrink
+        )
+        # Loop over the desired number of sample episodes
+        for i in range(self.pretrain_len):
+            # Clear episode buffer
+            episodeBuffer = []
+            # Loop over the max number of steps we can take per episode
+            for j in range(maxEpisodeLength):
+                # Choose a random action. randint chooses in [a,b)
+                action = np.random.randint(0, env.action_space.n)
+                # Take action
+                next_state, reward, done, _ = env.step(action)
+                # Add next state to stack of frames
+                next_state, frame_stack = stack_frames(
+                    frame_stack, next_state, False, stack_size, crop, shrink
+                )
+                # Add experience to episode buffer
+                episodeBuffer.append((state, action, reward, next_state, done))
+                # If we're in a terminal state, we need to reset things
+                # and go to the next episode
+                if done:
+                    # Add the episode buffer to memory
+                    self.add(episodeBuffer)
+                    state = env.reset()
+                    state, frame_stack = stack_frames(
+                        None, state, True, stack_size, crop, shrink
+                    )
+                    break
+                # Otherwise, update the state and continue
+                else:
+                    state = next_state
+            # When done with the current episode, add the experience to
+            # memory and reset if we ended because of a time out
+            if not done:
+                self.add(episodeBuffer)
+                state = env.reset()
+                state, frame_stack = stack_frames(
+                    None, state, True, stack_size, crop, shrink
+                )
+
+    #-----
+    # sample
+    #-----
+    def sample(self, batchSize, traceLength):
+        """
+        Randomly selects episodes from the memory buffer and randomly
+        chooses traces of the desired length from each episode in order
+        to train on them.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        batch = []
+        # Choose random indices from the buffer. Make sure the
+        # batch_size isn't larger than the current buffer size or np
+        # will complain
+        try:
+            indices = np.random.choice(
+                np.arange(len(self.buffer)), size=batchSize, replace=False
+            )
+        except ValueError:
+            raise (
+                "Error, need batch_size < buf_size when sampling from memory!"
+            )
+        chosenEpisodes = [self.buffer[i] for i in indices]
+        # Select random traces of the desired length from each of the
+        # chosen episodes
+        for i in range(batchSize):
+            ind = np.random.choice(np.arange(len(chosenEpisodes[i])))
+            # Case 1: chosen index is at least traceLength from the end
+            # of the chosen episode's list of experiences
+            if len(chosenEpisodes[i]) - ind >= traceLength:
+                trace = chosenEpisodes[i][ind:ind+traceLength]    
+            # Case 2: it isn't (either by chance or because the list of
+            # experiences for this episode isn't long enough to begin
+            # with
+            else:
+                # Extract as many experiences as we can
+                trace = chosenEpisodes[i][ind:]
+                # I'm not really sure what to do here, so I'm going to
+                # repeat the last experience until we get enough to fill
+                # the trace. This doesn't seem like a good thing to do
+                # since it breaks the sequential nature of the data
+                # needed by the RNN. I guess I could make the batch
+                # size dynamic when training the RNN?
+                while len(trace) < traceLength:
+                    trace.append(chosenEpisodes[i][-1])
+            # Add the trace to the batch
+            for t in trace:
+                batch.append(t)
+        return batch

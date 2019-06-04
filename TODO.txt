@@ -1,2 +1,2 @@
-1.) Add a boolean register to nnutils so that flags in the param file can be more easily
-converted to bool values
+1.) Check EpisodeMemory.sample() for case when len(episode) - ind < traceLength. See
+the in-code comment.
