@@ -1,2 +1,5 @@
 1.) Check EpisodeMemory.sample() for case when len(episode) - ind < traceLength. See
 the in-code comment.
+2.) Update the sampling in the Memory objects to use random.sample(). Also,
+see https://tinyurl.com/y4l8mxsm for how they did their sampling with rnn.
+This pertains to point 1.
