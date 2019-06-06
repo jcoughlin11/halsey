@@ -119,6 +119,9 @@ def check_agent_option_conflicts(params):
     if params["architecture"] == "rnn1" and params["per"] == 1:
         print("Error, cannot use PER with an RNN!")
         conflict_flag = 0
+    if params["architecture"] == "rnn1" and params["nstacked_frames"] > 1:
+        print("Error, must only use a frame stack of 1 for rnn!")
+        conflict_flag = 0
     return conflict_flag
 
 
