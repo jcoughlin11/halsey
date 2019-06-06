@@ -74,6 +74,8 @@ def param_file_registers():
         "fixed_Q",
         "double_dqn",
         "per",
+        "pre_train_max_ep_len",
+        "trace_len"
     ]
     string_params = ["save_path", "ckpt_file", "env_name", "architecture"]
     type_register = {

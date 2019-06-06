@@ -88,6 +88,7 @@ class Agent:
         self.perB = hyperparams["per_b"]
         self.perBAnneal = hyperparams["per_b_anneal"]
         self.perE = hyperparams["per_e"]
+        self.preTrainEpLen = hyperparams["pre_train_max_ep_len"]
         self.preTrainLen = hyperparams["pretrain_len"]
         self.qNet = None
         self.renderFlag = hyperparams["render_flag"]
@@ -101,6 +102,7 @@ class Agent:
         self.stackSize = hyperparams["nstacked_frames"]
         self.targetQNet = None
         self.totalRewards = []
+        self.traceLen = hyperparams["trace_len"]
         # Seed rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes

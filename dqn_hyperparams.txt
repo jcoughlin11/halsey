@@ -32,3 +32,5 @@ per_a           : 0.6
 per_b           : 0.4
 per_e           : 0.01
 per_b_anneal    : 0.001
+pre_train_max_ep_len : 1000
+trace_len       : 4
