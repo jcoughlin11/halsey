@@ -1397,16 +1397,37 @@ class EpisodeMemory(Memory):
             # experiences for this episode isn't long enough to begin
             # with
             else:
-                # Extract as many experiences as we can
-                trace = chosenEpisodes[i][ind:]
-                # I'm not really sure what to do here, so I'm going to
-                # repeat the last experience until we get enough to fill
-                # the trace. This doesn't seem like a good thing to do
-                # since it breaks the sequential nature of the data
-                # needed by the RNN. I guess I could make the batch
-                # size dynamic when training the RNN?
-                while len(trace) < traceLength:
-                    trace.append(chosenEpisodes[i][-1])
+                # NOTE: I'm not sure this is the right way to handle
+                # this!
+                # Two cases: there are enough experiences in the
+                # episode, we just got unlucky with the chosen starting
+                # index by being too close to the end, and two, there
+                # just aren't enough experiences in the episode
+                # Case 1: enough experiences, but we're too close to
+                # the end
+                if len(chosenEpisodes[i]) >= traceLength:
+                    # Back up until we include enough experiences
+                    while len(chosenEpisodes[i] - ind < traceLength:
+                        ind -= 1
+                # Case 2: there aren't enough experiences for a trace
+                # of the desired length. I don't think the trace length
+                # can be changed
+                else:
+                    # Extract as many experiences as we can
+                    trace = chosenEpisodes[i][ind:]
+                    # I'm not really sure what to do here, so I'm going to
+                    # repeat the last experience until we get enough to fill
+                    # the trace. This doesn't seem like a good thing to do
+                    # since it breaks the sequential nature of the data
+                    # needed by the RNN. I guess I could make the batch
+                    # size dynamic when training the RNN? This would
+                    # let me skip these sorts of episodes, but, on the
+                    # other hand, these are exactly the episodes we
+                    # want to learn from since, being so short,
+                    # something clearly went wrong (probably. Depends
+                    # on the game)
+                    while len(trace) < traceLength:
+                        trace.append(chosenEpisodes[i][-1])
             # Add the trace to the batch
             for t in trace:
                 batch.append(t)
