@@ -7,6 +7,7 @@ Notes:
 """
 import collections
 import os
+import random
 import sys
 import warnings
 
@@ -75,7 +76,8 @@ def param_file_registers():
         "double_dqn",
         "per",
         "pre_train_max_ep_len",
-        "trace_len"
+        "trace_len",
+        "using_RNN_random"
     ]
     string_params = ["save_path", "ckpt_file", "env_name", "architecture"]
     type_register = {

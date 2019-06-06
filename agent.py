@@ -93,6 +93,7 @@ class Agent:
         self.qNet = None
         self.renderFlag = hyperparams["render_flag"]
         self.restartTraining = hyperparams["restart_training"]
+        self.usingRNNRandom = False
         self.savePeriod = hyperparams["save_period"]
         self.saver = None
         self.saveFilePath = hyperparams["save_path"]
@@ -103,6 +104,7 @@ class Agent:
         self.targetQNet = None
         self.totalRewards = []
         self.traceLen = hyperparams["trace_len"]
+        self.usingRNNRandom = hyperparams["using_RNN_random"]
         # Seed rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes
@@ -124,6 +126,7 @@ class Agent:
                 self.memSize, self.preTrainLen, perParams
             )
         elif hyperparams["architecture"] == "rnn1":
+            self.usingRNNRandom = True
             self.memory = nu.EpisodeMemory(
                 self.memSize, self.preTrainLen, self.preTrainEpLen,
                 self.traceLen
@@ -228,6 +231,12 @@ class Agent:
             state, frame_stack = nu.stack_frames(
                 None, state, True, self.stackSize, self.crop, self.shrink
             )
+            # If using an RNN WITH RANDOM UPDATES, reset the RNN's
+            # hidden layer (see Hausknecht17, Deep Recurrent Q-Learning
+            # for Partially Observable MDPs, Section: Stable Recurrent
+            # Updates)
+            if self.usingRNNRandom:
+                pass
             # Loop over the max amount of time the agent gets per
             # episode
             while step < self.maxEpSteps:

@@ -425,7 +425,8 @@ class DQN:
         Builds the DQ network, but instead of a FC layer before the
         output layer, there's a LSTM layer. This allows for only one
         frame to be passed instead of a stack of four. See:
-        https://tinyurl.com/y4l8mxsm
+        https://tinyurl.com/y4l8mxsm, and:
+        https://colah.github.io/posts/2015-08-Understanding-LSTMs/
 
         Parameters:
         -----------
@@ -439,14 +440,6 @@ class DQN:
         --------
             None
         """
-        # Create the cell for the recurrent layer. It has the same
-        # number of units as the output of the last convolutional
-        # layer (this is in keeping with Hausknecht17, who were looking
-        # at the effects of only adding recurrence to DQN and nothing
-        # else. Since the FC layer before the output layer in DQN has
-        # the same number of units as the output of the last conv layer
-        # then that's what they did for their recurrent layer, as well.
-        rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=512)
         with tf.variable_scope(self.name):
             # Input
             self.inputs =  tf.placeholder(
@@ -503,12 +496,23 @@ class DQN:
             self.conv3_out = tf.nn.elu(self.conv3, name="conv3_out")
             # Flatten
             self.flatten = tf.contrib.layers.flatten(self.conv3_out)
+            # Create the cell for the recurrent layer. It has the same
+            # number of units as the output of the last convolutional
+            # layer (this is in keeping with Hausknecht17, who were
+            # looking at the effects of only adding recurrence to DQN
+            # and nothing else. Since the FC layer before the output
+            # layer in DQN has the same number of units as the output of
+            # the last conv layer then that's what they did for their
+            # recurrent layer, as well.
+            self.rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=512)
             # Create the initial rnn state
-            self.rnnInitState = rnn_cell.zero_state(self.BatchSize, tf.float32)
+            self.rnnInitState = self.rnn_cell.zero_state(
+                self.BatchSize, tf.float32
+            )
             # Recurrent network
             self.rnn, self.rnn_state = tf.nn.dynamic_rnn(
                 inputs=self.flatten,
-                cell=rnn_cell,
+                cell=self.rnn_cell,
                 dtype=tf.float32,
                 initial_state=self.rnnInitState
             )
