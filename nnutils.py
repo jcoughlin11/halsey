@@ -1257,7 +1257,7 @@ class EpisodeMemory(Memory):
     #-----
     # Constructor
     #-----
-    def __init__(self, max_size, pretrain_len):
+    def __init__(self, max_size, pretrain_len, preTrainEpLen, traceLen):
         """
         Parameters:
         -----------
@@ -1273,11 +1273,13 @@ class EpisodeMemory(Memory):
         """
         # Call parent's constructor
         super().__init__(max_size, pretrain_len)
+        self.preTrainEpLen = self.preTrainEpLen
+        self.traceLen = traceLen
  
     # -----
     # Pre-Populate
     # -----
-    def pre_populate(self, env, stack_size, crop, shrink, maxEpisodeLength):
+    def pre_populate(self, env, stack_size, crop, shrink):
         """
         This function initially fills the experience buffer with sample
         episodes in order to avoid the empty memory problem. It's a
@@ -1321,7 +1323,7 @@ class EpisodeMemory(Memory):
             # Clear episode buffer
             episodeBuffer = []
             # Loop over the max number of steps we can take per episode
-            for j in range(maxEpisodeLength):
+            for j in range(self.preTrainEpLen):
                 # Choose a random action. randint chooses in [a,b)
                 action = np.random.randint(0, env.action_space.n)
                 # Take action
@@ -1357,7 +1359,7 @@ class EpisodeMemory(Memory):
     #-----
     # sample
     #-----
-    def sample(self, batchSize, traceLength):
+    def sample(self, batchSize):
         """
         Randomly selects episodes from the memory buffer and randomly
         chooses traces of the desired length from each episode in order
@@ -1394,8 +1396,8 @@ class EpisodeMemory(Memory):
             ind = np.random.choice(np.arange(len(chosenEpisodes[i])))
             # Case 1: chosen index is at least traceLength from the end
             # of the chosen episode's list of experiences
-            if len(chosenEpisodes[i]) - ind >= traceLength:
-                trace = chosenEpisodes[i][ind:ind+traceLength]    
+            if len(chosenEpisodes[i]) - ind >= self.traceLen:
+                trace = chosenEpisodes[i][ind:ind + self.traceLen]    
             # Case 2: it isn't (either by chance or because the list of
             # experiences for this episode isn't long enough to begin
             # with
@@ -1408,9 +1410,9 @@ class EpisodeMemory(Memory):
                 # just aren't enough experiences in the episode
                 # Case 1: enough experiences, but we're too close to
                 # the end
-                if len(chosenEpisodes[i]) >= traceLength:
+                if len(chosenEpisodes[i]) >= self.traceLen:
                     # Back up until we include enough experiences
-                    while len(chosenEpisodes[i] - ind < traceLength:
+                    while len(chosenEpisodes[i] - ind < self.traceLen:
                         ind -= 1
                 # Case 2: there aren't enough experiences for a trace
                 # of the desired length. I don't think the trace length
@@ -1429,7 +1431,7 @@ class EpisodeMemory(Memory):
                     # want to learn from since, being so short,
                     # something clearly went wrong (probably. Depends
                     # on the game)
-                    while len(trace) < traceLength:
+                    while len(trace) < self.traceLen:
                         trace.append(chosenEpisodes[i][-1])
             # Add the trace to the batch
             for t in trace:

@@ -121,6 +121,11 @@ class Agent:
             self.memory = nu.PriorityMemory(
                 self.memSize, self.preTrainLen, perParams
             )
+        elif hyperparams["architecture"] == "rnn1":
+            self.memory = nu.EpisodeMemory(
+                self.memSize, self.preTrainLen, self.preTrainEpLen,
+                self.traceLen
+            )
         else:
             self.memory = nu.Memory(self.memSize, self.preTrainLen)
         self.memory.pre_populate(
