@@ -496,14 +496,14 @@ class DQN:
             self.conv3_out = tf.nn.elu(self.conv3, name="conv3_out")
             # Flatten
             self.flatten = tf.contrib.layers.flatten(self.conv3_out)
-            # Create the cell for the recurrent layer. It has the same
+            # Create the cell for the recurrent network. It has the same
             # number of units as the output of the last convolutional
             # layer (this is in keeping with Hausknecht17, who were
             # looking at the effects of only adding recurrence to DQN
             # and nothing else. Since the FC layer before the output
             # layer in DQN has the same number of units as the output of
             # the last conv layer then that's what they did for their
-            # recurrent layer, as well.
+            # recurrent layer, as well)
             self.rnn_cell = tf.nn.rnn_cell.LSTMCell(num_units=512)
             # Create the initial rnn state
             self.rnnInitState = self.rnn_cell.zero_state(
