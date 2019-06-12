@@ -1381,63 +1381,31 @@ class EpisodeMemory(Memory):
         --------
             pass
         """
-        batch = []
-        # Choose random indices from the buffer. Make sure the
-        # batch_size isn't larger than the current buffer size or np
-        # will complain
-        try:
-            indices = np.random.choice(
-                np.arange(len(self.buffer)), size=batchSize, replace=False
-            )
-        except ValueError:
-            raise (
-                "Error, need batch_size < buf_size when sampling from memory!"
-            )
-        chosenEpisodes = [self.buffer[i] for i in indices]
+        # Set up list for holding traces
+        traces = []
+        # Choose random episodes
+        chosenEpisodes = random.sample(self.buffer, batchSize)
         # Select random traces of the desired length from each of the
         # chosen episodes
-        for i in range(batchSize):
-            ind = np.random.choice(np.arange(len(chosenEpisodes[i])))
-            # Case 1: chosen index is at least traceLength from the end
-            # of the chosen episode's list of experiences
-            if len(chosenEpisodes[i]) - ind >= self.traceLen:
-                trace = chosenEpisodes[i][ind:ind + self.traceLen]    
-            # Case 2: it isn't (either by chance or because the list of
-            # experiences for this episode isn't long enough to begin
-            # with
+        for ep in chosenEpisodes:
+            # Case 1: episode is long enough for desired trace
+            if len(ep) >= self.traceLen:
+                # Get starting index. The upper limit is exclusive,
+                # hence the +1
+                ind = np.random.randint(0, len(ep) + 1 - self.traceLen)
+                # Get trace
+                traces.append(ep[ind:ind + self.traceLen])
+            # Case 2: it isn't
             else:
+                # Extract as many experiences as we can
+                partialTrace = chosenEpisodes[i][ind:]
                 # NOTE: I'm not sure this is the right way to handle
-                # this!
-                # Two cases: there are enough experiences in the
-                # episode, we just got unlucky with the chosen starting
-                # index by being too close to the end, and two, there
-                # just aren't enough experiences in the episode
-                # Case 1: enough experiences, but we're too close to
-                # the end
-                if len(chosenEpisodes[i]) >= self.traceLen:
-                    # Back up until we include enough experiences
-                    while len(chosenEpisodes[i] - ind < self.traceLen:
-                        ind -= 1
-                # Case 2: there aren't enough experiences for a trace
-                # of the desired length. I don't think the trace length
-                # can be changed
-                else:
-                    # Extract as many experiences as we can
-                    trace = chosenEpisodes[i][ind:]
-                    # I'm not really sure what to do here, so I'm going to
-                    # repeat the last experience until we get enough to fill
-                    # the trace. This doesn't seem like a good thing to do
-                    # since it breaks the sequential nature of the data
-                    # needed by the RNN. I guess I could make the batch
-                    # size dynamic when training the RNN? This would
-                    # let me skip these sorts of episodes, but, on the
-                    # other hand, these are exactly the episodes we
-                    # want to learn from since, being so short,
-                    # something clearly went wrong (probably. Depends
-                    # on the game)
-                    while len(trace) < self.traceLen:
-                        trace.append(chosenEpisodes[i][-1])
-            # Add the trace to the batch
-            for t in trace:
-                batch.append(t)
-        return batch
+                # this! I'm repeating the last experience until we fill
+                # the trace, but this breaks the sequential nature of
+                # the data that an RNN needs. Can I have a dynamic
+                # batch size? Or should I just choose another episode?
+                # What if there are no episodes of the right length?
+                while len(partialTrace) < self.traceLen:
+                    partialTrace.append(chosenEpisodes[i][-1])
+                traces.append(partialTrace)
+        return traces
