@@ -132,7 +132,6 @@ class Agent:
         )
         # Build the network
         self.qNet = nw.DQN(
-            "qnet",
             hyperparams["architecture"],
             self.input_shape,
             self.env.action_space.n,
@@ -143,7 +142,6 @@ class Agent:
         # double dqn since fixed-Q is required for that
         if self.fixedQ == 1:
             self.targetQNet = nw.DQN(
-                "targetQNet",
                 hyperparams["architecture"],
                 self.input_shape,
                 self.env.action_space.n,
@@ -198,10 +196,7 @@ class Agent:
                 train_params
             )
         else:
-            # Initialize tensorflow variables
-            self.sess.run(tf.global_variables_initializer())
-            # Now that the global variable initializer has been run, we
-            # can copy the weights from qNet to targetQNet if using
+            # Copy the weights from qNet to targetQNet if using
             # fixed-Q
             if self.fixedQ == 1:
                 updateTarget = self.update_target_graph()
