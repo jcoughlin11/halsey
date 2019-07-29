@@ -1,8 +1,8 @@
 """
-Title:   nnetworks.py
+Title:   agent.py
 Author:  Jared Coughlin
 Date:    1/24/19
-Purpose: Contains the class definitions of neural networks
+Purpose: Contains the Agent class, which is the object that learns
 Notes:
 """
 import os
@@ -38,7 +38,7 @@ class Agent:
     # -----
     # Constructor
     # -----
-    def __init__(self, hyperparams, env, sess):
+    def __init__(self, hyperparams, env):
         """
         Parameters:
         -----------
@@ -46,14 +46,9 @@ class Agent:
                 A dictionary containing the relevant hyperparameters.
                 See read_hyperparams in nnutils.py.
 
-            env : gym environment
+            env : gym.core.Env
                 This is the game's environment, created by gym, that
                 contains all of the relevant details about the game.
-
-            sess : tf.Session()
-                The tensorflow session used to evaluate tensors. By
-                passing it, we create a persistent session that spans
-                the scope of the whole class.
 
         Raises:
         -------
@@ -64,47 +59,46 @@ class Agent:
             pass
         """
         # Initialize
-        self.batchSize = hyperparams["batch_size"]
-        self.callbacks = None
-        self.ckptFile = hyperparams["ckpt_file"]
-        self.cropBot = hyperparams["crop_bot"]
-        self.cropLeft = hyperparams["crop_left"]
-        self.cropRight = hyperparams["crop_right"]
-        self.cropTop = hyperparams["crop_top"]
-        self.discountRate = hyperparams["discount"]
-        self.doubleDQN = hyperparams["double_dqn"]
-        self.env = env
-        self.epsDecayRate = hyperparams["eps_decay_rate"]
-        self.epsilonStart = hyperparams["epsilon_start"]
-        self.epsilonStop = hyperparams["epsilon_stop"]
-        self.fixedQ = hyperparams["fixed_Q"]
-        self.fixedQSteps = hyperparams["fixed_Q_steps"]
-        self.learningRate = hyperparams["learning_rate"]
-        self.maxEpSteps = hyperparams["max_steps"]
-        self.memSize = hyperparams["memory_size"]
-        self.nEpisodes = hyperparams["n_episodes"]
-        self.per = hyperparams["per"]
-        self.perA = hyperparams["per_a"]
-        self.perB = hyperparams["per_b"]
-        self.perBAnneal = hyperparams["per_b_anneal"]
-        self.perE = hyperparams["per_e"]
-        self.preTrainEpLen = hyperparams["pre_train_max_ep_len"]
-        self.preTrainLen = hyperparams["pretrain_len"]
-        self.qNet = None
-        self.renderFlag = hyperparams["render_flag"]
+        self.batchSize       = hyperparams["batch_size"]
+        self.callbacks       = None
+        self.ckptFile        = hyperparams["ckpt_file"]
+        self.cropBot         = hyperparams["crop_bot"]
+        self.cropLeft        = hyperparams["crop_left"]
+        self.cropRight       = hyperparams["crop_right"]
+        self.cropTop         = hyperparams["crop_top"]
+        self.discountRate    = hyperparams["discount"]
+        self.doubleDQN       = hyperparams["double_dqn"]
+        self.env             = env
+        self.epsDecayRate    = hyperparams["eps_decay_rate"]
+        self.epsilonStart    = hyperparams["epsilon_start"]
+        self.epsilonStop     = hyperparams["epsilon_stop"]
+        self.fixedQ          = hyperparams["fixed_Q"]
+        self.fixedQSteps     = hyperparams["fixed_Q_steps"]
+        self.learningRate    = hyperparams["learning_rate"]
+        self.maxEpSteps      = hyperparams["max_steps"]
+        self.memSize         = hyperparams["memory_size"]
+        self.nEpisodes       = hyperparams["n_episodes"]
+        self.per             = hyperparams["per"]
+        self.perA            = hyperparams["per_a"]
+        self.perB            = hyperparams["per_b"]
+        self.perBAnneal      = hyperparams["per_b_anneal"]
+        self.perE            = hyperparams["per_e"]
+        self.preTrainEpLen   = hyperparams["pre_train_max_ep_len"]
+        self.preTrainLen     = hyperparams["pretrain_len"]
+        self.qNet            = None
+        self.renderFlag      = hyperparams["render_flag"]
         self.restartTraining = hyperparams["restart_training"]
-        self.usingRNNRandom = False
-        self.savePeriod = hyperparams["save_period"]
-        self.saver = None
-        self.saveFilePath = hyperparams["save_path"]
-        self.sess = sess
-        self.shrinkCols = hyperparams["shrink_cols"]
-        self.shrinkRows = hyperparams["shrink_rows"]
-        self.stackSize = hyperparams["nstacked_frames"]
-        self.targetQNet = None
-        self.totalRewards = []
-        self.traceLen = hyperparams["trace_len"]
-        self.usingRNNRandom = hyperparams["using_RNN_random"]
+        self.usingRNNRandom  = False
+        self.savePeriod      = hyperparams["save_period"]
+        self.saver           = None
+        self.saveFilePath    = hyperparams["save_path"]
+        self.shrinkCols      = hyperparams["shrink_cols"]
+        self.shrinkRows      = hyperparams["shrink_rows"]
+        self.stackSize       = hyperparams["nstacked_frames"]
+        self.targetQNet      = None
+        self.totalRewards    = []
+        self.traceLen        = hyperparams["trace_len"]
+        self.usingRNNRandom  = hyperparams["using_RNN_random"]
         # Seed rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes
