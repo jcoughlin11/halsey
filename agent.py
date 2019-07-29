@@ -17,9 +17,9 @@ import nnetworks as nw
 import nnutils as nu
 
 
-# ============================================
+#============================================
 #                    Agent
-# ============================================
+#============================================
 class Agent:
     """
     Contains all of the methods for using various RL techniques in
@@ -382,9 +382,7 @@ class Agent:
             state = state.reshape(
                 (1, state.shape[0], state.shape[1], state.shape[2])
             )
-            Q_vals = self.sess.run(
-                self.qNet.output, feed_dict={self.qNet.inputs: state}
-            )
+            Q_vals = self.qNet.model.predict(state)
             # Choose the one with the highest Q value
             action = np.argmax(Q_vals)
         return action
@@ -505,9 +503,7 @@ class Agent:
             )
         # Standard dqn
         else:
-            Q_next = self.sess.run(
-                self.qNet.output, feed_dict={self.qNet.inputs: next_states}
-            )
+            Q_next = self.qNet.model.predict(next_states)
         # Loop over every experience in the sample in order to use them
         # to update the Q table
         targetQ = np.zeros(self.batchSize)
