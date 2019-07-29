@@ -174,15 +174,13 @@ class Agent:
         # Initialize the tensorflow session (uses default graph)
         # See if we need to load a saved model to continue training
         if restart is False:
-            self.qNet.saver.restore(
-                self.sess,
-                os.path.join(self.saveFilePath, self.ckptFile + ".ckpt"),
+            self.qNet.model = tf.keras.models.load_model(
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
             )
             if self.fixedQ == 1:
-                self.targetQNet.saver.restore(
-                    self.sess,
+                self.targetQNet.model = tf.keras.models.load_model(
                     os.path.join(
-                        self.saveFilePath, self.ckptFile + "-target.ckpt"
+                        self.saveFilePath, self.ckptFile + "-target.h5"
                     ),
                 )
             train_params = nu.load_train_params(
@@ -196,11 +194,9 @@ class Agent:
                 train_params
             )
         else:
-            # Copy the weights from qNet to targetQNet if using
-            # fixed-Q
+            # Copy the weights from qNet to targetQNet if using fixed-Q
             if self.fixedQ == 1:
-                updateTarget = self.update_target_graph()
-                self.sess.run(updateTarget)
+                self.targetQNet.model.set_weights(self.qNet.model.get_weights())
             # Set up the decay step for the epsilon-greedy search
             decay_step = 0
             start_ep = 0
@@ -258,8 +254,9 @@ class Agent:
                 if self.fixedQ == 1:
                     if fixed_Q_step > self.fixedQSteps:
                         fixed_Q_step = 0
-                        updateTarget = self.update_target_graph()
-                        self.sess.run(updateTarget)
+                        self.targetQNet.model.set_weights(
+                            self.qNet.model.get_weights()
+                        )
                 # Set up for next episode if we're in a terminal state
                 if done:
                     # Get total reward for episode
@@ -301,15 +298,13 @@ class Agent:
                 # Make sure the directory exists
                 if not os.path.exists(self.saveFilePath):
                     os.mkdir(self.saveFilePath)
-                self.qNet.saver.save(
-                    self.sess,
-                    os.path.join(self.saveFilePath, self.ckptFile + ".ckpt"),
+                self.qNet.model.save(
+                    os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
                 )
                 if self.fixedQ == 1:
-                    self.targetQNet.saver.save(
-                        self.sess,
+                    self.targetQNet.model.save(
                         os.path.join(
-                            self.saveFilePath, self.ckptFile + "-target.ckpt"
+                            self.saveFilePath, self.ckptFile + "-target.h5"
                         ),
                     )
                 nu.save_train_params(
@@ -325,15 +320,13 @@ class Agent:
         if early_abort is False:
             if not os.path.exists(self.saveFilePath):
                 os.mkdir(self.saveFilePath)
-            self.qNet.saver.save(
-                self.sess,
-                os.path.join(self.saveFilePath, self.ckptFile + ".ckpt"),
+            self.qNet.model.save(
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
             )
             if self.fixedQ == 1:
-                self.targetQNet.saver.save(
-                    self.sess,
+                self.targetQNet.model.save(
                     os.path.join(
-                        self.saveFilePath, self.ckptFile + "-target.ckpt"
+                        self.saveFilePath, self.ckptFile + "-target.h5"
                     ),
                 )
         if early_abort is True:
