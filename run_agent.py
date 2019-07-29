@@ -3,8 +3,7 @@ Title:   run_agent.py
 Author:  Jared Coughlin
 Date:    3/19/19
 Purpose: Driver code for using DQL to train an agent to play a game
-Notes:  1. This is based on the version in ../../course_version/, which,
-            in turn, is from: https://tinyurl.com/ya8d9wcd
+Notes:  1. This is based on https://tinyurl.com/ya8d9wcd
 """
 import sys
 
@@ -12,33 +11,41 @@ import gym
 import tensorflow as tf
 
 import agent
+import error
 import nnutils as nu
 
 
-# Read hyperparameters from parameter file
-try:
-    print("Reading hyperparameters...")
-    hyperparams = nu.read_hyperparams(sys.argv[1])
-except (IOError, IndexError) as e:
-    print("Error, could not open file for reading hyperparameters!")
-    sys.exit()
+#============================================
+#                   main
+#============================================
+def main():
+    """
+    Driver for training, testing, or running an agent instance.
 
-# Create the gym environment
-print("Building the environment...")
-env = gym.make(hyperparams["env_name"])
+    Parameters:
+    -----------
+        None
 
-# Set up the network
-print("Setting up network...")
-tf.reset_default_graph()
-with tf.Session() as sess:
-    ag = agent.Agent(hyperparams, env, sess)
+    Raises:
+    -------
+        None
 
-    # Train the network
-    if hyperparams["train_flag"]:
-        print("Training...")
-        ag.train(hyperparams["restart_training"])
-
-    # Test the network
-    if hyperparams["test_flag"]:
-        print("Testing agent...")
-        ag.test(hyperparams["render_flag"])
+    Returns:
+    --------
+        None
+    """
+    # Initialize the run
+    hyperparams, env = nu.initialize()
+    # Set up the network
+    print("Setting up network...")
+    tf.reset_default_graph()
+    with tf.Session() as sess:
+        ag = agent.Agent(hyperparams, env, sess)
+        # Train the network
+        if hyperparams["train_flag"]:
+            print("Training...")
+            ag.train(hyperparams["restart_training"])
+        # Test the network
+        if hyperparams["test_flag"]:
+            print("Testing agent...")
+            ag.test(hyperparams["render_flag"])

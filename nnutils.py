@@ -11,6 +11,7 @@ import random
 import sys
 import warnings
 
+import gym
 import numpy as np
 import skimage
 
@@ -246,6 +247,65 @@ def read_hyperparams(fname):
     if check_agent_option_conflicts(hyperparams) == 0:
         sys.exit(0)
     return hyperparams
+
+
+#============================================
+#                initialize
+#============================================
+def initialize():
+    """
+    Reads the parameter file and sets up the gym environment.
+
+    Parameters:
+    -----------
+        None
+
+    Raises:
+    -------
+        None
+
+    Returns:
+    --------
+        hyperparams : dict
+            Dictionary containing the parameters read in from the file.
+
+        env : gym.core.Env
+            The object that interfaces between the game and the agent.
+    """
+    # Read hyperparameters from parameter file
+    try:
+        print("Reading hyperparameters...")
+        hyperparams = nu.read_hyperparams(sys.argv[1])
+    except (IOError, IndexError):
+        print("Error, could not open file for reading hyperparameters!")
+        sys.exit(1)
+    # Create the gym environment
+    print("Building the environment...")
+    env = gym.make(hyperparams["env_name"])
+    except KeyError:
+        print("Error, could not find 'env_name' in the hyperparams!")
+        sys.exit(1)
+    except gym.error.UnregisteredEnv:
+        print("Error, trying to build an unregistered environment:"
+            "\n\t{}\n"
+            "Try:\n\tfrom gym.envs.registration import register\n"
+            "\tregister(\n"
+            "\t\tid='<env-name>',\n"
+            "\t\tentry_point='<package>.envs:<EnvClass>',\n"
+            "\t)\n"
+            "In the environment's init.py".format(hyperparams['env_name'])
+        )
+        sys.exit(1)
+    except gym.error.DeprecatedEnv as e:
+        print("Error, trying to build a deprecated environment:\n"
+            "\t{}\n"
+            "{}".format(hyperparams['env_name'], e)
+        )
+        sys.exit(1)
+    except gym.error.Error:
+        print("Error, trying to build an unrecognized environment!")
+        sys.exit(1)
+    return hyperparams, env
 
 
 # ============================================
