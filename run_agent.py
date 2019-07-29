@@ -7,11 +7,7 @@ Notes:  1. This is based on https://tinyurl.com/ya8d9wcd
 """
 import sys
 
-import gym
-import tensorflow as tf
-
 import agent
-import error
 import nnutils as nu
 
 
@@ -20,7 +16,7 @@ import nnutils as nu
 #============================================
 def main():
     """
-    Driver for training, testing, or running an agent instance.
+    Driver for training or running an agent instance.
 
     Parameters:
     -----------
@@ -36,16 +32,21 @@ def main():
     """
     # Initialize the run
     hyperparams, env = nu.initialize()
-    # Set up the network
-    print("Setting up network...")
-    tf.reset_default_graph()
-    with tf.Session() as sess:
-        ag = agent.Agent(hyperparams, env, sess)
-        # Train the network
-        if hyperparams["train_flag"]:
-            print("Training...")
-            ag.train(hyperparams["restart_training"])
-        # Test the network
-        if hyperparams["test_flag"]:
-            print("Testing agent...")
-            ag.test(hyperparams["render_flag"])
+    # Set up the agent
+    print("Setting up agent...")
+    ag = agent.Agent(hyperparams, env)
+    # Train the network
+    if hyperparams['train_flag']:
+        print("Training...")
+        ag.train(hyperparams['restart_training'])
+    # Test the network
+    if hyperparams['test_flag']:
+        print("Testing agent...")
+        ag.test(hyperparams['render_flag'])
+
+
+#============================================
+#                main script
+#============================================
+if __name__ == '__main__':
+    main()
