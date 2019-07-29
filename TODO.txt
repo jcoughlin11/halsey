@@ -16,3 +16,8 @@
     episode ends.
     * This means, as far as I can tell, when doing the double dqn, he's always
     using a zeroed rnn state, as state_train never changes.
+
+2.) Need to update the loss = sess.run call at the end of learn() to use
+    train_on_batch.
+
+3.) Need to get rid of all other sess.run calls.
