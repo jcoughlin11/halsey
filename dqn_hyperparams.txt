@@ -1,36 +1,56 @@
-learning_rate   : 0.00025
-n_episodes      : 50
-max_steps       : 50000
-batch_size      : 64
-epsilon_start   : 1.0
-epsilon_stop    : 0.01
-eps_decay_rate  : 0.00001
-discount        : 0.9
-memory_size     : 1000000
-train_flag      : 0
-render_flag     : 1
-crop_top        : 8
-crop_bot        : 12
-crop_left       : 4
-crop_right      : 12
-nstacked_frames : 4
-shrink_rows     : 110
-shrink_cols     : 84
-pretrain_len    : 64
-save_path       : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
-save_period     : 5
-restart_training: 0
-ckpt_file       : si
-test_flag       : 1
-env_name        : SpaceInvaders-v0
-architecture    : conv1
-fixed_Q         : 0
-fixed_Q_steps   : 100
-double_dqn      : 0
-per             : 0
-per_a           : 0.6
-per_b           : 0.4
-per_e           : 0.01
-per_b_anneal    : 0.001
-pre_train_max_ep_len : 1000
-trace_len       : 4
+# Training hyperparameters
+#-------------------------
+    batch_size        : 64
+    learning_rate     : 0.00025
+    max_episode_steps : 50000
+    n_episodes        : 50
+
+# Exploitation parameters
+#------------------------
+    eps_decay_rate : 0.00001
+    epsilon_start  : 1.0
+    epsilon_stop   : 0.01
+
+# Image preprocessing parameters
+#-------------------------------
+    crop_bot         : 12
+    crop_left        : 4
+    crop_right       : 12
+    crop_top         : 8
+    n_stacked_frames : 4
+    shrink_cols      : 84
+    shrink_rows      : 110
+
+# Memory parameters
+#------------------
+    enable_per          : 0
+    memory_size         : 1000000
+    per_a               : 0.6
+    per_b               : 0.4
+    per_b_anneal        : 0.001
+    per_e               : 0.01
+    pretrain_len        : 64
+    pretrain_max_ep_len : 1000
+
+# Run-time parameters
+#--------------------
+    env_name         : SpaceInvaders-v0
+    render_flag      : 1
+    restart_training : 0
+    test_flag        : 1
+    train_flag       : 0
+
+# Q parameters
+#-------------
+    architecture      : conv1
+    discount          : 0.9
+    enable_double_dqn : 0
+    enable_fixed_Q    : 0
+    fixed_Q_steps     : 100
+    trace_len         : 4
+
+# I/O parameters
+#---------------
+    ckpt_file       : si
+    save_path       : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
+    save_period     : 5
