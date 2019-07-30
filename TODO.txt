@@ -21,3 +21,7 @@
     train_on_batch.
 
 3.) Need to get rid of all other sess.run calls.
+
+4.) Using model.predict works on batches, and so a batch_size parameter needs
+    to be specified. If it isn't, keras defaults to the value of 32. Do I need
+    to set it differently?

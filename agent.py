@@ -466,8 +466,6 @@ class Agent:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
         else:
             sample = self.memory.sample(self.batchSize)
-        # There's no need to call sess.run self.batchSize times to get
-        # Q_target. It's not wrong, but it is slow. It can be vectorized
         states = np.array([s[0] for s in sample], ndmin=3)
         actions = np.array([s[1] for s in sample])
         rewards = np.array([s[2] for s in sample])
@@ -488,19 +486,11 @@ class Agent:
             # action to our target network, which handles calculating
             # the target Q value. That is: Q_target(s,a) = r(s,a) +
             # gamma * Q_target(s', argmax(Q(s',a)))
-            Q_next = self.sess.run(
-                self.qNet.output, feed_dict={self.qNet.inputs: next_states}
-            )
-            Q_target_next = self.sess.run(
-                self.targetQNet.output,
-                feed_dict={self.targetQNet.inputs: next_states},
-            )
+            Q_next = self.qNet.predict(next_states)
+            Q_target_next = self.targetQNet.predict(next_states)
         # Fixed Q
         elif self.fixedQ == 1:
-            Q_next = self.sess.run(
-                self.targetQNet.output,
-                feed_dict={self.targetQNet.inputs: next_states},
-            )
+            Q_next = self.targetQNet.predict(next_states)
         # Standard dqn
         else:
             Q_next = self.qNet.model.predict(next_states)
