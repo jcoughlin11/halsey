@@ -5,6 +5,7 @@ Date: 7/30/19
 Purpose: Contains tools related to reading and writing files to disk
 Notes:
 """
+import collections
 import os
 
 import numpy
