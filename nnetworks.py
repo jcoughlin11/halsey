@@ -73,8 +73,9 @@ class DQN:
     # -----
     def build_conv1_net(self):
         """
-        Constructs the layers of the network. Uses three convolutional
-        layers followed by a FC and then output layer.
+        Constructs the layers of the network. Uses two convolutional
+        layers followed by a FC and then output layer. See the last
+        paragraph of section 4.1 in Mnih13.
 
         Parameters:
         -----------
@@ -93,42 +94,37 @@ class DQN:
         # First convolutional layer
         model.add(tf.keras.layers.Conv2D(
                 input_shape=self.inputShape,
-                filters=32,
+                filters=16,
                 kernel_size=[8,8],
                 strides=[4,4],
-                activation='elu',
+                activation='relu',
                 name='conv1'
             )
         )
         # Second convolutional layer
         model.add(tf.keras.layers.Conv2D(
-                filters=64,
+                filters=32,
                 kernel_size=[4,4],
                 strides=[2,2],
-                activation='elu',
+                activation='relu',
                 name='conv2'
-            )
-        )
-        # Third convolutional layer
-        model.add(tf.keras.layers.Conv2D(
-                filters=64,
-                kernel_size=[3,3],
-                strides=[2,2],
-                activation='elu',
-                name='conv3'
             )
         )
         # Flatten layer
         model.add(tf.keras.layers.Flatten())
         # Fully connected layer
         model.add(tf.keras.layers.Dense(
-                units=512,
-                activation='elu',
+                units=256,
+                activation='relu',
                 name='fc1'
             )
         )
         # Output layer
-        model.add(tf.keras.layers.Dense(units=self.nActions))
+        model.add(tf.keras.layers.Dense(
+            units=self.nActions,
+            activation='linear'
+            )
+        )
         # Compile the model
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=self.learningRate),
