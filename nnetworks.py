@@ -90,8 +90,7 @@ class DQN:
         """
         # Initialize empty model
         model = tf.keras.Sequential()
-        # First convolutional layer. Keras sets padding to valid and
-        # kernel_initializer to glorot_unitform (xavier)
+        # First convolutional layer
         model.add(tf.keras.layers.Conv2D(
                 input_shape=self.inputShape,
                 filters=32,
