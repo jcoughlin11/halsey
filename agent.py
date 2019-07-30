@@ -15,6 +15,7 @@ import tensorflow as tf
 
 import memory as mem
 import nnetworks as nw
+import nnio as io
 
 
 #============================================
@@ -138,3 +139,172 @@ class Agent:
                 self.env.action_space.n,
                 self.learningRate,
             )
+
+    #-----
+    # train
+    #-----
+    def initialize_training(self, restart=True):
+        """
+        Sets up the training loop.
+
+        Parameters:
+        ------------
+            restart : bool
+                If true, start training from the beginning. If false,
+                load a saved model and continue where training last left
+                off.
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            None
+        """
+        # Start from scratch
+        if restart:
+            # Copy the weights from qNet to targetQNet, if applicable
+            if self.enableFixedQ:
+                self.targetQNet.model.set_weights(self.qNet.model.get_weights())
+            # Initialize counters
+            train_params = (
+                0,
+                0,
+                self.totalRewards,
+                self.memory.buffer,
+                0
+            )
+        # Continue where we left off
+        else:
+            self.qNet.model = tf.keras.models.load_model(
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
+            )
+            if self.enableFixedQ:
+                self.targetQNet.model = tf.keras.models.load_model(
+                    os.path.join(
+                        self.saveFilePath, self.ckptFile + "-target.h5"
+                    ),
+                )
+            train_params = io.load_train_params(
+                self.saveFilePath, self.memory.max_size
+            )
+        return train_params
+
+    #-----
+    # train
+    #-----
+    def train(self, restart=True):
+        """
+        Trains the agent to play the game.
+
+        Parameters:
+        ------------
+            restart : bool
+                If true, start training from the beginning. If false,
+                load a saved model and continue where training last left
+                off.
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            None
+        """
+        # Initialize the training loop
+        abort = False
+        start_ep, \
+        decay_step, \
+        self.totalRewards, \
+        self.memory.buffer, \
+        fixed_Q_step = self.initialize_training(restart)
+        # Loop over desired number of training episodes
+        for episode in range(start_ep, self.nEpisodes):
+            print("Episode: %d / %d" % (episode + 1, self.nEpisodes))
+            # Reset time spent on current episode
+            step = 0
+            # Track the rewards for the episode
+            episode_rewards = []
+            # Reset the environment
+            state = self.env.reset()
+            # Stack and process initial state
+            state, frame_stack = frames.stack_frames(
+                None,
+                state,
+                True,
+                self.stackSize,
+                self.crop,
+                self.shrink
+            )
+            # Loop over the max amount of time the agent gets per
+            # episode
+            while step < self.maxEpSteps:
+                print("Step: %d / %d" % (step, self.maxEpSteps), end="\r")
+                # Increase step counters
+                step += 1
+                decay_step += 1
+                fixed_Q_step += 1
+                # Choose an action
+                action = self.choose_action(state, decay_step)
+                # Perform action
+                next_state, reward, done, _ = self.env.step(action)
+                # Track the reward
+                episode_rewards.append(reward)
+                # Add the next state to the stack of frames
+                next_state, frame_stack = frames.stack_frames(
+                    frame_stack,
+                    next_state,
+                    False,
+                    self.stackSize,
+                    self.crop,
+                    self.shrink,
+                )
+                # Save experience
+                experience = (state, action, reward, next_state, done)
+                self.memory.add(experience)
+                # Learn from the experience
+                loss = self.learn()
+                # Update the targetQNet if applicable
+                if self.enableFixedQ:
+                    if fixed_Q_step > self.fixedQSteps:
+                        fixed_Q_step = 0
+                        self.targetQNet.model.set_weights(
+                            self.qNet.model.get_weights()
+                        )
+                # Set up for next episode if we're in a terminal state
+                if done:
+                    # Get total reward for episode
+                    tot_reward = np.sum(episode_rewards)
+                    break
+                # Otherwise, set up for the next step
+                else:
+                    state = next_state
+            # Save total episode reward
+            self.totalRewards.append(tot_reward)
+            # Print info to screen
+            print(
+                "Episode: {}\n".format(episode),
+                "Total Reward for episode: {}\n".format(tot_reward),
+                "Training loss: {:.4f}".format(loss),
+            )
+            # Save the model, if applicable
+            if episode % self.savePeriod == 0:
+                io.model_save(
+                    self.saveFilePath,
+                    self.ckptFile,
+                    self.qNet,
+                    self.targetQNet,
+                    train_params,
+                    False # Whether to save the train_params or not
+                )
+        # Save the final, trained model now that training is done
+        io.model_save(
+            self.saveFilePath,
+            self.ckptFile,
+            self.qNet,
+            self.targetQNet,
+            train_params,
+            True # Whether to save the train params or not
+        )

@@ -127,7 +127,8 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
     Takes in the current state and preprocesses it. Then, it adds the
     processed frame to the stack of frames. Two versions of this stack
     are returned: a tensorial version (ndarray) and a deque for easy
-    pushing and popping.
+    pushing and popping. The shape of the returned data is
+    (nRows, nCols, stackSize). 
 
     Parameters:
     -----------
