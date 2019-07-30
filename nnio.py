@@ -194,7 +194,16 @@ def read_hyperparams(fname):
     hyperparams = {}
     with open(fname, "r") as f:
         for line in f:
-            key, value = line.split(":")
+            # Skip lines that begin with '#' and empty lines
+            if line[0] == '#' or not line.strip():
+                continue
+            try:
+                key, value = line.split(':')
+            except ValueError:
+                print("Error, couldn't parse line '{}' in param "
+                    "file!".format(line)
+                )
+                sys.exit(1)
             key = key.strip()
             # Cast the parameter to the appropriate type
             if key in type_register["floats"]:
