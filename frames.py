@@ -14,6 +14,8 @@ import skimage
 
 # Skimage produces a lot of warnings
 warnings.filterwarnings("ignore")
+
+
 # ============================================
 #                 crop_frame
 # ============================================
@@ -43,32 +45,32 @@ def crop_frame(frame, crop):
             The cropped version of frame
     """
     cropFrame = None
-    # Sanity check (this part could go in another function that gets
-    # called initially, since it only needs to happen once)
-    if (crop[0] >= frame.shape[0]) or (crop[1] >= frame.shape[0]):
+    # Sanity check on crop sizes compared to image size
+    if crop[0] >= frame.shape[0] or crop[1] >= frame.shape[0]:
         raise ValueError("Error, can't crop more rows than are in frame!")
-    if (crop[2] >= frame.shape[1]) or (crop[3] >= frame.shape[1]):
+    if crop[2] >= frame.shape[1] or crop[3] >= frame.shape[1]:
         raise ValueError("Error, can't crop more cols than are in frame!")
     if crop[0] + crop[1] >= frame.shape[0]:
         raise ValueError("Error, total crop from bot and top too big!")
     if crop[2] + crop[3] >= frame.shape[1]:
         raise ValueError("Error, total crop from left and right too big!")
-    if (crop[1] != 0) and (crop[3] != 0):
+    # Crop the frame
+    if crop[1] != 0 and crop[3] != 0:
         cropFrame = frame[crop[0] : -crop[1], crop[2] : -crop[3]]
-    elif (crop[1] == 0) and (crop[3] != 0):
+    elif crop[1] == 0 and crop[3] != 0:
         cropFrame = frame[crop[0] :, crop[2] : -crop[3]]
-    elif (crop[1] == 0) and (crop[3] == 0):
+    elif crop[1] == 0 and crop[3] == 0:
         cropFrame = frame[crop[0] :, crop[2] :]
-    elif (crop[1] != 0) and (crop[3] == 0):
+    elif crop[1] != 0 and crop[3] == 0:
         cropFrame = frame[crop[0] : -crop[1], crop[2] :]
     # Sanity check
     if cropFrame is None:
         raise ValueError("Error in crop_frame, cropFrame not set!")
-    if (sum(crop) != 0) and (cropFrame.shape == frame.shape):
+    if sum(crop) != 0 and cropFrame.shape == frame.shape:
         raise ValueError(
             "Error in crop_frame, shapes equal when they shouldn't be!"
         )
-    elif (sum(crop) == 0) and (cropFrame.shape != frame.shape):
+    elif sum(crop) == 0 and cropFrame.shape != frame.shape:
         raise ValueError(
             "Error in crop_Frame, shapes not equal when they should be!"
         )
@@ -107,10 +109,8 @@ def preprocess_frame(frame, crop, shrink):
     """
     # Grayscale the image
     frame = skimage.color.rgb2grey(frame)
-    # Crop the image. We don't need blank space or things on the screen
-    # that aren't game objects. The crop tuple contains the number of
-    # pixels to chop off each dimension. This poses a problem when that
-    # number is 0 (e.g. the slice 0:0 will create an empty slice)
+    # Crop the image b/c we don't need blank space or things on the
+    # screen that aren't game objects
     frame = crop_frame(frame, crop)
     # Normalize the image
     frame = frame / 255.0
@@ -164,13 +164,9 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
             The deque version of the stack of frames.
     """
     # Error check
-    if (new_episode is False) and (
-        isinstance(frame_stack, collections.deque) is False
-    ):
-        print(
-            "Error, must pass existing stack if not starting a new episode!"
-        )
-        sys.exit()
+    if not new_episode and not isinstance(frame_stack, collections.deque):
+        print("Error, must pass existing stack if not starting a new episode!")
+        sys.exit(1)
     # Preprocess the given state
     state = preprocess_frame(state, crop, shrink)
     # Start fresh if this is a new episode
