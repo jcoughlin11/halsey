@@ -342,6 +342,8 @@ class Agent:
                     trainParams,
                     True
                 )
+                if earlyStop:
+                    sys.exit()
         # Save the final, trained model now that training is done
         io.save_model(
             self.saveFilePath,
