@@ -25,3 +25,12 @@
 4.) Using model.predict works on batches, and so a batch_size parameter needs
     to be specified. If it isn't, keras defaults to the value of 32. Do I need
     to set it differently?
+
+5.) Maybe make trainParams a dictionary? Then I don't need all of the gross
+    unpacking I currently have.
+
+6.) The save/load due to early stopping needs to be refined. Mainly, what
+    happens if a parameter (such as the length of the memory buffer) changes?
+    That screws everything up. Basically, all of the parameters from the
+    parameter file need to be saved, as well, ensuring that everything remains
+    the same across runs.
