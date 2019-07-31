@@ -353,3 +353,62 @@ class Agent:
             trainParams,
             False
         )
+
+    # -----
+    # Choose Action
+    # -----
+    def choose_action(self, state, decayStep):
+        """
+        Uses the current state and the agent's current knowledge in
+        order to choose an action. It employs the epsilon greedy
+        strategy to handle exploration vs. exploitation.
+
+        Parameters:
+        ------------
+            state : ndarray
+                The tensor of stacked frames.
+
+            decayStep : int
+                The overall training step. This is used to cause the
+                agent to favor exploitation in the long-run.
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            action : int
+                The agent's choice of what to do based on the current
+                state.
+        """
+        # Choose a random number from uniform distribution between 0 and
+        # 1. This is the probability that we exploit the knowledge we
+        # already have
+        exploitProb = np.random.random()
+        # Get the explore probability. This probability decays over time
+        # (but stops at eps_stop so we always have some chance of trying
+        # something new) as the agent learns
+        exploreProb = self.epsilonStop + (
+            self.epsilonStart - self.epsilonStop
+        ) * np.exp(-self.epsDecayRate * decayStep)
+        # Explore
+        if exploreProb >= exploitProb:
+            # Choose randomly. randint selects integers in the range
+            # [a,b)
+            action = np.random.randint(0, self.env.action_space.n)
+        # Exploit
+        else:
+            # Keras expects a group of samples of the specified shape,
+            # even if there's just one sample, so we need to reshape
+            state = state.reshape(
+                1,
+                state.shape[0],
+                state.shape[1],
+                state.shape[2]
+            )
+            # Get the beliefs in each action for the current state
+            Q_vals = self.qNet.model.predict(state)
+            # Choose the one with the highest Q value
+            action = np.argmax(Q_vals)
+        return action
