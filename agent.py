@@ -143,7 +143,7 @@ class Agent:
     #-----
     # train
     #-----
-    def initialize_training(self, restart=True):
+    def initialize_training(self, restart):
         """
         Sets up the training loop.
 
@@ -167,29 +167,50 @@ class Agent:
             # Copy the weights from qNet to targetQNet, if applicable
             if self.enableFixedQ:
                 self.targetQNet.model.set_weights(self.qNet.model.get_weights())
-            # Initialize counters
-            train_params = (
+            # Reset the environment
+            state = self.env.reset()
+            # Stack and process initial state
+            state, frameStack = frames.stack_frames(
+                None,
+                state,
+                True,
+                self.stackSize,
+                self.crop,
+                self.shrink
+            )
+            # Initialize parameters: startEp, decayStep, step,
+            # fixedQStep, totalRewards, epRewards, state, frameStack,
+            # and buffer
+            trainParams = (
                 0,
                 0,
-                self.totalRewards,
-                self.memory.buffer,
-                0
+                0,
+                0,
+                [],
+                [],
+                state,
+                frameStack,
+                self.memory.buffer
             )
         # Continue where we left off
         else:
+            # Load network
             self.qNet.model = tf.keras.models.load_model(
                 os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
             )
+            # Load target network, if applicable
             if self.enableFixedQ:
                 self.targetQNet.model = tf.keras.models.load_model(
                     os.path.join(
                         self.saveFilePath, self.ckptFile + "-target.h5"
                     ),
                 )
-            train_params = io.load_train_params(
-                self.saveFilePath, self.memory.max_size
+            # Load training parameters
+            trainParams = io.load_train_params(
+                self.saveFilePath,
+                self.memory.max_len
             )
-        return train_params
+        return trainParams
 
     #-----
     # train
@@ -214,97 +235,119 @@ class Agent:
             None
         """
         # Initialize the training loop
-        abort = False
-        start_ep, \
-        decay_step, \
+        earlyStop = False
+        trainParams = None
+        startEp, \
+        decayStep, \
+        step, \
+        fixedQStep,
         self.totalRewards, \
-        self.memory.buffer, \
-        fixed_Q_step = self.initialize_training(restart)
+        episodeRewards, \
+        state, \
+        frameStack, \
+        self.memory.buffer = self.initialize_training(restart)
         # Loop over desired number of training episodes
-        for episode in range(start_ep, self.nEpisodes):
+        for episode in range(startEp, self.nEpisodes):
             print("Episode: %d / %d" % (episode + 1, self.nEpisodes))
-            # Reset time spent on current episode
-            step = 0
-            # Track the rewards for the episode
-            episode_rewards = []
-            # Reset the environment
-            state = self.env.reset()
-            # Stack and process initial state
-            state, frame_stack = frames.stack_frames(
-                None,
-                state,
-                True,
-                self.stackSize,
-                self.crop,
-                self.shrink
-            )
+            if episode > startEp:
+                # Reset time spent on current episode
+                step = 0
+                # Track the rewards for the episode
+                episodeRewards = []
+                # Reset the environment
+                state = self.env.reset()
+                # Stack and process initial state
+                state, frameStack = frames.stack_frames(
+                    None,
+                    state,
+                    True,
+                    self.stackSize,
+                    self.crop,
+                    self.shrink
+                )
             # Loop over the max amount of time the agent gets per
             # episode
             while step < self.maxEpSteps:
+                # Check for early stop
+                if nu.check_early_stop():
+                    earlyStop = True
+                    trainParams = (
+                        episode,
+                        decayStep,
+                        step,
+                        fixedQStep,
+                        self.totalRewards,
+                        episodeRewards,
+                        state,
+                        frameStack
+                        self.memory.buffer
+                    )
+                    break
                 print("Step: %d / %d" % (step, self.maxEpSteps), end="\r")
                 # Increase step counters
                 step += 1
-                decay_step += 1
-                fixed_Q_step += 1
+                decayStep += 1
+                fixedQStep += 1
                 # Choose an action
-                action = self.choose_action(state, decay_step)
+                action = self.choose_action(state, decayStep)
                 # Perform action
-                next_state, reward, done, _ = self.env.step(action)
+                nextState, reward, done, _ = self.env.step(action)
                 # Track the reward
-                episode_rewards.append(reward)
+                episodeRewards.append(reward)
                 # Add the next state to the stack of frames
-                next_state, frame_stack = frames.stack_frames(
-                    frame_stack,
-                    next_state,
+                nextState, frameStack = frames.stack_frames(
+                    frameStack,
+                    nextState,
                     False,
                     self.stackSize,
                     self.crop,
                     self.shrink,
                 )
                 # Save experience
-                experience = (state, action, reward, next_state, done)
+                experience = (state, action, reward, nextState, done)
                 self.memory.add(experience)
                 # Learn from the experience
                 loss = self.learn()
                 # Update the targetQNet if applicable
                 if self.enableFixedQ:
-                    if fixed_Q_step > self.fixedQSteps:
-                        fixed_Q_step = 0
+                    if fixedQStep > self.fixedQSteps:
+                        fixedQStep = 0
                         self.targetQNet.model.set_weights(
                             self.qNet.model.get_weights()
                         )
                 # Set up for next episode if we're in a terminal state
                 if done:
                     # Get total reward for episode
-                    tot_reward = np.sum(episode_rewards)
+                    totReward = np.sum(episodeRewards)
                     break
                 # Otherwise, set up for the next step
                 else:
-                    state = next_state
+                    state = nextState
             # Save total episode reward
-            self.totalRewards.append(tot_reward)
+            self.totalRewards.append(totReward)
             # Print info to screen
-            print(
-                "Episode: {}\n".format(episode),
-                "Total Reward for episode: {}\n".format(tot_reward),
-                "Training loss: {:.4f}".format(loss),
-            )
+            if not earlyStop:
+                print(
+                    "Episode: {}\n".format(episode),
+                    "Total Reward for episode: {}\n".format(totReward),
+                    "Training loss: {:.4f}".format(loss),
+                )
             # Save the model, if applicable
-            if episode % self.savePeriod == 0:
-                io.model_save(
+            if episode % self.savePeriod == 0 or earlyStop:
+                io.save_model(
                     self.saveFilePath,
                     self.ckptFile,
                     self.qNet,
                     self.targetQNet,
-                    train_params,
-                    False # Whether to save the train_params or not
+                    trainParams,
+                    True
                 )
         # Save the final, trained model now that training is done
-        io.model_save(
+        io.save_model(
             self.saveFilePath,
             self.ckptFile,
             self.qNet,
             self.targetQNet,
-            train_params,
-            True # Whether to save the train params or not
+            trainParams,
+            False
         )
