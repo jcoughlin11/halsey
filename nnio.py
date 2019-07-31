@@ -223,34 +223,98 @@ def read_hyperparams(fname):
 
 
 #============================================
+#                save_memory
+#============================================
+def save_memory(memBuffer, savepath):
+    """
+    Saves the contents of the memory buffer to an hdf5 file.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Create hdf5 file
+    h5f = h5py.File('memory_buffer.h5', 'w')
+    # Case 1: memBuffer is a deque
+    if isinstance(memBuffer, collections.deque):
+        h5f.create_dataset('deque', data=np.array(memBuffer))
+    # Case 2: memBuffer is a SumTree. In this case, the whole data
+    # structure needs to be saved
+    elif isinstance(memBuffer, nu.SumTree):
+        # Counters
+        h5f.create_dataset('counters',
+            data=np.array([memBuffer.nLeafs, memBuffer.dataPointer])
+        )
+        h5f.create_dataset('tree', data=memBuffer.tree)
+        h5f.create_dataset('data', data=memBuffer.data)
+    # Unrecognized case
+    else:
+        h5f.close()
+        raise TypeError("Error, unrecognized memory buffer type!")
+    # Close file
+    h5f.close()
+
+
+#============================================
+#               load_memory
+#============================================
+def load_memory(savePath, memLen):
+    """
+    Loads in the memory buffer.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Open file for reading
+    h5f = h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'r')
+    # Buffer is a deque
+    if 'deque' in h5f.keys():
+        memBuffer = collections.deque(h5f['deque'][:]), maxlen=memLen)
+    # Buffer is a SumTree
+    elif 'tree' in h5f.keys():
+        # Read and set the counters
+        nLeafs, dataPointer = list(h5f['counters'][:])
+        memBuffer = nu.SumTree(nLeafs)
+        memBuffer.dataPointer = dataPointer
+        # Read the tree and experience data
+        memBuffer.tree = h5f['tree'][:]
+        memBuffer.data = h5f['data'][:]
+    else:
+        h5f.close()
+        raise KeyError("Error, could not infer type of memory buffer!")
+    # Close file
+    h5f.close()
+    return memBuffer
+
+
+#============================================
 #             save_train_params
 #============================================
-def save_train_params(decay, rewards, mem, path, qstep):
+def save_train_params(trainParams, savePath):
     """
     This function saves the crucial training parameters needed in order
     to continue where training left off.
 
     Parameters:
     -----------
-        ep : int
-            The most recent episode to have finished.
-
-        decay : int
-            The value of the decay_step used in explore-exploit epsilon
-            greedy.
-
-        rewards : list
-            List of the total reward earned for each completed episode.
-
-        mem : deque
-            The memory buffer for the current training session.
-
-        path : string
-            Place to save this information.
-
-        qstep : int
-            The current step that we're on with regards to when the
-            targetQNet should be updated. Only matters if using fixed-Q.
+        pass
 
     Raises:
     -------
@@ -260,44 +324,42 @@ def save_train_params(decay, rewards, mem, path, qstep):
     --------
         None
     """
-    # Episode, decay, and episode rewards
-    with open(os.path.join(path, "ep_decay_reward.txt"), "w") as f:
-        f.write(str(decay) + "\n")
-        f.write(str(qstep) + "\n")
-        for i in range(len(rewards)):
-            f.write(str(rewards[i]) + "\n")
-    # States
-    states = np.array([s[0] for s in mem], ndmin=3)
-    np.savez(os.path.join(path, "exp_states"), *states)
-    # Actions
-    actions = np.array([s[1] for s in mem])
-    np.savez(os.path.join(path, "exp_actions"), *actions)
+    # Unpack the training parameters
+    episode, \
+    decayStep, \
+    step, \
+    fixedQStep,
+    totRewards, \
+    epRewards, \
+    state, \
+    frameStack, \
+    memBuffer = trainParams
+    # Create hdf5 file
+    h5f = h5py.File(os.path.join(savePath, 'training_params.h5'), 'w')
+    # Save the counters: startEp, decayStep, step, and fixedQStep
+    counters = np.array([episode, decayStep, step, fixedQStep])
+    h5f.create_dataset('counters', data=counters)
     # Rewards
-    exp_rewards = np.array([s[2] for s in mem])
-    np.savez(os.path.join(path, "exp_rewards"), *exp_rewards)
-    # Next states
-    next_states = np.array([s[3] for s in mem], ndmin=3)
-    np.savez(os.path.join(path, "exp_next_states"), *next_states)
-    # Dones
-    dones = np.array([s[4] for s in mem])
-    np.savez(os.path.join(path, "exp_dones"), *dones)
-
+    rewards = np.stack((np.array(totRewards), np.array(epRewards)), axis=0)
+    h5f.create_dataset('rewards', data=rewards)
+    # State
+    h5f.create_dataset('state', data=state)
+    h5f.close()
+    # Memory
+    save_memory(memBuffer, savePath)
+    
 
 #============================================
 #             load_train_params
 #============================================
-def load_train_params(path, max_len):
+def load_train_params(savePath, memLen):
     """
     This function reads in the data saved to the files produced in
     save_train_params so that training can continue where it left off.
 
     Parameters:
     -----------
-        path : string
-            The path to the required data files.
-
-        max_len : int
-            The maximum length of the memory buffer.
+        pass
 
     Raises:
     -------
@@ -305,52 +367,63 @@ def load_train_params(path, max_len):
 
     Returns:
     --------
-        train_params : tuple
-            (start_episode, decay_step, totalRewards, memory, qstep).
+        pass
     """
-    # Read the ep_decay_reward file
-    with open(os.path.join(path, "ep_decay_reward.txt"), "r") as f:
-        # Decay step
-        decay_step = int(f.readline())
-        qstep = int(f.readline())
-        # Episode rewards
-        ep_rewards = []
-        for line in f:
-            ep_rewards.append(float(line))
-    # Get the most recently finished episode
-    ep = len(ep_rewards)
-    # Load the states, actions, rewards, next_states, and dones arrays
-    states = np.load(os.path.join(path, "exp_states.npz"))
-    actions = np.load(os.path.join(path, "exp_actions.npz"))
-    rewards = np.load(os.path.join(path, "exp_rewards.npz"))
-    next_states = np.load(os.path.join(path, "exp_next_states.npz"))
-    dones = np.load(os.path.join(path, "exp_dones.npz"))
-    # Sanity check
-    nstates = len(states.files)
-    if (
-        len(actions.files) != nstates
-        or len(rewards.files) != nstates
-        or len(next_states.files) != nstates
-        or len(dones.files) != nstates
-    ):
-        print(
-            "Error, length of read in states array does not match "
-            "length of actions, rewards, next_states, or dones!"
-        )
-        sys.exit()
-    # Get experience tuples to fill mem buffer (state, action, reward,
-    # next_state, done)
-    buf = collections.deque(maxlen=max_len)
-    for i in range(nstates):
-        key = "arr_" + str(i)
-        exp = (
-            states[key],
-            actions[key],
-            rewards[key],
-            next_states[key],
-            dones[key],
-        )
-        buf.append(exp)
-    # Package everything up
-    train_params = (ep, decay_step, ep_rewards, buf, qstep)
-    return train_params
+    # Create hdf5 file
+    h5f = h5py.File(os.path.join(savePath, 'training_params.h5'), 'r')
+    # Load counters
+    episode, decayStep, step, fixedQStep = list(h5f['counters'][:])
+    # Rewards
+    rewards = h5f['rewards'][:]
+    totRewards = list(rewards[0])
+    epRewards = list(rewards[1])
+    # State and frame stack
+    state = h5f['state'][:]
+    frameStack = collections.deque(state, maxlen=state.shape[-1])
+    # Close file
+    h5f.close()
+    # Memory
+    memBuffer = load_memory(savePath, memLen)
+    # Package the parameters
+    trainParams = (
+        episode,
+        decayStep,
+        step,
+        fixedQStep,
+        totRewards,
+        epRewards,
+        state,
+        frameStack,
+        memBuffer
+    )
+    return trainParams
+
+
+#============================================
+#                 save_model
+#============================================
+def save_model(savePath, saveFile, qNet, tNet, trainParams, saveParams):
+    """
+    Driver function for saving the networks and, if applicable, the
+    relevant training parameters for beginning from where we left off.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Save the primary network
+    qNet.model.save(os.path.join(savePath, saveFile + '.h5'))
+    # Save the target network, if applicable
+    if isinstance(tNet, nw.DQN):
+        tNet.model.save(os.path.join(savePath, saveFile + '-target.h5'))
+    # Save the training parameters, if applicable
+    if saveParams:
+        save_train_params(trainParams, savePath)
