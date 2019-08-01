@@ -437,8 +437,8 @@ class Agent:
         """
         # Set up the unpack arrays
         states = np.zeros([self.batchSize] + [d for d in self.inputShape])
-        actions = np.zeros((self.batchSize, 1), dtype=np.int)
-        rewards = np.zeros((self.batchSize, 1))
+        actions = np.zeros(self.batchSize, dtype=np.int)
+        rewards = np.zeros(self.batchSize)
         nextStates = np.zeros([self.batchSize] + [d for d in self.inputShape])
         dones = np.zeros(self.batchSize, dtype=np.bool)
         # Get batch of experiences
@@ -536,9 +536,11 @@ class Agent:
         # vector of Q-values that corresponds to the chosen action. For
         # a terminal state it's just the reward, and otherwise we use
         # the Bellmann equation
-        qTarget[dones][actions[dones]] = rewards[dones]
-        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
-            self.discountRate * np.amax(qNext[~dones])
+        doneInds = np.where(dones)
+        nDoneInds = np.where(~dones)
+        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
+        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
+            self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
@@ -591,9 +593,11 @@ class Agent:
         qNext = self.targetQNet.model.predict_on_batch(nextStates)
         # Now get targetQ values as is done in dqn_learn
         qTarget = self.qNet.model.predict_on_batch(states)
-        qTarget[dones][actions[dones]] = rewards[dones]
-        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
-            self.discountRate * qNext[~dones][nextActions]
+        doneInds = np.where(dones)
+        nDoneInds = np.where(~dones)
+        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
+        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
+            self.discountRate * qNext[nDoneInds, nextActions]
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
@@ -635,9 +639,11 @@ class Agent:
         qNext = self.targetQNet.model.predict_on_batch(nextStates)
         # Get the qTarget values according to dqn_learn
         qTarget = self.qNet.model.predict_on_batch(states)
-        qTarget[dones][actions[dones]] = rewards[dones]
-        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
-            self.discountRate * np.amax(qNext[~dones])
+        doneInds = np.where(dones)
+        nDoneInds = np.where(~dones)
+        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
+        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
+            self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
