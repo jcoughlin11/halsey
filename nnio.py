@@ -76,7 +76,7 @@ def param_file_registers():
         "train_flag",
     ]
     string_params = [
-        "architecture"
+        "architecture",
         "ckpt_file",
         "env_name",
         "save_path"
@@ -117,10 +117,10 @@ def check_agent_option_conflicts(params):
             function. If 1, then everything is fine (hopefully!).
     """
     # Check to make sure the architecture has been defined
-    if hyperparams["architecture"] not in archRegister:
+    if params["architecture"] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
     # Double DQN requires fixed-Q
-    if params["double_dqn"] and not params["fixed_Q"]:
+    if params["enable_double_dqn"] and not params["enable_fixed_Q"]:
         raise ValueError("Error, double dqn requires the use of fixed Q!")
 
 
@@ -188,7 +188,7 @@ def read_hyperparams(fname):
     fname = os.path.join(os.getcwd(), fname)
     # Make sure the file exists
     if not os.path.isfile(fname):
-        raise IOError
+        raise FileNotFoundError
     # Set up registers for casting to different data types
     type_register = param_file_registers()
     # Read file
@@ -214,7 +214,7 @@ def read_hyperparams(fname):
             elif key in type_register["strings"]:
                 value = value.strip()
             else:
-                print("Hyperparameter not found!")
+                print("Hyperparameter {} not found!".format(key))
                 raise IOError
             hyperparams[key] = value
     # Check for option conflicts
@@ -286,7 +286,7 @@ def load_memory(savePath, memLen):
     h5f = h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'r')
     # Buffer is a deque
     if 'deque' in h5f.keys():
-        memBuffer = collections.deque(h5f['deque'][:]), maxlen=memLen)
+        memBuffer = collections.deque(h5f['deque'][:], maxlen=memLen)
     # Buffer is a SumTree
     elif 'tree' in h5f.keys():
         # Read and set the counters

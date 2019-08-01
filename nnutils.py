@@ -5,6 +5,8 @@ Date:    1/24/19
 Purpose: Contains utility and helper classes related to neural networks
 Notes:
 """
+import os
+import subprocess32
 import sys
 
 import gym
@@ -44,8 +46,9 @@ def initialize():
         print("Error, could not open file for reading hyperparameters!")
         sys.exit(1)
     # Create the gym environment
-    print("Building the environment...")
-    env = gym.make(hyperparams["env_name"])
+    try:
+        print("Building the environment...")
+        env = gym.make(hyperparams["env_name"])
     except KeyError:
         print("Error, could not find 'env_name' in the hyperparams!")
         sys.exit(1)
@@ -70,6 +73,33 @@ def initialize():
         print("Error, trying to build an unrecognized environment!")
         sys.exit(1)
     return hyperparams, env
+
+
+#============================================
+#             check_early_stop
+#============================================
+def check_early_stop():
+    """
+    Looks for a file called stop in the current working directory.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
+        # Remove the file
+        subprocess32.call(["rm", os.path.join(os.getcwd(), 'stop')])
+        return True
+    else:
+        return False
 
 
 #============================================

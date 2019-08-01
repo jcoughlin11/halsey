@@ -6,16 +6,17 @@ Purpose: Contains the Agent class, which is the object that learns
 Notes:
 """
 import os
-import subprocess32
 import sys
 import time
 
 import numpy as np
 import tensorflow as tf
 
+import frames
 import memory as mem
 import nnetworks as nw
 import nnio as io
+import nnutils as nu
 
 
 #============================================
@@ -102,7 +103,7 @@ class Agent:
         self.crop = (self.cropTop, self.cropBot, self.cropLeft, self.cropRight)
         self.shrink = (self.shrinkRows, self.shrinkCols)
         # Set the size of the input frame stack
-        self.input_shape = (
+        self.inputShape = (
             self.shrinkRows,
             self.shrinkCols,
             self.stackSize,
@@ -126,7 +127,7 @@ class Agent:
         # Build the network
         self.qNet = nw.DQN(
             hyperparams["architecture"],
-            self.input_shape,
+            self.inputShape,
             self.env.action_space.n,
             self.learningRate,
         )
@@ -135,7 +136,7 @@ class Agent:
         if self.enableFixedQ:
             self.targetQNet = nw.DQN(
                 hyperparams["architecture"],
-                self.input_shape,
+                self.inputShape,
                 self.env.action_space.n,
                 self.learningRate,
             )
@@ -240,7 +241,7 @@ class Agent:
         startEp, \
         decayStep, \
         step, \
-        fixedQStep,
+        fixedQStep, \
         self.totalRewards, \
         episodeRewards, \
         state, \
@@ -279,7 +280,7 @@ class Agent:
                         self.totalRewards,
                         episodeRewards,
                         state,
-                        frameStack
+                        frameStack,
                         self.memory.buffer
                     )
                     break
@@ -435,11 +436,11 @@ class Agent:
             pass
         """
         # Set up the unpack arrays
-        states = np.zeros([self.batchSize] + [d in self.inputShape])
-        actions = np.zeros((self.batchSize, 1))
+        states = np.zeros([self.batchSize] + [d for d in self.inputShape])
+        actions = np.zeros((self.batchSize, 1), dtype=np.int)
         rewards = np.zeros((self.batchSize, 1))
-        nextStates = np.zeros([self.batchSize] + [d in self.inputShape])
-        dones = np.zeros(self.batchsize, dtype='bool')
+        nextStates = np.zeros([self.batchSize] + [d for d in self.inputShape])
+        dones = np.zeros(self.batchSize, dtype=np.bool)
         # Get batch of experiences
         if self.enablePer:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
