@@ -596,3 +596,47 @@ class Agent:
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
+
+    #-----
+    # fixed_q_learn
+    #-----
+    def fixed_q_learn(self, states, actions, rewards, nextStates, dones):
+        """
+        In DQL the qTargets (labels) are determined from the same
+        network that they are being used to update. As such, there can
+        be a lot of noise due to values constantly jumping wildly. This
+        affects the speed of convergence.
+
+        In fixed-Q, a second network is used, called the target
+        network. It's used to determine the qTargets (hence its name).
+        These labels are then passed to the primary network so its
+        weights can be updated. The weights in the primary network are
+        copied over to the target network only every N steps. Due to
+        this, there is far less jumping around in the target network,
+        which makes its predicted labels more stable. This, in turn,
+        speeds up convergence for the primary network.
+
+        See Lillicrap et al. 2016.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Use the target network to generate the qTargets
+        qNext = self.targetQNet.model.predict_on_batch(nextStates)
+        # Get the qTarget values according to dqn_learn
+        qTarget = self.qNet.model.predict_on_batch(states)
+        qTarget[dones][actions[dones]] = rewards[dones]
+        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
+            self.discountRate * np.amax(qNext[~dones])
+        # Update the network weights
+        loss = self.qNet.model.train_on_batch(states, qTarget)
+        return loss
