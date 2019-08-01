@@ -419,9 +419,74 @@ class Agent:
     #-----
     def learn(self):
         """
-        Samples from the experience buffer, calculates estimates of
-        max discounted future rewards, and updates the network.
+        Samples from the experience buffer and calls the correct learn
+        method in order to update the network's weights.
 
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Set up the unpack arrays
+        states = np.zeros([self.batchSize] + [d in self.inputShape])
+        actions = np.zeros((self.batchSize, 1))
+        rewards = np.zeros((self.batchSize, 1))
+        nextStates = np.zeros([self.batchSize] + [d in self.inputShape])
+        dones = np.zeros(self.batchsize, dtype='bool')
+        # Get batch of experiences
+        if self.enablePer:
+            treeInds, sample, isWeights = self.memory.sample(self.batchSize)
+        else:
+            sample = self.memory.sample(self.batchSize)
+        # Unpack the batch
+        for i, s in enumerate(sample):
+            states[i] = s[0]
+            actions[i] = s[1]
+            rewards[i] = s[2]
+            nextStates[i] = s[3]
+            dones[i] = s[4]
+        # Update the weights based on which technique is being used
+        # Double DQN
+        if self.enableDoubleDQN:
+            loss = self.double_dqn_learn(
+                states,
+                actions,
+                rewards,
+                nextStates,
+                dones
+            )
+        # Fixed-Q
+        elif self.enableFixedQ:
+            loss = self.fixed_q_learn(
+                states,
+                actions,
+                rewards,
+                nextStates,
+                dones
+            )
+        # Standard dqn
+        else:
+            loss = self.dqn_learn(
+                states,
+                actions,
+                rewards,
+                nextStates,
+                dones
+            )
+        return loss
+
+    #-----
+    # dqn_learn
+    #-----
+    def dqn_learn(self, states, actions, rewards, nextStates, dones):
+        """
         The estimates of the max discounted future rewards (qTarget) are
         the "labels" assigned to the input states.
 
@@ -458,24 +523,6 @@ class Agent:
         --------
             pass
         """
-        # Set up the unpack arrays
-        states = np.zeros([self.batchSize] + [d in self.inputShape])
-        actions = np.zeros((self.batchSize, 1))
-        rewards = np.zeros((self.batchSize, 1))
-        nextStates = np.zeros([self.batchSize] + [d in self.inputShape])
-        dones = np.zeros(self.batchsize, dtype='bool')
-        # Get batch of experiences
-        if self.enablePer:
-            treeInds, sample, isWeights = self.memory.sample(self.batchSize)
-        else:
-            sample = self.memory.sample(self.batchSize)
-        # Unpack the batch
-        for i, s in enumerate(sample):
-            states[i] = s[0]
-            actions[i] = s[1]
-            rewards[i] = s[2]
-            nextStates[i] = s[3]
-            dones[i] = s[4]
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate
         # of Q-target
@@ -491,6 +538,61 @@ class Agent:
         qTarget[dones][actions[dones]] = rewards[dones]
         qTarget[~dones][actions[~dones]] = rewards[~dones] + \
             self.discountRate * np.amax(qNext[~dones])
+        # Update the network weights
+        loss = self.qNet.model.train_on_batch(states, qTarget)
+        return loss
+
+    #-----
+    # double_dqn_learn
+    #-----
+    def double_dqn_learn(self, states, actions, rewards, nextStates, dones):
+        """
+        Double dqn attempts to deal with the following issue: when we
+        choose the action that gives rise to the highest Q value for the
+        next state, how do we know that that's actually the best action?
+
+        Since we're learning from experience, our estimated Q values
+        depend on which actions have been tried and which neighboring
+        states have been visited.
+
+        As such, double dqn separates out the estimate of the Q value
+        and the determination of the best action to take at the next
+        state. We use our primary network to choose an action for the
+        next state and then pass that action to our target network,
+        which handles calculating the target Q value.
+
+        For non-terminal states, the target value is:
+        y_i = r_{i+1} + gamma * \
+            Q(s_{i+1}, argmax_a(Q(s_{i+1}, a; theta_i)); theta_i')
+
+        See van Hasselt 2015 and the dqn_learn header.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+
+        """
+        # Use primary network to generate qNext values for action
+        # selection
+        qNextPrimary = self.qNet.model.predict_on_batch(nextStates)
+        # Get actions for next state
+        nextActions = np.argmax(qNextPrimary, axis=1)
+        # Use the target network and the actions chosen by the primary
+        # network to get the qNext values
+        qNext = self.targetQNet.model.predict_on_batch(nextStates)
+        # Now get targetQ values as is done in dqn_learn
+        qTarget = self.qNet.model.predict_on_batch(states)
+        qTarget[dones][actions[dones]] = rewards[dones]
+        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
+            self.discountRate * qNext[~dones][nextActions]
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
