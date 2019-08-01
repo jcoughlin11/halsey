@@ -17,15 +17,6 @@
     * This means, as far as I can tell, when doing the double dqn, he's always
     using a zeroed rnn state, as state_train never changes.
 
-2.) Need to update the loss = sess.run call at the end of learn() to use
-    train_on_batch.
-
-3.) Need to get rid of all other sess.run calls.
-
-4.) Using model.predict works on batches, and so a batch_size parameter needs
-    to be specified. If it isn't, keras defaults to the value of 32. Do I need
-    to set it differently?
-
 5.) Maybe make trainParams a dictionary? Then I don't need all of the gross
     unpacking I currently have.
 
@@ -34,8 +25,6 @@
     That screws everything up. Basically, all of the parameters from the
     parameter file need to be saved, as well, ensuring that everything remains
     the same across runs.
-
-7.) Vectorize the qTarget loop in learn() by using a mask
 
 8.) Check the array shapes in learn()
 
