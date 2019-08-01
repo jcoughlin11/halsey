@@ -272,17 +272,6 @@ class Agent:
                 # Check for early stop
                 if nu.check_early_stop():
                     earlyStop = True
-                    trainParams = (
-                        episode,
-                        decayStep,
-                        step,
-                        fixedQStep,
-                        self.totalRewards,
-                        episodeRewards,
-                        state,
-                        frameStack,
-                        self.memory.buffer
-                    )
                     break
                 print("Step: %d / %d" % (step, self.maxEpSteps), end="\r")
                 # Increase step counters
@@ -324,10 +313,10 @@ class Agent:
                 # Otherwise, set up for the next step
                 else:
                     state = nextState
-            # Save total episode reward
-            self.totalRewards.append(totReward)
             # Print info to screen
             if not earlyStop:
+                # Save total episode reward
+                self.totalRewards.append(totReward)
                 print(
                     "Episode: {}\n".format(episode),
                     "Total Reward for episode: {}\n".format(totReward),
@@ -335,6 +324,17 @@ class Agent:
                 )
             # Save the model, if applicable
             if episode % self.savePeriod == 0 or earlyStop:
+                trainParams = (
+                    episode,
+                    decayStep,
+                    step,
+                    fixedQStep,
+                    self.totalRewards,
+                    episodeRewards,
+                    state,
+                    frameStack,
+                    self.memory.buffer
+                )
                 io.save_model(
                     self.saveFilePath,
                     self.ckptFile,
