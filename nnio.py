@@ -8,7 +8,11 @@ Notes:
 import collections
 import os
 
-import numpy
+import h5py
+import numpy as np
+
+import nnetworks as nw
+import nnutils as nu
 
 
 # Architecture register
@@ -328,7 +332,7 @@ def save_train_params(trainParams, savePath):
     episode, \
     decayStep, \
     step, \
-    fixedQStep,
+    fixedQStep, \
     totRewards, \
     epRewards, \
     state, \
