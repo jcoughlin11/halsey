@@ -409,7 +409,7 @@ class Agent:
                 )
             )
             # Get the beliefs in each action for the current state
-            Q_vals = self.qNet.model.predict(state, batch_size=1)
+            Q_vals = self.qNet.model.predict_on_batch(state)
             # Choose the one with the highest Q value
             action = np.argmax(Q_vals)
         return action
@@ -420,10 +420,31 @@ class Agent:
     def learn(self):
         """
         Samples from the experience buffer, calculates estimates of
-        max discounted future rewards, and uses both to update the
-        network.
+        max discounted future rewards, and updates the network.
 
-        See Mnih13 algorithm 1 for the calculation of qTarget. 
+        The estimates of the max discounted future rewards (qTarget) are
+        the "labels" assigned to the input states.
+
+        Basically, the network holds the current beliefs for how well
+        we can do by taking a certain action in a certain state. The
+        Bellmann equation provides a way to estimate, via discounted
+        future rewards obtained from the sample trajectories, how well
+        we can do playing optimally from the state that the chosen
+        action brings us to. If this trajectory is bad, we lower the
+        Q value for the current state-action pair. If it's good, then we
+        increase it.
+
+        But we only change the entry for the current state-action pair
+        because the current sample trajectory doesn't tell us anything
+        about what would have happened had we chosen a different action
+        for the current state, and we don't know the true Q-vectors
+        ahead of time. To update those other entries, we need a
+        different sample. This is why it takes so many training games to
+        get a good Q-table (network).
+
+        See Mnih13 algorithm 1 for the calculation of qTarget.
+
+        See https://keon.io/deep-q-learning/ for implementation logic. 
 
         Parameters:
         -----------
@@ -437,19 +458,18 @@ class Agent:
         --------
             pass
         """
-        # Set up the qTarget and unpack arrays
-        qTarget = np.zeros(self.batchSize)
+        # Set up the unpack arrays
         states = np.zeros([self.batchSize] + [d in self.inputShape])
-        actions = np.zeros(self.batchSize)
-        rewards = np.zeros(self.batchSize)
+        actions = np.zeros((self.batchSize, 1))
+        rewards = np.zeros((self.batchSize, 1))
         nextStates = np.zeros([self.batchSize] + [d in self.inputShape])
         dones = np.zeros(self.batchsize, dtype='bool')
-        # Get sample of experiences
+        # Get batch of experiences
         if self.enablePer:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
         else:
             sample = self.memory.sample(self.batchSize)
-        # Unpack the samples
+        # Unpack the batch
         for i, s in enumerate(sample):
             states[i] = s[0]
             actions[i] = s[1]
@@ -461,12 +481,16 @@ class Agent:
         # of Q-target
         # Standard dqn
         qNext = self.qNet.model.predict_on_batch(nextStates)
-        # Get Q-target: estimate of Q-value obtained from sample
-        # trajectories. Vectorized with a mask
-        doneInds = np.where(dones)
-        qTarget[doneInds] = rewards[doneInds]
-        qTarget[~doneInds] = rewards[~doneInds] + self.discountRate *\
-            np.amax(qNext[~doneInds])
+        # Get Q-target: estimate of Q-values obtained from sample
+        # trajectories. Vectorized using the dones array as a mask
+        qTarget = self.qNet.model.predict_on_batch(states)
+        # Update only the entry for the current state-action pair in the
+        # vector of Q-values that corresponds to the chosen action. For
+        # a terminal state it's just the reward, and otherwise we use
+        # the Bellmann equation
+        qTarget[dones][actions[dones]] = rewards[dones]
+        qTarget[~dones][actions[~dones]] = rewards[~dones] + \
+            self.discountRate * np.amax(qNext[~dones])
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
