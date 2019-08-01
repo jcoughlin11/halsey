@@ -394,21 +394,79 @@ class Agent:
         ) * np.exp(-self.epsDecayRate * decayStep)
         # Explore
         if exploreProb >= exploitProb:
-            # Choose randomly. randint selects integers in the range
-            # [a,b)
-            action = np.random.randint(0, self.env.action_space.n)
+            # Choose randomly
+            action = self.env.action_space.sample()
         # Exploit
         else:
             # Keras expects a group of samples of the specified shape,
             # even if there's just one sample, so we need to reshape
             state = state.reshape(
-                1,
-                state.shape[0],
-                state.shape[1],
-                state.shape[2]
+                (
+                    1,
+                    state.shape[0],
+                    state.shape[1],
+                    state.shape[2]
+                )
             )
             # Get the beliefs in each action for the current state
-            Q_vals = self.qNet.model.predict(state)
+            Q_vals = self.qNet.model.predict(state, batch_size=1)
             # Choose the one with the highest Q value
             action = np.argmax(Q_vals)
         return action
+
+    #-----
+    # learn
+    #-----
+    def learn(self):
+        """
+        Samples from the experience buffer, calculates estimates of
+        max discounted future rewards, and uses both to update the
+        network.
+
+        See Mnih13 algorithm 1 for the calculation of qTarget. 
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Set up the qTarget and unpack arrays
+        qTarget = np.zeros(self.batchSize)
+        states = np.zeros([self.batchSize] + [d in self.inputShape])
+        actions = np.zeros(self.batchSize)
+        rewards = np.zeros(self.batchSize)
+        nextStates = np.zeros([self.batchSize] + [d in self.inputShape])
+        dones = np.zeros(self.batchsize, dtype='bool')
+        # Get sample of experiences
+        if self.enablePer:
+            treeInds, sample, isWeights = self.memory.sample(self.batchSize)
+        else:
+            sample = self.memory.sample(self.batchSize)
+        # Unpack the samples
+        for i, s in enumerate(sample):
+            states[i] = s[0]
+            actions[i] = s[1]
+            rewards[i] = s[2]
+            nextStates[i] = s[3]
+            dones[i] = s[4]
+        # Get qNext: estimate of best trajectory obtained by playing
+        # optimally from the next state. This is used in the estimate
+        # of Q-target
+        # Standard dqn
+        qNext = self.qNet.model.predict_on_batch(nextStates)
+        # Get Q-target: estimate of Q-value obtained from sample
+        # trajectories. Vectorized with a mask
+        doneInds = np.where(dones)
+        qTarget[doneInds] = rewards[doneInds]
+        qTarget[~doneInds] = rewards[~doneInds] + self.discountRate *\
+            np.amax(qNext[~doneInds])
+        # Update the network weights
+        loss = self.qNet.model.train_on_batch(states, qTarget)
+        return loss
