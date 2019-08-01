@@ -343,9 +343,10 @@ def save_train_params(trainParams, savePath):
     # Save the counters: startEp, decayStep, step, and fixedQStep
     counters = np.array([episode, decayStep, step, fixedQStep])
     h5f.create_dataset('counters', data=counters)
-    # Rewards
-    rewards = np.stack((np.array(totRewards), np.array(epRewards)), axis=0)
-    h5f.create_dataset('rewards', data=rewards)
+    # Total rewards
+    h5f.create_dataset('totrewards', data=totRewards)
+    # Episode rewards
+    h5f.create_dataset('eprewards', data=epRewards)
     # State
     h5f.create_dataset('state', data=state)
     h5f.close()
@@ -378,9 +379,8 @@ def load_train_params(savePath, memLen):
     # Load counters
     episode, decayStep, step, fixedQStep = list(h5f['counters'][:])
     # Rewards
-    rewards = h5f['rewards'][:]
-    totRewards = list(rewards[0])
-    epRewards = list(rewards[1])
+    totRewards = h5f['totrewards'][:]
+    epRewards = h5f['eprewards'][:]
     # State and frame stack
     state = h5f['state'][:]
     frameStack = collections.deque(state, maxlen=state.shape[-1])
