@@ -25,13 +25,3 @@
     That screws everything up. Basically, all of the parameters from the
     parameter file need to be saved, as well, ensuring that everything remains
     the same across runs.
-
-8.) Check the array shapes in learn()
-
-9.) Compare my training loop with that of keon.io. This is a shape thing.
-    Basically, my qTarget is an array with shape = (batchSize,), so it's just
-    one number for each batch. His has shape = (batchSize, nActions), so you
-    get the full Q-value vector for each sample in the batch. Think about
-    when I did the digit classification. The labels were all one-hot vectors
-    representing the correct class, i.e., label = [1,0,0,...] for a 0. That is,
-    the full output vector was given, so I think that's what I need here.
