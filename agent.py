@@ -209,7 +209,7 @@ class Agent:
             # Load training parameters
             trainParams = io.load_train_params(
                 self.saveFilePath,
-                self.memory.max_len
+                self.memory.max_size
             )
         return trainParams
 
