@@ -44,8 +44,8 @@
 #-------------
     architecture      : conv1
     discount          : 0.9
-    enable_double_dqn : 0
-    enable_fixed_Q    : 0
+    enable_double_dqn : 1
+    enable_fixed_Q    : 1
     fixed_Q_steps     : 100
     trace_len         : 4
 

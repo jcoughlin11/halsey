@@ -597,7 +597,7 @@ class Agent:
         nDoneInds = np.where(~dones)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
-            self.discountRate * qNext[nDoneInds, nextActions]
+            self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget)
         return loss
