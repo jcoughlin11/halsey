@@ -4,6 +4,8 @@ Author: Jared Coughlin
 Date: 7/30/19
 Purpose: Contains tools related to reading and writing files to disk
 Notes:
+    * https://tinyurl.com/y2nhqrce (good h5py guide)
+    * http://docs.h5py.org/en/stable/special.html (h5py special dtpyes)
 """
 import collections
 import os
@@ -245,26 +247,179 @@ def save_memory(memBuffer, savepath):
     --------
         pass
     """
-    # Create hdf5 file
-    h5f = h5py.File('memory_buffer.h5', 'w')
     # Case 1: memBuffer is a deque
     if isinstance(memBuffer, collections.deque):
-        h5f.create_dataset('deque', data=np.array(memBuffer))
+        save_deque_memory(memBuffer, savePath)
     # Case 2: memBuffer is a SumTree. In this case, the whole data
     # structure needs to be saved
     elif isinstance(memBuffer, nu.SumTree):
-        # Counters
-        h5f.create_dataset('counters',
-            data=np.array([memBuffer.nLeafs, memBuffer.dataPointer])
-        )
-        h5f.create_dataset('tree', data=memBuffer.tree)
-        h5f.create_dataset('data', data=memBuffer.data)
+        save_sumtree_memory(memBuffer, savePath)
     # Unrecognized case
     else:
-        h5f.close()
         raise TypeError("Error, unrecognized memory buffer type!")
-    # Close file
-    h5f.close()
+
+
+#============================================
+#             save_deque_memory
+#============================================
+def save_deque_memory(memBuffer, savePath):
+    """
+    Handles saving the agent's memories when the memory buffer is a
+    deque.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Create hdf5 file
+    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'w') as h5f:
+        # Create the empty datasets to store the memory components in
+        # a group named after the memory type. This makes reading the
+        # data back in easier because type(memBuffer) can be identified
+        # without passing any flags
+        nSamples = len(memBuffer)
+        stateShape = [nSamples] + list(memBuffer[0][0].shape)
+        g = h5f.create_group('deque')
+        g.create_dataset('states', shape=stateShape, dtype=np.float)
+        g.create_dataset('actions', (nSamples,), dtype=np.int)
+        g.create_dataset('rewards', (nSamples,), dtype=np.float)
+        g.create_dataset('next_states', shape=stateShape, dtype=np.float)
+        g.create_dataset('dones', (nSamples,), dtype=np.int)
+        # Loop over each sample in the buffer
+        for i, sample in enumerate(memBuffer):
+            g['states'][i] = sample[0]
+            g['actions'][i] = sample[1]
+            g['rewards'][i] = sample[2]
+            g['next_states'][i] = sample[3]
+            g['dones'][i] = sample[4]
+
+
+#============================================
+#            save_sumtree_memory
+#============================================
+def save_sumtree_memory(memBuffer, savePath):
+    """
+    Handles saving the agent's memories when the memory buffer is a
+    sum tree.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Create hdf5 file
+    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'w') as h5f:
+        # Create a group named after the buffer type (sumtree) to make
+        # loading easier (see save_deque_memory)
+        g = h5f.create_group('sumtree')
+        # Create datasets for the counters and tree array
+        data = [memBuffer.nLeafs, memBuffer.dataPointer]
+        g.create_dataset('counters', data=data)
+        g.create_dataset('tree', data=memBuffer.tree)
+        # The data attribute of the sum tree is where the actual
+        # experiences are stored, so it's an array of tuples. This
+        # means it's easier to package everything into another group
+        # in the same manner as in save_deque_memory
+        dg = g.create_group('data')
+        stateShape = [memBuffer.nLeafs] + list(memBuffer.data[0][0].shape)
+        dg.create_dataset('states', shape=stateShape, dtype=np.float)
+        dg.create_dataset('actions', (memBuffer.nLeafs,), dtype=np.int)
+        dg.create_dataset('rewards', (memBuffer.nLeafs,), dtype=np.float)
+        dg.create_dataset('next_states', shape=stateShape, dtype=np.float)
+        dg.create_dataset('dones', (memBuffer.nLeafs,), dtype=np.int)
+        # Loop over each sample in the buffer
+        for i, sample in enumerate(memBuffer.data):
+            dg['states'][i] = sample[0]
+            dg['actions'][i] = sample[1]
+            dg['rewards'][i] = sample[2]
+            dg['next_states'][i] = sample[3]
+            dg['dones'][i] = sample[4]
+        
+
+
+#============================================
+#             load_deque_memory
+#============================================
+def load_deque_memory(h5f, maxLen):
+    """
+    handles loading the agent's memories when the memory buffer is a
+    deque.
+
+    parameters:
+    -----------
+        pass
+
+    raises:
+    -------
+        pass
+
+    returns:
+    --------
+        pass
+    """
+    # Read data from file
+    states = h5f['deque/states'][:]
+    actions = h5f['deque/actions'][:]
+    rewards = h5f['deque/rewards'][:]
+    nextStates = h5f['deque/next_states'][:]
+    dones = h5f['deque/dones'][:]
+    # Package data into the memory buffer
+    memBuffer = collections.deque(mexlen=maxLen)
+    for experience in zip(states, actions, rewards, nextStates, dones):
+        memBuffer.append(experience)
+    return memBuffer
+
+
+#============================================
+#            load_sumtree_memory
+#============================================
+def load_sumtree_memory(h5f, maxLen):
+    """
+    handles loading the agent's memories when the memory buffer is a
+    sum tree.
+
+    parameters:
+    -----------
+        pass
+
+    raises:
+    -------
+        pass
+
+    returns:
+    --------
+        pass
+    """
+    # Read data from file
+    nLeafs, dataPointer = h5f['sumtree/counters'][:]
+    tree = h5f['sumtree/tree'][:]
+    states = h5f['sumtree/data/states'][:]
+    actions = h5f['sumtree/data/actions'][:]
+    rewards = h5f['sumtree/data/rewards'][:]
+    nextStates = h5f['sumtree/data/next_states'][:]
+    dones = h5f['sumtree/data/dones'][:]
+    # Package the data into the buffer
+    memBuffer = nu.SumTree(nLeafs)
+    memBuffer.dataPointer = dataPointer
+    memBuffer.tree = tree
+    for i, exp in enumerate(zip(states, actions, rewards, nextStates, dones)):
+        memBuffer.data[i] = exp
+    return memBuffer
 
 
 #============================================
@@ -287,24 +442,15 @@ def load_memory(savePath, memLen):
         pass
     """
     # Open file for reading
-    h5f = h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'r')
-    # Buffer is a deque
-    if 'deque' in h5f.keys():
-        memBuffer = collections.deque(h5f['deque'][:], maxlen=memLen)
-    # Buffer is a SumTree
-    elif 'tree' in h5f.keys():
-        # Read and set the counters
-        nLeafs, dataPointer = list(h5f['counters'][:])
-        memBuffer = nu.SumTree(nLeafs)
-        memBuffer.dataPointer = dataPointer
-        # Read the tree and experience data
-        memBuffer.tree = h5f['tree'][:]
-        memBuffer.data = h5f['data'][:]
-    else:
-        h5f.close()
-        raise KeyError("Error, could not infer type of memory buffer!")
-    # Close file
-    h5f.close()
+    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'r') as h5f:
+        # Buffer is a deque
+        if 'deque' in h5f.keys():
+            memBuffer = load_deque_memory(h5f, memLen)
+        # Buffer is a SumTree
+        elif 'sumtree' in h5f.keys():
+            memBuffer = load_sumtree_memory(h5f, memLen)
+        else:
+            raise KeyError("Error, could not infer type of memory buffer!")
     return memBuffer
 
 
@@ -339,17 +485,16 @@ def save_train_params(trainParams, savePath):
     frameStack, \
     memBuffer = trainParams
     # Create hdf5 file
-    h5f = h5py.File(os.path.join(savePath, 'training_params.h5'), 'w')
-    # Save the counters: startEp, decayStep, step, and fixedQStep
-    counters = np.array([episode, decayStep, step, fixedQStep])
-    h5f.create_dataset('counters', data=counters)
-    # Total rewards
-    h5f.create_dataset('totrewards', data=totRewards)
-    # Episode rewards
-    h5f.create_dataset('eprewards', data=epRewards)
-    # State
-    h5f.create_dataset('state', data=state)
-    h5f.close()
+    with h5py.File(os.path.join(savePath, 'training_params.h5'), 'w') as h5f:
+        # Save the counters: startEp, decayStep, step, and fixedQStep
+        counters = np.array([episode, decayStep, step, fixedQStep])
+        h5f.create_dataset('counters', data=counters)
+        # Total rewards
+        h5f.create_dataset('totrewards', data=totRewards)
+        # Episode rewards
+        h5f.create_dataset('eprewards', data=epRewards)
+        # State
+        h5f.create_dataset('state', data=state)
     # Memory
     save_memory(memBuffer, savePath)
     
