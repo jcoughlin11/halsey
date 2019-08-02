@@ -231,7 +231,7 @@ def read_hyperparams(fname):
 #============================================
 #                save_memory
 #============================================
-def save_memory(memBuffer, savepath):
+def save_memory(memBuffer, savePath):
     """
     Saves the contents of the memory buffer to an hdf5 file.
 
@@ -379,7 +379,7 @@ def load_deque_memory(h5f, maxLen):
     nextStates = h5f['deque/next_states'][:]
     dones = h5f['deque/dones'][:]
     # Package data into the memory buffer
-    memBuffer = collections.deque(mexlen=maxLen)
+    memBuffer = collections.deque(maxlen=maxLen)
     for experience in zip(states, actions, rewards, nextStates, dones):
         memBuffer.append(experience)
     return memBuffer
@@ -520,17 +520,21 @@ def load_train_params(savePath, memLen):
         pass
     """
     # Create hdf5 file
-    h5f = h5py.File(os.path.join(savePath, 'training_params.h5'), 'r')
-    # Load counters
-    episode, decayStep, step, fixedQStep = list(h5f['counters'][:])
-    # Rewards
-    totRewards = h5f['totrewards'][:]
-    epRewards = h5f['eprewards'][:]
-    # State and frame stack
-    state = h5f['state'][:]
-    frameStack = collections.deque(state, maxlen=state.shape[-1])
-    # Close file
-    h5f.close()
+    with h5py.File(os.path.join(savePath, 'training_params.h5'), 'r') as h5f:
+        # Load counters
+        episode, decayStep, step, fixedQStep = list(h5f['counters'][:])
+        # Rewards
+        totRewards = list(h5f['totrewards'][:])
+        epRewards = list(h5f['eprewards'][:])
+        # State (it's actually the stacked set of processed frames)
+        state = h5f['state'][:]
+        # Unpack the stacked state such that each individual frame
+        # in the stack is an element of the deque. The shape of
+        # state = (shrinkRows, shrinkCols, stackSize) and I want
+        # each element of frameStack to be one of the
+        # (shrinkRows, shrinkCols) frames
+        frameStack = [state[:,:,i] for i in range(state.shape[-1])]
+        frameStack = collections.deque(frameStack, maxlen=state.shape[-1])
     # Memory
     memBuffer = load_memory(savePath, memLen)
     # Package the parameters
