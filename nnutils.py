@@ -11,7 +11,9 @@ import sys
 
 import gym
 import numpy as np
+import tensorflow as tf
 
+import losses
 import nnio as io
 
 
@@ -100,6 +102,63 @@ def check_early_stop():
         return True
     else:
         return False
+
+
+#============================================
+#                  set_loss
+#============================================
+def set_loss(params):
+    """
+    If applicable, assigns the string version of the loss function to
+    the actual function version. Some strings, such as 'mse', are ok
+    since tf recognizes them. For custom loss functions, such as with
+    PER, it must be set explicitly.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Check for custom loss functions. If we're here, then the loss has
+    # already been confirmed to be in the lossRegister and, therefore,
+    # valid and listed here
+    if params['loss'] == 'per_mse':
+        params['loss'] = losses.per_mse
+    return params
+
+
+#============================================
+#               set_optimizer
+#============================================
+def set_optimizer(params):
+    """
+    Converts the string form of the optimizer to the class form and
+    applies the learning rate.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+    pass
+    """
+    if params['optimizer'] == 'adam':
+        params['optimizer'] = tf.keras.optimizers.Adam(
+            learning_rate=params['learning_rate']
+        )
+    return params
 
 
 #============================================

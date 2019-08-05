@@ -17,11 +17,16 @@ import nnetworks as nw
 import nnutils as nu
 
 
-# Architecture register
+# Registers
 archRegister = ["conv1",
     "dueling1",
     "perdueling1",
     "rnn1"
+]
+lossRegister = ['mse',
+    'per_mse',
+]
+optimizerRegister = ['adam',
 ]
 
 
@@ -85,11 +90,14 @@ def param_file_registers():
         "architecture",
         "ckpt_file",
         "env_name",
+        'loss',
+        'optimizer',
         "save_path"
     ]
     type_register = {
         "floats": float_params,
         "ints": int_params,
+        'lists' : list_params,
         "strings": string_params,
     }
     return type_register
@@ -125,6 +133,12 @@ def check_agent_option_conflicts(params):
     # Check to make sure the architecture has been defined
     if params["architecture"] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
+    # Check for valid loss function
+    if params['loss'] not in lossRegister:
+        raise ValueError("Error, unrecognized loss function!")
+    # Check for valid optimizer function
+    if params['loss'] not in optimizerRegister:
+        raise ValueError("Error, unrecognized optimizer function!")
     # Double DQN requires fixed-Q
     if params["enable_double_dqn"] and not params["enable_fixed_Q"]:
         raise ValueError("Error, double dqn requires the use of fixed Q!")
@@ -156,11 +170,14 @@ def read_hyperparams(fname):
     epsilon_stop        : float, min value of explore-exploit parameter
     fixed_Q_steps       : int, steps between weight copies w/ fixed-Q
     learning_rate       : float, network learning rate
+    loss                : string, the loss function to minimize
     max_episode_steps   : int, max number of steps per episode
     memory_size         : int, max number of experiences to store in
                           memory buffer
+    metrics             : list, the quantities to track during training
     n_episodes          : int, number of episodes to train for
     n_stacked_frames    : int, number of frames to stack
+    optimizer           : string, name of the optimizer to use
     per_a               : float, alpha parameter in eq. 1 of Schaul16
     per_b               : float, beta param in IS weights of Schaul16
     per_b_anneal        : float, annealment rate of IS weights
@@ -225,6 +242,10 @@ def read_hyperparams(fname):
             hyperparams[key] = value
     # Check for option conflicts
     check_agent_option_conflicts(hyperparams)
+    # Set the loss and optimizer functions to their proper values based
+    # on the string representation
+    hyperparams = nu.set_loss(hyperparams)
+    hyperparams = nu.set_optimizer(hyperparams)
     return hyperparams
 
 
