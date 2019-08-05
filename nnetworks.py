@@ -28,7 +28,8 @@ class DQN:
     # -----
     # Constructor
     # -----
-    def __init__(self, architecture, inputShape, nActions, learningRate):
+    def __init__(self, architecture, inputShape, nActions, learningRate,
+        optimizer, loss, metrics):
         """
         Parameters:
         -----------
@@ -56,6 +57,9 @@ class DQN:
         self.inputShape = inputShape
         self.nActions = nActions
         self.learningRate = learningRate
+        self.optimizer = optimizer
+        self.loss = loss
+        self.metrics = metrics
         # Build the network
         if self.arch == 'conv1':
             self.model = self.build_conv1_net()
@@ -67,6 +71,11 @@ class DQN:
             self.model = self.build_rnn1_net()
         else:
             raise ValueError("Error, unrecognized network architecture!")
+        # Compile the model
+        model.compile(
+            optimizer=optimizer,
+            loss=loss,
+        )
 
     # -----
     # build_conv1_net
@@ -124,10 +133,5 @@ class DQN:
             units=self.nActions,
             activation='linear'
             )
-        )
-        # Compile the model
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=self.learningRate),
-            loss='mse'
         )
         return model
