@@ -77,9 +77,11 @@ class Agent:
         self.epsilonStop     = hyperparams["epsilon_stop"]
         self.fixedQSteps     = hyperparams["fixed_Q_steps"]
         self.learningRate    = hyperparams["learning_rate"]
+        self.loss            = hyperparams['loss']
         self.maxEpSteps      = hyperparams["max_episode_steps"]
         self.memSize         = hyperparams["memory_size"]
         self.nEpisodes       = hyperparams["n_episodes"]
+        self.optimizer       = hyperparams['optimizer']
         self.perA            = hyperparams["per_a"]
         self.perB            = hyperparams["per_b"]
         self.perBAnneal      = hyperparams["per_b_anneal"]
@@ -130,6 +132,8 @@ class Agent:
             self.inputShape,
             self.env.action_space.n,
             self.learningRate,
+            self.optimizer,
+            self.loss,
         )
         # If applicable, build the second network for use with
         # fixed-Q and double dqn
@@ -139,6 +143,8 @@ class Agent:
                 self.inputShape,
                 self.env.action_space.n,
                 self.learningRate,
+                self.optimizer,
+                self.loss,
             )
 
     #-----

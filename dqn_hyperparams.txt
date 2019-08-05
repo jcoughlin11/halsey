@@ -2,8 +2,10 @@
 #-------------------------
     batch_size        : 64
     learning_rate     : 0.00025
+    loss              : 'mse'
     max_episode_steps : 50000
     n_episodes        : 50
+    optimizer         : 'adam'
 
 # Exploitation parameters
 #------------------------
