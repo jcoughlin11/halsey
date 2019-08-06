@@ -452,6 +452,7 @@ class Agent:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
         else:
             sample = self.memory.sample(self.batchSize)
+            isWeights=None
         # Unpack the batch
         for i, s in enumerate(sample):
             states[i] = s[0]
@@ -467,7 +468,8 @@ class Agent:
                 actions,
                 rewards,
                 nextStates,
-                dones
+                dones,
+                isWeights
             )
         # Fixed-Q
         elif self.enableFixedQ:
@@ -476,7 +478,8 @@ class Agent:
                 actions,
                 rewards,
                 nextStates,
-                dones
+                dones,
+                isWeights
             )
         # Standard dqn
         else:
@@ -485,14 +488,15 @@ class Agent:
                 actions,
                 rewards,
                 nextStates,
-                dones
+                dones,
+                isWeights
             )
         return loss
 
     #-----
     # dqn_learn
     #-----
-    def dqn_learn(self, states, actions, rewards, nextStates, dones):
+    def dqn_learn(self, states, actions, rewards, nextStates, dones, isWeights):
         """
         The estimates of the max discounted future rewards (qTarget) are
         the "labels" assigned to the input states.
@@ -548,13 +552,14 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
         return loss
 
     #-----
     # double_dqn_learn
     #-----
-    def double_dqn_learn(self, states, actions, rewards, nextStates, dones):
+    def double_dqn_learn(self, states, actions, rewards, nextStates, dones,
+        isWeights):
         """
         Double dqn attempts to deal with the following issue: when we
         choose the action that gives rise to the highest Q value for the
@@ -605,13 +610,14 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
         return loss
 
     #-----
     # fixed_q_learn
     #-----
-    def fixed_q_learn(self, states, actions, rewards, nextStates, dones):
+    def fixed_q_learn(self, states, actions, rewards, nextStates, dones,
+        isWeights):
         """
         In DQL the qTargets (labels) are determined from the same
         network that they are being used to update. As such, there can
@@ -651,5 +657,5 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
         return loss
