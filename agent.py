@@ -523,7 +523,9 @@ class Agent:
 
         See Mnih13 algorithm 1 for the calculation of qTarget.
 
-        See https://keon.io/deep-q-learning/ for implementation logic. 
+        See https://keon.io/deep-q-learning/ for implementation logic.
+
+        Note: The way OpenAI baselines does this is better.
 
         Parameters:
         -----------
@@ -537,25 +539,33 @@ class Agent:
         --------
             pass
         """
+        # Get network's current guesses for Q values
+        qPred = self.qNet.model.predict_on_batch(states)
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate
         # of Q-target
         qNext = self.qNet.model.predict_on_batch(nextStates)
-        # Get Q-target: estimate of Q-values obtained from sample
-        # trajectories. Vectorized using the dones array as a mask
-        qTarget = self.qNet.model.predict_on_batch(states)
         # Update only the entry for the current state-action pair in the
         # vector of Q-values that corresponds to the chosen action. For
         # a terminal state it's just the reward, and otherwise we use
         # the Bellmann equation
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
+        # This third array is needed so I can get absError
+        qTarget = np.zeros(qPred.shape)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
+        # Fill in qTarget with the unaffected Q values. This is so the
+        # TD error for those terms is 0, since they did not change.
+        # Otherwise, the TD error for those terms would be equal to
+        # the original Q value for that state-action entry
+        qTarget[qTarget == 0] = qPred[qTarget == 0]
+        # Get the absolute value of the TD error for use in per
+        absError = tf.abs(qTarget - qPred)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
-        return loss
+        return loss, absError
 
     #-----
     # double_dqn_learn
@@ -605,12 +615,16 @@ class Agent:
         # network to get the qNext values
         qNext = self.targetQNet.model.predict_on_batch(nextStates)
         # Now get targetQ values as is done in dqn_learn
-        qTarget = self.qNet.model.predict_on_batch(states)
+        qPred = self.qNet.model.predict_on_batch(states)
+        qTarget = np.zeros(qPred.shape)
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
+        qTarget[qTarget == 0] = qPred[qTarget == 0]
+        # Get abs error
+        absError = tf.abs(qTarget - qPred)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss
@@ -652,12 +666,16 @@ class Agent:
         # Use the target network to generate the qTargets
         qNext = self.targetQNet.model.predict_on_batch(nextStates)
         # Get the qTarget values according to dqn_learn
-        qTarget = self.qNet.model.predict_on_batch(states)
+        qPred = self.qNet.model.predict_on_batch(states)
+        qTarget = np.zeros(qPred.shape)
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
+        qTarget[qTarget == 0] = qPred[qTarget == 0]
+        # Get abs error
+        absError = tf.abs(qTarget - qPred)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss
