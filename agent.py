@@ -463,7 +463,7 @@ class Agent:
         # Update the weights based on which technique is being used
         # Double DQN
         if self.enableDoubleDQN:
-            loss = self.double_dqn_learn(
+            loss, absError = self.double_dqn_learn(
                 states,
                 actions,
                 rewards,
@@ -473,7 +473,7 @@ class Agent:
             )
         # Fixed-Q
         elif self.enableFixedQ:
-            loss = self.fixed_q_learn(
+            loss, absError = self.fixed_q_learn(
                 states,
                 actions,
                 rewards,
@@ -483,7 +483,7 @@ class Agent:
             )
         # Standard dqn
         else:
-            loss = self.dqn_learn(
+            loss, absError = self.dqn_learn(
                 states,
                 actions,
                 rewards,
@@ -491,6 +491,9 @@ class Agent:
                 dones,
                 isWeights
             )
+        # Update the priorities
+        if self.enablePer:
+            self.memory.update(treeInds, absError)
         return loss
 
     #-----
@@ -537,7 +540,6 @@ class Agent:
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate
         # of Q-target
-        # Standard dqn
         qNext = self.qNet.model.predict_on_batch(nextStates)
         # Get Q-target: estimate of Q-values obtained from sample
         # trajectories. Vectorized using the dones array as a mask
