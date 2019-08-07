@@ -49,10 +49,13 @@
     Looking at the tf source code for train_on_batch when sample_weight is set,
     it ends up calling a function called scale_losses_by_sample_weight
     (/usr/local/lib/python3.6/dist-packages/tensorflow/python/ops/losses/util.py).
-    This function literally just multiplies the losses by the weights. This is
-    different than what openAI are doing in baselines because they are scaling
-    the TD error by the isWeights, not the actual loss itself. (I think. Are
-    the loss and TD error the same? I don't think so)
+    This function literally just multiplies the losses by the weights. I think
+    this is the same as what OpenAI does in baselines because they get:
+    tderror = q_target - q
+    error = huber_loss(tderror)
+    weightederror = tf.reduce_mean(isWeights * error)
+
+    So they are scaling the losses, not the td errors.
 
 9.) Get tdError in each learn function and return it so that the PER memory can
     be updated at the end of learn().
