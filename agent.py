@@ -551,7 +551,8 @@ class Agent:
         # the Bellmann equation
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
-        # This third array is needed so I can get absError
+        # This third array is needed so I can get absError, otherwise
+        # just the specified entries of qPred could be changed
         qTarget = np.zeros(qPred.shape)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
