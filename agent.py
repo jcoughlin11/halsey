@@ -552,7 +552,7 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss
 
     #-----
@@ -610,7 +610,7 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss
 
     #-----
@@ -657,5 +657,5 @@ class Agent:
         qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
             self.discountRate * np.amax(qNext[nDoneInds])
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weights=isWeights)
+        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss

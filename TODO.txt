@@ -39,5 +39,20 @@
     I might need to write a custom layer to do this sort of thing:
     https://github.com/keras-team/keras/issues/1061
 
+    From my experimenting, it appears as if the custom loss function uses pass
+    by value, which is frustrating.
+
+    I'm also not convinced that the custom loss function used for importance
+    sampling is the same as just passing sample_weight=isWeights. (see Baselines
+    by openAI, specifically the function build_train in deepq/build_graph.py)
+
+    Looking at the tf source code for train_on_batch when sample_weight is set,
+    it ends up calling a function called scale_losses_by_sample_weight
+    (/usr/local/lib/python3.6/dist-packages/tensorflow/python/ops/losses/util.py).
+    This function literally just multiplies the losses by the weights. This is
+    different than what openAI are doing in baselines because they are scaling
+    the TD error by the isWeights, not the actual loss itself. (I think. Are
+    the loss and TD error the same? I don't think so)
+
 9.) Get tdError in each learn function and return it so that the PER memory can
     be updated at the end of learn().
