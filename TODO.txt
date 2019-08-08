@@ -17,15 +17,6 @@
     * This means, as far as I can tell, when doing the double dqn, he's always
     using a zeroed rnn state, as state_train never changes.
 
-5.) Maybe make trainParams a dictionary? Then I don't need all of the gross
-    unpacking I currently have.
-
-6.) The save/load due to early stopping needs to be refined. Mainly, what
-    happens if a parameter (such as the length of the memory buffer) changes?
-    That screws everything up. Basically, all of the parameters from the
-    parameter file need to be saved, as well, ensuring that everything remains
-    the same across runs.
-
 8.) When using a custom loss function, the argument(s) it requires have to be
     passed to it at model compilation time (according to the article I read,
     see the notes in losses.py). My question is: are those arguments passed
@@ -57,14 +48,6 @@
 
     So they are scaling the losses, not the td errors.
 
-9.) Get tdError in each learn function and return it so that the PER memory can
-    be updated at the end of learn().
-
-10.) Put in a time-limit option so the code auto-stops and saves if it's not
-    done by that point (mainly for use on clusters).
-
 11.) The sample_weight argument supports temporal data, which I kind of have in
     the form of the stack of frames. It might be interesting to weight each frame
     in the stack differently based on how far it is from the current frame.
-
-12.) When saving, check to make sure there's enough HDD space
