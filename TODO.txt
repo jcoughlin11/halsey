@@ -59,3 +59,12 @@
 
 9.) Get tdError in each learn function and return it so that the PER memory can
     be updated at the end of learn().
+
+10.) Put in a time-limit option so the code auto-stops and saves if it's not
+    done by that point (mainly for use on clusters).
+
+11.) The sample_weight argument supports temporal data, which I kind of have in
+    the form of the stack of frames. It might be interesting to weight each frame
+    in the stack differently based on how far it is from the current frame.
+
+12.) When saving, check to make sure there's enough HDD space

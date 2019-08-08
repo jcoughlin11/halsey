@@ -97,7 +97,6 @@ def param_file_registers():
     type_register = {
         "floats": float_params,
         "ints": int_params,
-        'lists' : list_params,
         "strings": string_params,
     }
     return type_register
@@ -137,7 +136,7 @@ def check_agent_option_conflicts(params):
     if params['loss'] not in lossRegister:
         raise ValueError("Error, unrecognized loss function!")
     # Check for valid optimizer function
-    if params['loss'] not in optimizerRegister:
+    if params['optimizer'] not in optimizerRegister:
         raise ValueError("Error, unrecognized optimizer function!")
     # Double DQN requires fixed-Q
     if params["enable_double_dqn"] and not params["enable_fixed_Q"]:
@@ -363,13 +362,26 @@ def save_sumtree_memory(memBuffer, savePath):
         dg.create_dataset('rewards', (memBuffer.nLeafs,), dtype=np.float)
         dg.create_dataset('next_states', shape=stateShape, dtype=np.float)
         dg.create_dataset('dones', (memBuffer.nLeafs,), dtype=np.int)
-        # Loop over each sample in the buffer
+        # Loop over each sample in the buffer. If the buffer is not yet
+        # full then it will be comprised of both tuples and zeros
+        # This is not a particularly good way of doing this, I just
+        # wanted to get it running to test PER and I'll fix it in
+        # another branch dedicated to I/O. Instead of nLeafs tuples,
+        # it only goes up to np.where(memBuffer.data == 0)[0][0].
+        # Chaning this save affects the load, too, though
         for i, sample in enumerate(memBuffer.data):
-            dg['states'][i] = sample[0]
-            dg['actions'][i] = sample[1]
-            dg['rewards'][i] = sample[2]
-            dg['next_states'][i] = sample[3]
-            dg['dones'][i] = sample[4]
+            if isinstance(sample, tuple):
+                dg['states'][i] = sample[0]
+                dg['actions'][i] = sample[1]
+                dg['rewards'][i] = sample[2]
+                dg['next_states'][i] = sample[3]
+                dg['dones'][i] = sample[4]
+            else:
+                dg['states'][i] = np.zeros(memBuffer.data[0][0].shape)
+                dg['actions'][i] = sample
+                dg['rewards'][i] = sample
+                dg['next_states'][i] = np.zeros(memBuffer.data[0][0].shape)
+                dg['dones'][i] = sample
         
 
 

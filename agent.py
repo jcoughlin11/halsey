@@ -469,7 +469,7 @@ class Agent:
                 rewards,
                 nextStates,
                 dones,
-                isWeights
+                isWeights.flatten()
             )
         # Fixed-Q
         elif self.enableFixedQ:
@@ -479,7 +479,7 @@ class Agent:
                 rewards,
                 nextStates,
                 dones,
-                isWeights
+                isWeights.flatten()
             )
         # Standard dqn
         else:
@@ -489,7 +489,7 @@ class Agent:
                 rewards,
                 nextStates,
                 dones,
-                isWeights
+                isWeights.flatten()
             )
         # Update the priorities
         if self.enablePer:
@@ -562,8 +562,10 @@ class Agent:
         # Otherwise, the TD error for those terms would be equal to
         # the original Q value for that state-action entry
         qTarget[qTarget == 0] = qPred[qTarget == 0]
-        # Get the absolute value of the TD error for use in per
-        absError = tf.abs(qTarget - qPred)
+        # Get the absolute value of the TD error for use in per. The
+        # sum is so we only get 1 value per sample, since the priority
+        # for each experience is just a float, not a sequence
+        absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
         return loss, absError
@@ -625,10 +627,10 @@ class Agent:
             self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error
-        absError = tf.abs(qTarget - qPred)
+        absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
-        return loss
+        return loss, absError
 
     #-----
     # fixed_q_learn
@@ -676,7 +678,7 @@ class Agent:
             self.discountRate * np.amax(qNext[nDoneInds])
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error
-        absError = tf.abs(qTarget - qPred)
+        absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
         loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
-        return loss
+        return loss, absError

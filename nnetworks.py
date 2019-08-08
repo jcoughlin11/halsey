@@ -29,7 +29,7 @@ class DQN:
     # Constructor
     # -----
     def __init__(self, architecture, inputShape, nActions, learningRate,
-        optimizer, loss, metrics):
+        optimizer, loss):
         """
         Parameters:
         -----------
@@ -59,7 +59,6 @@ class DQN:
         self.learningRate = learningRate
         self.optimizer = optimizer
         self.loss = loss
-        self.metrics = metrics
         # Build the network
         if self.arch == 'conv1':
             self.model = self.build_conv1_net()
@@ -72,7 +71,7 @@ class DQN:
         else:
             raise ValueError("Error, unrecognized network architecture!")
         # Compile the model
-        model.compile(
+        self.model.compile(
             optimizer=optimizer,
             loss=loss,
         )
