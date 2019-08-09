@@ -81,7 +81,7 @@ def initialize():
 #============================================
 #             check_early_stop
 #============================================
-def check_early_stop():
+def check_early_stop(savePath):
     """
     Looks for a file called stop in the current working directory.
 
@@ -97,9 +97,10 @@ def check_early_stop():
     --------
         pass
     """
-    if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
+    stopFile = os.path.join(savePath, 'stop')
+    if os.path.isfile(stopFile):
         # Remove the file
-        subprocess32.call(["rm", os.path.join(os.getcwd(), 'stop')])
+        subprocess32.call(["rm", stopFile])
         return True
     else:
         return False

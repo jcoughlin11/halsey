@@ -278,7 +278,7 @@ class Agent:
             # episode
             while step < self.maxEpSteps:
                 # Check for early stop
-                if nu.check_early_stop():
+                if nu.check_early_stop(self.saveFilePath):
                     earlyStop = True
                     break
                 if nu.time_limit_reached(startTime, self.timeLimit):

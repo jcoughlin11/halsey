@@ -12,6 +12,7 @@ import os
 
 import h5py
 import numpy as np
+import subprocess32
 
 import nnetworks as nw
 import nnutils as nu
@@ -142,6 +143,12 @@ def check_agent_option_conflicts(params):
     # Double DQN requires fixed-Q
     if params["enable_double_dqn"] and not params["enable_fixed_Q"]:
         raise ValueError("Error, double dqn requires the use of fixed Q!")
+    # Make sure the save path exists. If it doesn't, try and make it
+    if not os.path.exists(params["save_path"]):
+        os.path.makedirs(params["save_path"])
+    # If it does exist, make sure it's a directory
+    elif not os.path.isdir(params["save_path"]):
+        raise ValueError("savePath exists but is not a dir!")
 
 
 # ============================================
@@ -243,11 +250,41 @@ def read_hyperparams(fname):
             hyperparams[key] = value
     # Check for option conflicts
     check_agent_option_conflicts(hyperparams)
+    # Copy the parameter file to the save path for use with restarting
+    # and as a record
+    backup_param_file(fname, hyperparams["save_path"])
     # Set the loss and optimizer functions to their proper values based
     # on the string representation
     hyperparams = nu.set_loss(hyperparams)
     hyperparams = nu.set_optimizer(hyperparams)
     return hyperparams
+
+
+#============================================
+#            backup_param_file
+#============================================
+def backup_param_file(fname, savePath):
+    """
+    Makes a copy of the parameter file in the savePath directory. This
+    copy is used for restarting training (it serves as a guard against
+    changes being made to the original param file between stopping and
+    restarting training) and it serves as a record for what parameters
+    were used for a particular model once training is complete.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    backupFile = os.path.join(savePath, os.path.basename(fname))
+    subprocess32.call(['cp', fname, backupFile])
 
 
 #============================================
