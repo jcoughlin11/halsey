@@ -8,6 +8,7 @@ Notes:
 import os
 import subprocess32
 import sys
+import time
 
 import gym
 import numpy as np
@@ -99,6 +100,20 @@ def check_early_stop():
     if os.path.isfile(os.path.join(os.getcwd(), 'stop')):
         # Remove the file
         subprocess32.call(["rm", os.path.join(os.getcwd(), 'stop')])
+        return True
+    else:
+        return False
+
+
+#============================================
+#            time_limit_reached
+#============================================
+def time_limit_reached(start, limit):
+    """
+    Checks to see whether or not the max allowed training time has
+    elapsed. 
+    """
+    if time.time() - start > limit:
         return True
     else:
         return False

@@ -97,6 +97,7 @@ class Agent:
         self.shrinkRows      = hyperparams["shrink_rows"]
         self.stackSize       = hyperparams["n_stacked_frames"]
         self.targetQNet      = None
+        self.timeLimit       = hyperparams["time_limit"]
         self.totalRewards    = []
         self.traceLen        = hyperparams["trace_len"]
         # Seed the rng
@@ -242,6 +243,7 @@ class Agent:
             None
         """
         # Initialize the training loop
+        startTime = time.time()
         earlyStop = False
         trainParams = None
         startEp, \
@@ -277,6 +279,9 @@ class Agent:
             while step < self.maxEpSteps:
                 # Check for early stop
                 if nu.check_early_stop():
+                    earlyStop = True
+                    break
+                if nu.time_limit_reached(startTime, self.timeLimit):
                     earlyStop = True
                     break
                 print("Step: %d / %d" % (step, self.maxEpSteps), end="\r")

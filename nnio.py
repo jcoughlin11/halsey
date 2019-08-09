@@ -84,6 +84,7 @@ def param_file_registers():
         "save_period",
         "test_flag",
         "trace_len",
+        "time_limit",
         "train_flag",
     ]
     string_params = [
@@ -192,6 +193,7 @@ def read_hyperparams(fname):
     shrink_rows         : int, x size of shrunk frame
     test_flag           : int, if 1, test the agent
     trace_len           : int, num connected frames in RNN sample
+    time_limit          : int, max number of seconds to run for
     train_flag          : int, if 1, train network, if 0, load saved
 
     Parameters:
