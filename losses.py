@@ -15,9 +15,9 @@ Notes:
 from tensorflow.keras import backend as K
 
 
-#============================================
+# ============================================
 #                  per_mse
-#============================================
+# ============================================
 def per_mse(isWeights):
     """
     The Mean-Squared-Error loss function (MSE) as modified by
@@ -35,10 +35,12 @@ def per_mse(isWeights):
     --------
         pass
     """
+
     def loss_func(y_true, y_pred):
         # The axis = -1 gives us one value per data point (batch sample)
         # instead of just one value for the whole operation, which is
         # what axis = None does
         loss = K.mean(isWeights * K.square(y_true - y_pred), axis=-1)
         return loss
+
     return loss_func

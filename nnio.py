@@ -24,16 +24,9 @@ import nnutils as nu
 
 
 # Registers
-archRegister = ["conv1",
-    "dueling1",
-    "perdueling1",
-    "rnn1"
-]
-lossRegister = ['mse',
-    'per_mse',
-]
-optimizerRegister = ['adam',
-]
+archRegister = ["conv1", "dueling1", "perdueling1", "rnn1"]
+lossRegister = ["mse", "per_mse"]
+optimizerRegister = ["adam"]
 
 
 # ============================================
@@ -96,9 +89,9 @@ def param_file_registers():
         "architecture",
         "ckpt_file",
         "env_name",
-        'loss',
-        'optimizer',
-        "save_path"
+        "loss",
+        "optimizer",
+        "save_path",
     ]
     type_register = {
         "floats": float_params,
@@ -139,10 +132,10 @@ def check_agent_option_conflicts(params):
     if params["architecture"] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
     # Check for valid loss function
-    if params['loss'] not in lossRegister:
+    if params["loss"] not in lossRegister:
         raise ValueError("Error, unrecognized loss function!")
     # Check for valid optimizer function
-    if params['optimizer'] not in optimizerRegister:
+    if params["optimizer"] not in optimizerRegister:
         raise ValueError("Error, unrecognized optimizer function!")
     # Double DQN requires fixed-Q
     if params["enable_double_dqn"] and not params["enable_fixed_Q"]:
@@ -154,13 +147,13 @@ def check_agent_option_conflicts(params):
     elif not os.path.isdir(params["save_path"]):
         raise ValueError("savePath exists but is not a dir!")
     # Make sure either the train flag or test flag (or both) are set
-    if not params['train_flag'] and not params['test_flag']:
+    if not params["train_flag"] and not params["test_flag"]:
         raise ValueError("Error, neither training nor testing enabled!")
 
 
-#============================================
+# ============================================
 #              read_param_file
-#============================================
+# ============================================
 def read_param_file(fname):
     """
     Reads the data from the parameter file.
@@ -227,12 +220,13 @@ def read_param_file(fname):
     with open(fname, "r") as f:
         for line in f:
             # Skip lines that begin with '#' and empty lines
-            if line[0] == '#' or not line.strip():
+            if line[0] == "#" or not line.strip():
                 continue
             try:
-                key, value = line.split(':')
+                key, value = line.split(":")
             except ValueError:
-                print("Error, couldn't parse line '{}' in param "
+                print(
+                    "Error, couldn't parse line '{}' in param "
                     "file!".format(line)
                 )
                 sys.exit(1)
@@ -280,7 +274,7 @@ def get_hyperparams(fname, continueFlag):
     # parameter file in savePath to minimize the chances of diffs
     # between the just-read param file and the original, saved one
     if continueFlag:
-        fname = os.path.join(hyperparams['save_path'], 'dqn_hyperparams.txt')
+        fname = os.path.join(hyperparams["save_path"], "dqn_hyperparams.txt")
         print("Continuing training...")
         hyperparams = read_param_file(fname)
     else:
@@ -296,15 +290,15 @@ def get_hyperparams(fname, continueFlag):
     # on the string representation
     # Add the continue flag to the hyperparams so the agent knows what
     # to do
-    hyperparams['restart_training'] = 0 if continueFlag else 1
+    hyperparams["restart_training"] = 0 if continueFlag else 1
     hyperparams = nu.set_loss(hyperparams)
     hyperparams = nu.set_optimizer(hyperparams)
     return hyperparams
 
 
-#============================================
+# ============================================
 #            backup_param_file
-#============================================
+# ============================================
 def backup_param_file(fname, savePath):
     """
     Makes a copy of the parameter file in the savePath directory. This
@@ -326,12 +320,12 @@ def backup_param_file(fname, savePath):
         pass
     """
     backupFile = os.path.join(savePath, os.path.basename(fname))
-    subprocess32.call(['cp', fname, backupFile])
+    subprocess32.call(["cp", fname, backupFile])
 
 
-#============================================
+# ============================================
 #                save_memory
-#============================================
+# ============================================
 def save_memory(memBuffer, savePath):
     """
     Saves the contents of the memory buffer to an hdf5 file.
@@ -360,9 +354,9 @@ def save_memory(memBuffer, savePath):
         raise TypeError("Error, unrecognized memory buffer type!")
 
 
-#============================================
+# ============================================
 #             save_deque_memory
-#============================================
+# ============================================
 def save_deque_memory(memBuffer, savePath):
     """
     Handles saving the agent's memories when the memory buffer is a
@@ -381,31 +375,61 @@ def save_deque_memory(memBuffer, savePath):
         pass
     """
     # Create hdf5 file
-    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'w') as h5f:
+    with h5py.File(os.path.join(savePath, "memory_buffer.h5"), "w") as h5f:
         # Create the empty datasets to store the memory components in
         # a group named after the memory type. This makes reading the
         # data back in easier because type(memBuffer) can be identified
         # without passing any flags
         nSamples = len(memBuffer)
         stateShape = [nSamples] + list(memBuffer[0][0].shape)
-        g = h5f.create_group('deque')
-        g.create_dataset('states', shape=stateShape, compression='gzip', compression_opts=4, dtype=np.float)
-        g.create_dataset('actions', (nSamples,), compression='gzip', compression_opts=4, dtype=np.int)
-        g.create_dataset('rewards', (nSamples,), compression='gzip', compression_opts=4, dtype=np.float)
-        g.create_dataset('next_states', shape=stateShape, compression='gzip', compression_opts=4, dtype=np.float)
-        g.create_dataset('dones', (nSamples,), compression='gzip', compression_opts=4, dtype=np.int)
+        g = h5f.create_group("deque")
+        g.create_dataset(
+            "states",
+            shape=stateShape,
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        g.create_dataset(
+            "actions",
+            (nSamples,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.int,
+        )
+        g.create_dataset(
+            "rewards",
+            (nSamples,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        g.create_dataset(
+            "next_states",
+            shape=stateShape,
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        g.create_dataset(
+            "dones",
+            (nSamples,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.int,
+        )
         # Loop over each sample in the buffer
         for i, sample in enumerate(memBuffer):
-            g['states'][i] = sample[0]
-            g['actions'][i] = sample[1]
-            g['rewards'][i] = sample[2]
-            g['next_states'][i] = sample[3]
-            g['dones'][i] = sample[4]
+            g["states"][i] = sample[0]
+            g["actions"][i] = sample[1]
+            g["rewards"][i] = sample[2]
+            g["next_states"][i] = sample[3]
+            g["dones"][i] = sample[4]
 
 
-#============================================
+# ============================================
 #            save_sumtree_memory
-#============================================
+# ============================================
 def save_sumtree_memory(memBuffer, savePath):
     """
     Handles saving the agent's memories when the memory buffer is a
@@ -424,25 +448,55 @@ def save_sumtree_memory(memBuffer, savePath):
         pass
     """
     # Create hdf5 file
-    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'w') as h5f:
+    with h5py.File(os.path.join(savePath, "memory_buffer.h5"), "w") as h5f:
         # Create a group named after the buffer type (sumtree) to make
         # loading easier (see save_deque_memory)
-        g = h5f.create_group('sumtree')
+        g = h5f.create_group("sumtree")
         # Create datasets for the counters and tree array
         data = [memBuffer.nLeafs, memBuffer.dataPointer]
-        g.create_dataset('counters', data=data)
-        g.create_dataset('tree', data=memBuffer.tree)
+        g.create_dataset("counters", data=data)
+        g.create_dataset("tree", data=memBuffer.tree)
         # The data attribute of the sum tree is where the actual
         # experiences are stored, so it's an array of tuples. This
         # means it's easier to package everything into another group
         # in the same manner as in save_deque_memory
-        dg = g.create_group('data')
+        dg = g.create_group("data")
         stateShape = [memBuffer.nLeafs] + list(memBuffer.data[0][0].shape)
-        dg.create_dataset('states', shape=stateShape, dtype=np.float)
-        dg.create_dataset('actions', (memBuffer.nLeafs,), dtype=np.int)
-        dg.create_dataset('rewards', (memBuffer.nLeafs,), dtype=np.float)
-        dg.create_dataset('next_states', shape=stateShape, dtype=np.float)
-        dg.create_dataset('dones', (memBuffer.nLeafs,), dtype=np.int)
+        dg.create_dataset(
+            "states",
+            shape=stateShape,
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        dg.create_dataset(
+            "actions",
+            (memBuffer.nLeafs,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.int,
+        )
+        dg.create_dataset(
+            "rewards",
+            (memBuffer.nLeafs,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        dg.create_dataset(
+            "next_states",
+            shape=stateShape,
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.float,
+        )
+        dg.create_dataset(
+            "dones",
+            (memBuffer.nLeafs,),
+            compression="gzip",
+            compression_opts=4,
+            dtype=np.int,
+        )
         # Loop over each sample in the buffer. If the buffer is not yet
         # full then it will be comprised of both tuples and zeros
         # This is not a particularly good way of doing this, I just
@@ -452,23 +506,22 @@ def save_sumtree_memory(memBuffer, savePath):
         # Chaning this save affects the load, too, though
         for i, sample in enumerate(memBuffer.data):
             if isinstance(sample, tuple):
-                dg['states'][i] = sample[0]
-                dg['actions'][i] = sample[1]
-                dg['rewards'][i] = sample[2]
-                dg['next_states'][i] = sample[3]
-                dg['dones'][i] = sample[4]
+                dg["states"][i] = sample[0]
+                dg["actions"][i] = sample[1]
+                dg["rewards"][i] = sample[2]
+                dg["next_states"][i] = sample[3]
+                dg["dones"][i] = sample[4]
             else:
-                dg['states'][i] = np.zeros(memBuffer.data[0][0].shape)
-                dg['actions'][i] = sample
-                dg['rewards'][i] = sample
-                dg['next_states'][i] = np.zeros(memBuffer.data[0][0].shape)
-                dg['dones'][i] = sample
-        
+                dg["states"][i] = np.zeros(memBuffer.data[0][0].shape)
+                dg["actions"][i] = sample
+                dg["rewards"][i] = sample
+                dg["next_states"][i] = np.zeros(memBuffer.data[0][0].shape)
+                dg["dones"][i] = sample
 
 
-#============================================
+# ============================================
 #             load_deque_memory
-#============================================
+# ============================================
 def load_deque_memory(h5f, maxLen):
     """
     handles loading the agent's memories when the memory buffer is a
@@ -487,11 +540,11 @@ def load_deque_memory(h5f, maxLen):
         pass
     """
     # Read data from file
-    states = h5f['deque/states'][:]
-    actions = h5f['deque/actions'][:]
-    rewards = h5f['deque/rewards'][:]
-    nextStates = h5f['deque/next_states'][:]
-    dones = h5f['deque/dones'][:]
+    states = h5f["deque/states"][:]
+    actions = h5f["deque/actions"][:]
+    rewards = h5f["deque/rewards"][:]
+    nextStates = h5f["deque/next_states"][:]
+    dones = h5f["deque/dones"][:]
     # Package data into the memory buffer
     memBuffer = collections.deque(maxlen=maxLen)
     for experience in zip(states, actions, rewards, nextStates, dones):
@@ -499,9 +552,9 @@ def load_deque_memory(h5f, maxLen):
     return memBuffer
 
 
-#============================================
+# ============================================
 #            load_sumtree_memory
-#============================================
+# ============================================
 def load_sumtree_memory(h5f, maxLen):
     """
     handles loading the agent's memories when the memory buffer is a
@@ -520,13 +573,13 @@ def load_sumtree_memory(h5f, maxLen):
         pass
     """
     # Read data from file
-    nLeafs, dataPointer = h5f['sumtree/counters'][:]
-    tree = h5f['sumtree/tree'][:]
-    states = h5f['sumtree/data/states'][:]
-    actions = h5f['sumtree/data/actions'][:]
-    rewards = h5f['sumtree/data/rewards'][:]
-    nextStates = h5f['sumtree/data/next_states'][:]
-    dones = h5f['sumtree/data/dones'][:]
+    nLeafs, dataPointer = h5f["sumtree/counters"][:]
+    tree = h5f["sumtree/tree"][:]
+    states = h5f["sumtree/data/states"][:]
+    actions = h5f["sumtree/data/actions"][:]
+    rewards = h5f["sumtree/data/rewards"][:]
+    nextStates = h5f["sumtree/data/next_states"][:]
+    dones = h5f["sumtree/data/dones"][:]
     # Package the data into the buffer
     memBuffer = nu.SumTree(nLeafs)
     memBuffer.dataPointer = dataPointer
@@ -536,9 +589,9 @@ def load_sumtree_memory(h5f, maxLen):
     return memBuffer
 
 
-#============================================
+# ============================================
 #               load_memory
-#============================================
+# ============================================
 def load_memory(savePath, memLen):
     """
     Loads in the memory buffer.
@@ -556,21 +609,21 @@ def load_memory(savePath, memLen):
         pass
     """
     # Open file for reading
-    with h5py.File(os.path.join(savePath, 'memory_buffer.h5'), 'r') as h5f:
+    with h5py.File(os.path.join(savePath, "memory_buffer.h5"), "r") as h5f:
         # Buffer is a deque
-        if 'deque' in h5f.keys():
+        if "deque" in h5f.keys():
             memBuffer = load_deque_memory(h5f, memLen)
         # Buffer is a SumTree
-        elif 'sumtree' in h5f.keys():
+        elif "sumtree" in h5f.keys():
             memBuffer = load_sumtree_memory(h5f, memLen)
         else:
             raise KeyError("Error, could not infer type of memory buffer!")
     return memBuffer
 
 
-#============================================
+# ============================================
 #             save_train_params
-#============================================
+# ============================================
 def save_train_params(trainParams, savePath):
     """
     This function saves the crucial training parameters needed in order
@@ -589,36 +642,41 @@ def save_train_params(trainParams, savePath):
         None
     """
     # Unpack the training parameters
-    episode, \
-    decayStep, \
-    step, \
-    fixedQStep, \
-    totRewards, \
-    epRewards, \
-    state, \
-    frameStack, \
-    memBuffer = trainParams
+    episode, decayStep, step, fixedQStep, totRewards, epRewards, state, frameStack, memBuffer = (
+        trainParams
+    )
     # Create hdf5 file
-    with h5py.File(os.path.join(savePath, 'training_params.h5'), 'w') as h5f:
+    with h5py.File(os.path.join(savePath, "training_params.h5"), "w") as h5f:
         # Save the counters: startEp, decayStep, step, and fixedQStep
         # Compression here won't make much of a difference since, for
         # the games I'm using, these data are all quite small
         counters = np.array([episode, decayStep, step, fixedQStep])
-        h5f.create_dataset('counters', data=counters, compression='gzip', compression_opts=4)
+        h5f.create_dataset(
+            "counters", data=counters, compression="gzip", compression_opts=4
+        )
         # Total rewards
-        h5f.create_dataset('totrewards', data=totRewards, compression='gzip', compression_opts=4)
+        h5f.create_dataset(
+            "totrewards",
+            data=totRewards,
+            compression="gzip",
+            compression_opts=4,
+        )
         # Episode rewards
-        h5f.create_dataset('eprewards', data=epRewards, compression='gzip', compression_opts=4)
+        h5f.create_dataset(
+            "eprewards", data=epRewards, compression="gzip", compression_opts=4
+        )
         # State
-        h5f.create_dataset('state', data=state, compression='gzip', compression_opts=4)
+        h5f.create_dataset(
+            "state", data=state, compression="gzip", compression_opts=4
+        )
     # Memory. This is where compression and io speed is important,
     # because this is huge (or can be)
     save_memory(memBuffer, savePath)
-    
 
-#============================================
+
+# ============================================
 #             load_train_params
-#============================================
+# ============================================
 def load_train_params(savePath, memLen):
     """
     This function reads in the data saved to the files produced in
@@ -637,20 +695,20 @@ def load_train_params(savePath, memLen):
         pass
     """
     # Create hdf5 file
-    with h5py.File(os.path.join(savePath, 'training_params.h5'), 'r') as h5f:
+    with h5py.File(os.path.join(savePath, "training_params.h5"), "r") as h5f:
         # Load counters
-        episode, decayStep, step, fixedQStep = list(h5f['counters'][:])
+        episode, decayStep, step, fixedQStep = list(h5f["counters"][:])
         # Rewards
-        totRewards = list(h5f['totrewards'][:])
-        epRewards = list(h5f['eprewards'][:])
+        totRewards = list(h5f["totrewards"][:])
+        epRewards = list(h5f["eprewards"][:])
         # State (it's actually the stacked set of processed frames)
-        state = h5f['state'][:]
+        state = h5f["state"][:]
         # Unpack the stacked state such that each individual frame
         # in the stack is an element of the deque. The shape of
         # state = (shrinkRows, shrinkCols, stackSize) and I want
         # each element of frameStack to be one of the
         # (shrinkRows, shrinkCols) frames
-        frameStack = [state[:,:,i] for i in range(state.shape[-1])]
+        frameStack = [state[:, :, i] for i in range(state.shape[-1])]
         frameStack = collections.deque(frameStack, maxlen=state.shape[-1])
     # Memory
     memBuffer = load_memory(savePath, memLen)
@@ -664,14 +722,14 @@ def load_train_params(savePath, memLen):
         epRewards,
         state,
         frameStack,
-        memBuffer
+        memBuffer,
     )
     return trainParams
 
 
-#============================================
+# ============================================
 #                 save_model
-#============================================
+# ============================================
 def save_model(savePath, saveFile, qNet, tNet, trainParams, saveParams):
     """
     Driver function for saving the networks and, if applicable, the
@@ -690,10 +748,10 @@ def save_model(savePath, saveFile, qNet, tNet, trainParams, saveParams):
         pass
     """
     # Save the primary network
-    qNet.model.save(os.path.join(savePath, saveFile + '.h5'))
+    qNet.model.save(os.path.join(savePath, saveFile + ".h5"))
     # Save the target network, if applicable
     if isinstance(tNet, nw.DQN):
-        tNet.model.save(os.path.join(savePath, saveFile + '-target.h5'))
+        tNet.model.save(os.path.join(savePath, saveFile + "-target.h5"))
     # Save the training parameters, if applicable
     if saveParams:
         save_train_params(trainParams, savePath)

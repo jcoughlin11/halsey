@@ -14,9 +14,9 @@ import frames
 import nnutils as nu
 
 
-#============================================
+# ============================================
 #               Memory Class
-#============================================
+# ============================================
 class Memory:
     """
     Holds and manages the experience buffer for DQNs.
@@ -30,9 +30,9 @@ class Memory:
         pass
     """
 
-    #-----
+    # -----
     # Constructor
-    #-----
+    # -----
     def __init__(self, max_size, pretrain_len):
         """
         Parameters:
@@ -58,9 +58,9 @@ class Memory:
         self.pretrain_len = pretrain_len
         self.buffer = collections.deque(maxlen=self.max_size)
 
-    #-----
+    # -----
     # Pre-Populate
-    #-----
+    # -----
     def pre_populate(self, env, stack_size, crop, shrink):
         """
         This function initially fills the experience buffer with sample
@@ -119,9 +119,9 @@ class Memory:
             else:
                 state = next_state
 
-    #-----
+    # -----
     # Add
-    #-----
+    # -----
     def add(self, experience):
         """
         Adds the newest experience tuple to the buffer.
@@ -142,9 +142,9 @@ class Memory:
         """
         self.buffer.append(experience)
 
-    #-----
+    # -----
     # Sample
-    #-----
+    # -----
     def sample(self, batch_size):
         """
         This function returns a randomly selected subsample of size
@@ -401,9 +401,9 @@ class PriorityMemory(Memory):
             self.buffer.update(ind, p)
 
 
-#============================================
+# ============================================
 #                EpisodeMemory
-#============================================
+# ============================================
 class EpisodeMemory(Memory):
     """
     Same idea as the Memory class, but holds entire episodes in its
@@ -421,9 +421,9 @@ class EpisodeMemory(Memory):
         pass
     """
 
-    #-----
+    # -----
     # Constructor
-    #-----
+    # -----
     def __init__(self, max_size, pretrain_len, preTrainEpLen, traceLen):
         """
         Parameters:
@@ -442,7 +442,7 @@ class EpisodeMemory(Memory):
         super().__init__(max_size, pretrain_len)
         self.preTrainEpLen = self.preTrainEpLen
         self.traceLen = traceLen
- 
+
     # -----
     # Pre-Populate
     # -----
@@ -523,9 +523,9 @@ class EpisodeMemory(Memory):
                     None, state, True, stack_size, crop, shrink
                 )
 
-    #-----
+    # -----
     # sample
-    #-----
+    # -----
     def sample(self, batchSize):
         """
         Randomly selects episodes from the memory buffer and randomly
@@ -557,7 +557,7 @@ class EpisodeMemory(Memory):
                 # hence the +1
                 ind = np.random.randint(0, len(ep) + 1 - self.traceLen)
                 # Get trace
-                traces.append(ep[ind:ind + self.traceLen])
+                traces.append(ep[ind : ind + self.traceLen])
             # Case 2: it isn't
             else:
                 # Extract as many experiences as we can

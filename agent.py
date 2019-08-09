@@ -19,9 +19,9 @@ import nnio as io
 import nnutils as nu
 
 
-#============================================
+# ============================================
 #                    Agent
-#============================================
+# ============================================
 class Agent:
     """
     Contains all of the methods for using various RL techniques in
@@ -61,56 +61,52 @@ class Agent:
             pass
         """
         # Initialize
-        self.batchSize       = hyperparams["batch_size"]
-        self.ckptFile        = hyperparams["ckpt_file"]
-        self.cropBot         = hyperparams["crop_bot"]
-        self.cropLeft        = hyperparams["crop_left"]
-        self.cropRight       = hyperparams["crop_right"]
-        self.cropTop         = hyperparams["crop_top"]
-        self.discountRate    = hyperparams["discount"]
+        self.batchSize = hyperparams["batch_size"]
+        self.ckptFile = hyperparams["ckpt_file"]
+        self.cropBot = hyperparams["crop_bot"]
+        self.cropLeft = hyperparams["crop_left"]
+        self.cropRight = hyperparams["crop_right"]
+        self.cropTop = hyperparams["crop_top"]
+        self.discountRate = hyperparams["discount"]
         self.enableDoubleDQN = hyperparams["enable_double_dqn"]
-        self.enableFixedQ    = hyperparams["enable_fixed_Q"]
-        self.enablePer       = hyperparams["enable_per"]
-        self.env             = env
-        self.epsDecayRate    = hyperparams["eps_decay_rate"]
-        self.epsilonStart    = hyperparams["epsilon_start"]
-        self.epsilonStop     = hyperparams["epsilon_stop"]
-        self.fixedQSteps     = hyperparams["fixed_Q_steps"]
-        self.learningRate    = hyperparams["learning_rate"]
-        self.loss            = hyperparams['loss']
-        self.maxEpSteps      = hyperparams["max_episode_steps"]
-        self.memSize         = hyperparams["memory_size"]
-        self.nEpisodes       = hyperparams["n_episodes"]
-        self.optimizer       = hyperparams['optimizer']
-        self.perA            = hyperparams["per_a"]
-        self.perB            = hyperparams["per_b"]
-        self.perBAnneal      = hyperparams["per_b_anneal"]
-        self.perE            = hyperparams["per_e"]
-        self.preTrainEpLen   = hyperparams["pretrain_max_ep_len"]
-        self.preTrainLen     = hyperparams["pretrain_len"]
-        self.qNet            = None
-        self.renderFlag      = hyperparams["render_flag"]
+        self.enableFixedQ = hyperparams["enable_fixed_Q"]
+        self.enablePer = hyperparams["enable_per"]
+        self.env = env
+        self.epsDecayRate = hyperparams["eps_decay_rate"]
+        self.epsilonStart = hyperparams["epsilon_start"]
+        self.epsilonStop = hyperparams["epsilon_stop"]
+        self.fixedQSteps = hyperparams["fixed_Q_steps"]
+        self.learningRate = hyperparams["learning_rate"]
+        self.loss = hyperparams["loss"]
+        self.maxEpSteps = hyperparams["max_episode_steps"]
+        self.memSize = hyperparams["memory_size"]
+        self.nEpisodes = hyperparams["n_episodes"]
+        self.optimizer = hyperparams["optimizer"]
+        self.perA = hyperparams["per_a"]
+        self.perB = hyperparams["per_b"]
+        self.perBAnneal = hyperparams["per_b_anneal"]
+        self.perE = hyperparams["per_e"]
+        self.preTrainEpLen = hyperparams["pretrain_max_ep_len"]
+        self.preTrainLen = hyperparams["pretrain_len"]
+        self.qNet = None
+        self.renderFlag = hyperparams["render_flag"]
         self.restartTraining = hyperparams["restart_training"]
-        self.savePeriod      = hyperparams["save_period"]
-        self.saveFilePath    = hyperparams["save_path"]
-        self.shrinkCols      = hyperparams["shrink_cols"]
-        self.shrinkRows      = hyperparams["shrink_rows"]
-        self.stackSize       = hyperparams["n_stacked_frames"]
-        self.targetQNet      = None
-        self.timeLimit       = hyperparams["time_limit"]
-        self.totalRewards    = []
-        self.traceLen        = hyperparams["trace_len"]
+        self.savePeriod = hyperparams["save_period"]
+        self.saveFilePath = hyperparams["save_path"]
+        self.shrinkCols = hyperparams["shrink_cols"]
+        self.shrinkRows = hyperparams["shrink_rows"]
+        self.stackSize = hyperparams["n_stacked_frames"]
+        self.targetQNet = None
+        self.timeLimit = hyperparams["time_limit"]
+        self.totalRewards = []
+        self.traceLen = hyperparams["trace_len"]
         # Seed the rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes
         self.crop = (self.cropTop, self.cropBot, self.cropLeft, self.cropRight)
         self.shrink = (self.shrinkRows, self.shrinkCols)
         # Set the size of the input frame stack
-        self.inputShape = (
-            self.shrinkRows,
-            self.shrinkCols,
-            self.stackSize,
-        )
+        self.inputShape = (self.shrinkRows, self.shrinkCols, self.stackSize)
         # Set up memory
         if self.enablePer:
             perParams = [self.perA, self.perB, self.perBAnneal, self.perE]
@@ -119,8 +115,10 @@ class Agent:
             )
         elif hyperparams["architecture"] == "rnn1":
             self.memory = mem.EpisodeMemory(
-                self.memSize, self.preTrainLen, self.preTrainEpLen,
-                self.traceLen
+                self.memSize,
+                self.preTrainLen,
+                self.preTrainEpLen,
+                self.traceLen,
             )
         else:
             self.memory = mem.Memory(self.memSize, self.preTrainLen)
@@ -148,9 +146,9 @@ class Agent:
                 self.loss,
             )
 
-    #-----
+    # -----
     # train
-    #-----
+    # -----
     def initialize_training(self, restart):
         """
         Sets up the training loop.
@@ -179,12 +177,7 @@ class Agent:
             state = self.env.reset()
             # Stack and process initial state
             state, frameStack = frames.stack_frames(
-                None,
-                state,
-                True,
-                self.stackSize,
-                self.crop,
-                self.shrink
+                None, state, True, self.stackSize, self.crop, self.shrink
             )
             # Initialize parameters: startEp, decayStep, step,
             # fixedQStep, totalRewards, epRewards, state, frameStack,
@@ -198,31 +191,30 @@ class Agent:
                 [],
                 state,
                 frameStack,
-                self.memory.buffer
+                self.memory.buffer,
             )
         # Continue where we left off
         else:
             # Load network
             self.qNet.model = tf.keras.models.load_model(
-                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5")
             )
             # Load target network, if applicable
             if self.enableFixedQ:
                 self.targetQNet.model = tf.keras.models.load_model(
                     os.path.join(
                         self.saveFilePath, self.ckptFile + "-target.h5"
-                    ),
+                    )
                 )
             # Load training parameters
             trainParams = io.load_train_params(
-                self.saveFilePath,
-                self.memory.max_size
+                self.saveFilePath, self.memory.max_size
             )
         return trainParams
 
-    #-----
+    # -----
     # train
-    #-----
+    # -----
     def train(self, restart=True):
         """
         Trains the agent to play the game.
@@ -246,15 +238,9 @@ class Agent:
         startTime = time.time()
         earlyStop = False
         trainParams = None
-        startEp, \
-        decayStep, \
-        step, \
-        fixedQStep, \
-        self.totalRewards, \
-        episodeRewards, \
-        state, \
-        frameStack, \
-        self.memory.buffer = self.initialize_training(restart)
+        startEp, decayStep, step, fixedQStep, self.totalRewards, episodeRewards, state, frameStack, self.memory.buffer = self.initialize_training(
+            restart
+        )
         # Loop over desired number of training episodes
         for episode in range(startEp, self.nEpisodes):
             print("Episode: %d / %d" % (episode + 1, self.nEpisodes))
@@ -267,12 +253,7 @@ class Agent:
                 state = self.env.reset()
                 # Stack and process initial state
                 state, frameStack = frames.stack_frames(
-                    None,
-                    state,
-                    True,
-                    self.stackSize,
-                    self.crop,
-                    self.shrink
+                    None, state, True, self.stackSize, self.crop, self.shrink
                 )
             # Loop over the max amount of time the agent gets per
             # episode
@@ -344,7 +325,7 @@ class Agent:
                     episodeRewards,
                     state,
                     frameStack,
-                    self.memory.buffer
+                    self.memory.buffer,
                 )
                 io.save_model(
                     self.saveFilePath,
@@ -352,7 +333,7 @@ class Agent:
                     self.qNet,
                     self.targetQNet,
                     trainParams,
-                    True
+                    True,
                 )
                 if earlyStop:
                     sys.exit()
@@ -363,7 +344,7 @@ class Agent:
             self.qNet,
             self.targetQNet,
             trainParams,
-            False
+            False,
         )
 
     # -----
@@ -413,12 +394,7 @@ class Agent:
             # Keras expects a group of samples of the specified shape,
             # even if there's just one sample, so we need to reshape
             state = state.reshape(
-                (
-                    1,
-                    state.shape[0],
-                    state.shape[1],
-                    state.shape[2]
-                )
+                (1, state.shape[0], state.shape[1], state.shape[2])
             )
             # Get the beliefs in each action for the current state
             Q_vals = self.qNet.model.predict_on_batch(state)
@@ -426,9 +402,9 @@ class Agent:
             action = np.argmax(Q_vals)
         return action
 
-    #-----
+    # -----
     # learn
-    #-----
+    # -----
     def learn(self):
         """
         Samples from the experience buffer and calls the correct learn
@@ -457,7 +433,7 @@ class Agent:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
         else:
             sample = self.memory.sample(self.batchSize)
-            isWeights=None
+            isWeights = None
         # Unpack the batch
         for i, s in enumerate(sample):
             states[i] = s[0]
@@ -469,41 +445,26 @@ class Agent:
         # Double DQN
         if self.enableDoubleDQN:
             loss, absError = self.double_dqn_learn(
-                states,
-                actions,
-                rewards,
-                nextStates,
-                dones,
-                isWeights.flatten()
+                states, actions, rewards, nextStates, dones, isWeights.flatten()
             )
         # Fixed-Q
         elif self.enableFixedQ:
             loss, absError = self.fixed_q_learn(
-                states,
-                actions,
-                rewards,
-                nextStates,
-                dones,
-                isWeights.flatten()
+                states, actions, rewards, nextStates, dones, isWeights.flatten()
             )
         # Standard dqn
         else:
             loss, absError = self.dqn_learn(
-                states,
-                actions,
-                rewards,
-                nextStates,
-                dones,
-                isWeights.flatten()
+                states, actions, rewards, nextStates, dones, isWeights.flatten()
             )
         # Update the priorities
         if self.enablePer:
             self.memory.update(treeInds, absError)
         return loss
 
-    #-----
+    # -----
     # dqn_learn
-    #-----
+    # -----
     def dqn_learn(self, states, actions, rewards, nextStates, dones, isWeights):
         """
         The estimates of the max discounted future rewards (qTarget) are
@@ -560,8 +521,9 @@ class Agent:
         # just the specified entries of qPred could be changed
         qTarget = np.zeros(qPred.shape)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
-            self.discountRate * np.amax(qNext[nDoneInds])
+        qTarget[nDoneInds, actions[nDoneInds]] = rewards[
+            nDoneInds
+        ] + self.discountRate * np.amax(qNext[nDoneInds])
         # Fill in qTarget with the unaffected Q values. This is so the
         # TD error for those terms is 0, since they did not change.
         # Otherwise, the TD error for those terms would be equal to
@@ -572,14 +534,17 @@ class Agent:
         # for each experience is just a float, not a sequence
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
+        loss = self.qNet.model.train_on_batch(
+            states, qTarget, sample_weight=isWeights
+        )
         return loss, absError
 
-    #-----
+    # -----
     # double_dqn_learn
-    #-----
-    def double_dqn_learn(self, states, actions, rewards, nextStates, dones,
-        isWeights):
+    # -----
+    def double_dqn_learn(
+        self, states, actions, rewards, nextStates, dones, isWeights
+    ):
         """
         Double dqn attempts to deal with the following issue: when we
         choose the action that gives rise to the highest Q value for the
@@ -628,20 +593,25 @@ class Agent:
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
-            self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
+        qTarget[nDoneInds, actions[nDoneInds]] = (
+            rewards[nDoneInds]
+            + self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
+        )
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
+        loss = self.qNet.model.train_on_batch(
+            states, qTarget, sample_weight=isWeights
+        )
         return loss, absError
 
-    #-----
+    # -----
     # fixed_q_learn
-    #-----
-    def fixed_q_learn(self, states, actions, rewards, nextStates, dones,
-        isWeights):
+    # -----
+    def fixed_q_learn(
+        self, states, actions, rewards, nextStates, dones, isWeights
+    ):
         """
         In DQL the qTargets (labels) are determined from the same
         network that they are being used to update. As such, there can
@@ -679,11 +649,14 @@ class Agent:
         doneInds = np.where(dones)
         nDoneInds = np.where(~dones)
         qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = rewards[nDoneInds] + \
-            self.discountRate * np.amax(qNext[nDoneInds])
+        qTarget[nDoneInds, actions[nDoneInds]] = rewards[
+            nDoneInds
+        ] + self.discountRate * np.amax(qNext[nDoneInds])
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(states, qTarget, sample_weight=isWeights)
+        loss = self.qNet.model.train_on_batch(
+            states, qTarget, sample_weight=isWeights
+        )
         return loss, absError

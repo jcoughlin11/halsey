@@ -18,9 +18,9 @@ import losses
 import nnio as io
 
 
-#============================================
+# ============================================
 #                initialize
-#============================================
+# ============================================
 def initialize():
     """
     Reads the parameter file and sets up the gym environment.
@@ -61,20 +61,22 @@ def initialize():
         print("Error, could not find 'env_name' in the hyperparams!")
         sys.exit(1)
     except gym.error.UnregisteredEnv:
-        print("Error, trying to build an unregistered environment:"
+        print(
+            "Error, trying to build an unregistered environment:"
             "\n\t{}\n"
             "Try:\n\tfrom gym.envs.registration import register\n"
             "\tregister(\n"
             "\t\tid='<env-name>',\n"
             "\t\tentry_point='<package>.envs:<EnvClass>',\n"
             "\t)\n"
-            "In the environment's init.py".format(hyperparams['env_name'])
+            "In the environment's init.py".format(hyperparams["env_name"])
         )
         sys.exit(1)
     except gym.error.DeprecatedEnv as e:
-        print("Error, trying to build a deprecated environment:\n"
+        print(
+            "Error, trying to build a deprecated environment:\n"
             "\t{}\n"
-            "{}".format(hyperparams['env_name'], e)
+            "{}".format(hyperparams["env_name"], e)
         )
         sys.exit(1)
     except gym.error.Error:
@@ -83,9 +85,9 @@ def initialize():
     return hyperparams, env
 
 
-#============================================
+# ============================================
 #             check_early_stop
-#============================================
+# ============================================
 def check_early_stop(savePath):
     """
     Looks for a file called stop in the current working directory.
@@ -102,7 +104,7 @@ def check_early_stop(savePath):
     --------
         pass
     """
-    stopFile = os.path.join(savePath, 'stop')
+    stopFile = os.path.join(savePath, "stop")
     if os.path.isfile(stopFile):
         # Remove the file
         subprocess32.call(["rm", stopFile])
@@ -111,9 +113,9 @@ def check_early_stop(savePath):
         return False
 
 
-#============================================
+# ============================================
 #            time_limit_reached
-#============================================
+# ============================================
 def time_limit_reached(start, limit):
     """
     Checks to see whether or not the max allowed training time has
@@ -125,9 +127,9 @@ def time_limit_reached(start, limit):
         return False
 
 
-#============================================
+# ============================================
 #                  set_loss
-#============================================
+# ============================================
 def set_loss(params):
     """
     If applicable, assigns the string version of the loss function to
@@ -150,14 +152,14 @@ def set_loss(params):
     # Check for custom loss functions. If we're here, then the loss has
     # already been confirmed to be in the lossRegister and, therefore,
     # valid and listed here
-    if params['loss'] == 'per_mse':
-        params['loss'] = losses.per_mse
+    if params["loss"] == "per_mse":
+        params["loss"] = losses.per_mse
     return params
 
 
-#============================================
+# ============================================
 #               set_optimizer
-#============================================
+# ============================================
 def set_optimizer(params):
     """
     Converts the string form of the optimizer to the class form and
@@ -175,16 +177,16 @@ def set_optimizer(params):
     --------
     pass
     """
-    if params['optimizer'] == 'adam':
-        params['optimizer'] = tf.keras.optimizers.Adam(
-            learning_rate=params['learning_rate']
+    if params["optimizer"] == "adam":
+        params["optimizer"] = tf.keras.optimizers.Adam(
+            learning_rate=params["learning_rate"]
         )
     return params
 
 
-#============================================
+# ============================================
 #               Sumtree Class
-#============================================
+# ============================================
 class SumTree:
     """
     Prioritized experience replay makes use of a sum tree to efficiently

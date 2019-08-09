@@ -9,9 +9,9 @@ import agent
 import nnutils as nu
 
 
-#============================================
+# ============================================
 #                   main
-#============================================
+# ============================================
 def main():
     """
     Driver for training or running an agent instance.
@@ -34,17 +34,17 @@ def main():
     print("Setting up agent...")
     ag = agent.Agent(hyperparams, env)
     # Train the network
-    if hyperparams['train_flag']:
+    if hyperparams["train_flag"]:
         print("Training...")
-        ag.train(hyperparams['restart_training'])
+        ag.train(hyperparams["restart_training"])
     # Test the network
-    if hyperparams['test_flag']:
+    if hyperparams["test_flag"]:
         print("Testing agent...")
-        ag.test(hyperparams['render_flag'])
+        ag.test(hyperparams["render_flag"])
 
 
-#============================================
+# ============================================
 #                main script
-#============================================
-if __name__ == '__main__':
+# ============================================
+if __name__ == "__main__":
     main()
