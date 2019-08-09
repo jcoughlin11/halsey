@@ -6,6 +6,11 @@ Purpose: Contains tools related to reading and writing files to disk
 Notes:
     * https://tinyurl.com/y2nhqrce (good h5py guide)
     * http://docs.h5py.org/en/stable/special.html (h5py special dtpyes)
+    * compression_opts goes up to 9
+    * The higher the level, the more aggressive the comp, but the more
+    processor intensive it is
+    * The default is 4, which I've included just to remind myself the
+    option exists in case I don't remember to look at this header
 """
 import collections
 import os
@@ -384,11 +389,11 @@ def save_deque_memory(memBuffer, savePath):
         nSamples = len(memBuffer)
         stateShape = [nSamples] + list(memBuffer[0][0].shape)
         g = h5f.create_group('deque')
-        g.create_dataset('states', shape=stateShape, dtype=np.float)
-        g.create_dataset('actions', (nSamples,), dtype=np.int)
-        g.create_dataset('rewards', (nSamples,), dtype=np.float)
-        g.create_dataset('next_states', shape=stateShape, dtype=np.float)
-        g.create_dataset('dones', (nSamples,), dtype=np.int)
+        g.create_dataset('states', shape=stateShape, compression='gzip', compression_opts=4, dtype=np.float)
+        g.create_dataset('actions', (nSamples,), compression='gzip', compression_opts=4, dtype=np.int)
+        g.create_dataset('rewards', (nSamples,), compression='gzip', compression_opts=4, dtype=np.float)
+        g.create_dataset('next_states', shape=stateShape, compression='gzip', compression_opts=4, dtype=np.float)
+        g.create_dataset('dones', (nSamples,), compression='gzip', compression_opts=4, dtype=np.int)
         # Loop over each sample in the buffer
         for i, sample in enumerate(memBuffer):
             g['states'][i] = sample[0]
@@ -596,15 +601,18 @@ def save_train_params(trainParams, savePath):
     # Create hdf5 file
     with h5py.File(os.path.join(savePath, 'training_params.h5'), 'w') as h5f:
         # Save the counters: startEp, decayStep, step, and fixedQStep
+        # Compression here won't make much of a difference since, for
+        # the games I'm using, these data are all quite small
         counters = np.array([episode, decayStep, step, fixedQStep])
-        h5f.create_dataset('counters', data=counters)
+        h5f.create_dataset('counters', data=counters, compression='gzip', compression_opts=4)
         # Total rewards
-        h5f.create_dataset('totrewards', data=totRewards)
+        h5f.create_dataset('totrewards', data=totRewards, compression='gzip', compression_opts=4)
         # Episode rewards
-        h5f.create_dataset('eprewards', data=epRewards)
+        h5f.create_dataset('eprewards', data=epRewards, compression='gzip', compression_opts=4)
         # State
-        h5f.create_dataset('state', data=state)
-    # Memory
+        h5f.create_dataset('state', data=state, compression='gzip', compression_opts=4)
+    # Memory. This is where compression and io speed is important,
+    # because this is huge (or can be)
     save_memory(memBuffer, savePath)
     
 
