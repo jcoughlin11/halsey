@@ -79,7 +79,6 @@ def param_file_registers():
         "pretrain_len",
         "pretrain_max_ep_len",
         "render_flag",
-        "restart_training",
         "shrink_cols",
         "shrink_rows",
         "save_period",
@@ -149,15 +148,17 @@ def check_agent_option_conflicts(params):
     # If it does exist, make sure it's a directory
     elif not os.path.isdir(params["save_path"]):
         raise ValueError("savePath exists but is not a dir!")
+    # Make sure either the train flag or test flag (or both) are set
+    if not params['train_flag'] and not params['test_flag']:
+        raise ValueError("Error, neither training nor testing enabled!")
 
 
-# ============================================
-#             read_hyperparams
-# ============================================
-def read_hyperparams(fname):
+#============================================
+#              read_param_file
+#============================================
+def read_param_file(fname):
     """
-    Reads in the parameter file that contains the network's
-    hyperparameters. The layout is:
+    Reads the data from the parameter file.
 
     architecture        : string, the network architecture to use
     batch_size          : int, size of batches used for training
@@ -193,7 +194,6 @@ def read_hyperparams(fname):
     pretrain_len        : int, num experiences to initially fill mem
     pretrain_max_ep_len : int, max ep length when filling mem buffer
     render_flag         : int, if 1, render scene during testing
-    restart_training    : int, if 1 start from beginning, if 0, cont
     save_path           ; string, path of checkpoint and param file
     save_period         : int, save model every savePeriod episodes
     shrink_cols         : int, y size of shrunk frame
@@ -215,11 +215,6 @@ def read_hyperparams(fname):
     --------
         pass
     """
-    # Assume the file is in the current working directory
-    fname = os.path.join(os.getcwd(), fname)
-    # Make sure the file exists
-    if not os.path.isfile(fname):
-        raise FileNotFoundError
     # Set up registers for casting to different data types
     type_register = param_file_registers()
     # Read file
@@ -248,13 +243,55 @@ def read_hyperparams(fname):
                 print("Hyperparameter {} not found!".format(key))
                 raise IOError
             hyperparams[key] = value
+    return hyperparams
+
+
+# ============================================
+#              get_hyperparams
+# ============================================
+def get_hyperparams(fname, continueFlag):
+    """
+    Reads in the parameter file that contains the network's
+    hyperparameters. The layout is:
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    # Make sure the file exists
+    if not os.path.isfile(fname):
+        raise FileNotFoundError
+    # Read file
+    hyperparams = read_param_file(fname)
+    # If we're restarting, read the saved version of the original
+    # parameter file in savePath to minimize the chances of diffs
+    # between the just-read param file and the original, saved one
+    if continueFlag:
+        fname = os.path.join(hyperparams['save_path'], 'dqn_hyperparams.txt')
+        print("Continuing training...")
+        hyperparams = read_param_file(fname)
+    else:
+        print("Restarting training...")
     # Check for option conflicts
     check_agent_option_conflicts(hyperparams)
     # Copy the parameter file to the save path for use with restarting
-    # and as a record
-    backup_param_file(fname, hyperparams["save_path"])
+    # and as a record. Only need to do this if it hasn't already been
+    # saved
+    if not continueFlag:
+        backup_param_file(fname, hyperparams["save_path"])
     # Set the loss and optimizer functions to their proper values based
     # on the string representation
+    # Add the continue flag to the hyperparams so the agent knows what
+    # to do
+    hyperparams['restart_training'] = 0 if continueFlag else 1
     hyperparams = nu.set_loss(hyperparams)
     hyperparams = nu.set_optimizer(hyperparams)
     return hyperparams

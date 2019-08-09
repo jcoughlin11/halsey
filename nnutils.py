@@ -41,10 +41,15 @@ def initialize():
         env : gym.core.Env
             The object that interfaces between the game and the agent.
     """
+    # Look for a restart flag
+    try:
+        continueFlag = int(sys.argv[2])
+    except IndexError:
+        continueFlag = 0
     # Read hyperparameters from parameter file
     try:
         print("Reading hyperparameters...")
-        hyperparams = io.read_hyperparams(sys.argv[1])
+        hyperparams = io.get_hyperparams(sys.argv[1], continueFlag)
     except (IOError, IndexError):
         print("Error, could not open file for reading hyperparameters!")
         sys.exit(1)

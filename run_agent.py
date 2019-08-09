@@ -5,8 +5,6 @@ Date:    3/19/19
 Purpose: Driver code for using DQL to train an agent to play a game
 Notes:  1. This is based on https://tinyurl.com/ya8d9wcd
 """
-import sys
-
 import agent
 import nnutils as nu
 
