@@ -25,7 +25,7 @@
 
 # Memory parameters
 #------------------
-    enable_per          : 1
+    enable_per          : 0
     memory_size         : 100
     per_a               : 0.6
     per_b               : 0.4
@@ -44,10 +44,10 @@
 
 # Q parameters
 #-------------
-    architecture      : conv1
+    architecture      : dueling1
     discount          : 0.9
-    enable_double_dqn : 1
-    enable_fixed_Q    : 1
+    enable_double_dqn : 0
+    enable_fixed_Q    : 0
     fixed_Q_steps     : 100
     trace_len         : 4
 
