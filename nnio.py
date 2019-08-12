@@ -24,7 +24,7 @@ import nnutils as nu
 
 
 # Registers
-archRegister = ["conv1", "dueling1", "perdueling1", "rnn1"]
+archRegister = ["conv1", "dueling1", "rnn1"]
 lossRegister = ["mse", "per_mse"]
 optimizerRegister = ["adam"]
 
