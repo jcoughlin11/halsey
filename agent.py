@@ -455,7 +455,7 @@ class Agent:
         # Standard dqn
         else:
             loss, absError = self.dqn_learn(
-                states, actions, rewards, nextStates, dones, isWeights.flatten()
+                states, actions, rewards, nextStates, dones, isWeights
             )
         # Update the priorities
         if self.enablePer:
