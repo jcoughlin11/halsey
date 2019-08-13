@@ -4,6 +4,8 @@ Author:  Jared Coughlin
 Date:    1/24/19
 Purpose: Contains the neural network architecture definitions
 Notes:
+    1.) For RNNs, see:
+        https://www.tensorflow.org/beta/guide/keras/rnn
 """
 import tensorflow as tf
 import tensorflow.keras.backend as K
@@ -207,3 +209,27 @@ class DQN:
         # Set the model
         model = tf.keras.models.Model(inputs=inputLayer, outputs=Q)
         return model
+
+    #-----
+    # build_rnn1_net
+    #-----
+    def build_rnn1_net(self):
+        """
+        Architecture for Recurrent Deep Q-Learning, from Hausknecht et
+        al. 2017.
+
+        See: https://www.tensorflow.org/beta/guide/keras/rnn
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass
