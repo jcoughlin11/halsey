@@ -642,9 +642,15 @@ def save_train_params(trainParams, savePath):
         None
     """
     # Unpack the training parameters
-    episode, decayStep, step, fixedQStep, totRewards, epRewards, state, frameStack, memBuffer = (
-        trainParams
-    )
+    episode, \
+    decayStep, \
+    step, \
+    fixedQStep, \
+    totRewards, \
+    epRewards, \
+    state, \
+    frameStack, \
+    memBuffer = trainParams
     # Create hdf5 file
     with h5py.File(os.path.join(savePath, "training_params.h5"), "w") as h5f:
         # Save the counters: startEp, decayStep, step, and fixedQStep

@@ -57,13 +57,13 @@ class DQN:
         self.nActions = nActions
         self.learningRate = learningRate
         # Build the network
-        if self.arch == 'conv1':
+        if self.arch == "conv1":
             self.build_conv1_net()
-        elif self.arch == 'dueling1':
+        elif self.arch == "dueling1":
             self.build_dueling1_net()
-        elif self.arch == 'perdueling1':
+        elif self.arch == "perdueling1":
             self.build_perdueling1_net()
-        elif self.arch == 'rnn1':
+        elif self.arch == "rnn1":
             self.build_rnn1_net()
         else:
             raise ValueError("Error, unrecognized network architecture!")
@@ -102,9 +102,7 @@ class DQN:
         # Target Q. The max discounted future reward playing from
         # next state after taking chosen action. Determined by
         # Bellmann equation.
-        self.target_Q = tf.placeholder(
-            tf.float32, shape=[None], name="target"
-        )
+        self.target_Q = tf.placeholder(tf.float32, shape=[None], name="target")
         # First convolutional layer
         self.conv1 = tf.layers.conv2d(
             inputs=self.inputs,
@@ -163,9 +161,7 @@ class DQN:
         # Get the error (MSE)
         self.loss = tf.reduce_mean(tf.square(self.target_Q - self.Q))
         # Optimizer
-        self.optimizer = AdamOptimizer(self.learningRate).minimize(
-            self.loss
-        )
+        self.optimizer = AdamOptimizer(self.learningRate).minimize(self.loss)
         self.saver = tf.train.Saver()
 
     # -----
@@ -405,9 +401,9 @@ class DQN:
             )
         self.saver = tf.train.Saver()
 
-    #-----
+    # -----
     # build_rnn1_net
-    #-----
+    # -----
     def build_rnn1_net(self):
         """
         Builds the DQ network, but instead of a FC layer before the
@@ -430,8 +426,9 @@ class DQN:
         """
         with tf.variable_scope(self.name):
             # Input
-            self.inputs =  tf.placeholder(
-                tf.float32, shape=self.inputShape, name="inputs")
+            self.inputs = tf.placeholder(
+                tf.float32, shape=self.inputShape, name="inputs"
+            )
             # Actions. The action the agent chose. Used to get the
             # predicted Q value
             self.actions = tf.placeholder(
@@ -445,7 +442,8 @@ class DQN:
             )
             # Batchsize for the rnn
             self.batchSize = tf.placeholder(
-                tf.float32, shape=[], name="batchSize")
+                tf.float32, shape=[], name="batchSize"
+            )
             # First convolutional layer
             self.conv1 = tf.layers.conv2d(
                 inputs=self.inputs,
@@ -502,7 +500,7 @@ class DQN:
                 inputs=self.flatten,
                 cell=self.rnn_cell,
                 dtype=tf.float32,
-                initial_state=self.rnnInitState
+                initial_state=self.rnnInitState,
             )
             # Reshape rnn to work with FC layers. Recall the a -1 in a
             # shape means to set the value for that dimension

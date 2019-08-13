@@ -238,9 +238,15 @@ class Agent:
         startTime = time.time()
         earlyStop = False
         trainParams = None
-        startEp, decayStep, step, fixedQStep, self.totalRewards, episodeRewards, state, frameStack, self.memory.buffer = self.initialize_training(
-            restart
-        )
+        startEp, \
+        decayStep, \
+        step, \
+        fixedQStep, \
+        self.totalRewards, \
+        episodeRewards, \
+        state, \
+        frameStack, \
+        self.memory.buffer = self.initialize_training(restart)
         # Loop over desired number of training episodes
         for episode in range(startEp, self.nEpisodes):
             print("Episode: %d / %d" % (episode + 1, self.nEpisodes))

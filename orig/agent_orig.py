@@ -17,9 +17,9 @@ import nnetworks as nw
 import nnutils as nu
 
 
-#============================================
+# ============================================
 #                    Agent
-#============================================
+# ============================================
 class Agent:
     """
     Contains all of the methods for using various RL techniques in
@@ -59,46 +59,46 @@ class Agent:
             pass
         """
         # Initialize
-        self.batchSize       = hyperparams["batch_size"]
-        self.callbacks       = None
-        self.ckptFile        = hyperparams["ckpt_file"]
-        self.cropBot         = hyperparams["crop_bot"]
-        self.cropLeft        = hyperparams["crop_left"]
-        self.cropRight       = hyperparams["crop_right"]
-        self.cropTop         = hyperparams["crop_top"]
-        self.discountRate    = hyperparams["discount"]
-        self.doubleDQN       = hyperparams["double_dqn"]
-        self.env             = env
-        self.epsDecayRate    = hyperparams["eps_decay_rate"]
-        self.epsilonStart    = hyperparams["epsilon_start"]
-        self.epsilonStop     = hyperparams["epsilon_stop"]
-        self.fixedQ          = hyperparams["fixed_Q"]
-        self.fixedQSteps     = hyperparams["fixed_Q_steps"]
-        self.learningRate    = hyperparams["learning_rate"]
-        self.maxEpSteps      = hyperparams["max_steps"]
-        self.memSize         = hyperparams["memory_size"]
-        self.nEpisodes       = hyperparams["n_episodes"]
-        self.per             = hyperparams["per"]
-        self.perA            = hyperparams["per_a"]
-        self.perB            = hyperparams["per_b"]
-        self.perBAnneal      = hyperparams["per_b_anneal"]
-        self.perE            = hyperparams["per_e"]
-        self.preTrainEpLen   = hyperparams["pre_train_max_ep_len"]
-        self.preTrainLen     = hyperparams["pretrain_len"]
-        self.qNet            = None
-        self.renderFlag      = hyperparams["render_flag"]
+        self.batchSize = hyperparams["batch_size"]
+        self.callbacks = None
+        self.ckptFile = hyperparams["ckpt_file"]
+        self.cropBot = hyperparams["crop_bot"]
+        self.cropLeft = hyperparams["crop_left"]
+        self.cropRight = hyperparams["crop_right"]
+        self.cropTop = hyperparams["crop_top"]
+        self.discountRate = hyperparams["discount"]
+        self.doubleDQN = hyperparams["double_dqn"]
+        self.env = env
+        self.epsDecayRate = hyperparams["eps_decay_rate"]
+        self.epsilonStart = hyperparams["epsilon_start"]
+        self.epsilonStop = hyperparams["epsilon_stop"]
+        self.fixedQ = hyperparams["fixed_Q"]
+        self.fixedQSteps = hyperparams["fixed_Q_steps"]
+        self.learningRate = hyperparams["learning_rate"]
+        self.maxEpSteps = hyperparams["max_steps"]
+        self.memSize = hyperparams["memory_size"]
+        self.nEpisodes = hyperparams["n_episodes"]
+        self.per = hyperparams["per"]
+        self.perA = hyperparams["per_a"]
+        self.perB = hyperparams["per_b"]
+        self.perBAnneal = hyperparams["per_b_anneal"]
+        self.perE = hyperparams["per_e"]
+        self.preTrainEpLen = hyperparams["pre_train_max_ep_len"]
+        self.preTrainLen = hyperparams["pretrain_len"]
+        self.qNet = None
+        self.renderFlag = hyperparams["render_flag"]
         self.restartTraining = hyperparams["restart_training"]
-        self.usingRNNRandom  = False
-        self.savePeriod      = hyperparams["save_period"]
-        self.saver           = None
-        self.saveFilePath    = hyperparams["save_path"]
-        self.shrinkCols      = hyperparams["shrink_cols"]
-        self.shrinkRows      = hyperparams["shrink_rows"]
-        self.stackSize       = hyperparams["nstacked_frames"]
-        self.targetQNet      = None
-        self.totalRewards    = []
-        self.traceLen        = hyperparams["trace_len"]
-        self.usingRNNRandom  = hyperparams["using_RNN_random"]
+        self.usingRNNRandom = False
+        self.savePeriod = hyperparams["save_period"]
+        self.saver = None
+        self.saveFilePath = hyperparams["save_path"]
+        self.shrinkCols = hyperparams["shrink_cols"]
+        self.shrinkRows = hyperparams["shrink_rows"]
+        self.stackSize = hyperparams["nstacked_frames"]
+        self.targetQNet = None
+        self.totalRewards = []
+        self.traceLen = hyperparams["trace_len"]
+        self.usingRNNRandom = hyperparams["using_RNN_random"]
         # Seed rng
         np.random.seed(int(time.time()))
         # Set up tuples for preprocessed frame sizes
@@ -122,8 +122,10 @@ class Agent:
         elif hyperparams["architecture"] == "rnn1":
             self.usingRNNRandom = True
             self.memory = nu.EpisodeMemory(
-                self.memSize, self.preTrainLen, self.preTrainEpLen,
-                self.traceLen
+                self.memSize,
+                self.preTrainLen,
+                self.preTrainEpLen,
+                self.traceLen,
             )
         else:
             self.memory = nu.Memory(self.memSize, self.preTrainLen)
@@ -175,22 +177,18 @@ class Agent:
         # See if we need to load a saved model to continue training
         if restart is False:
             self.qNet.model = tf.keras.models.load_model(
-                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5")
             )
             if self.fixedQ == 1:
                 self.targetQNet.model = tf.keras.models.load_model(
                     os.path.join(
                         self.saveFilePath, self.ckptFile + "-target.h5"
-                    ),
+                    )
                 )
             train_params = nu.load_train_params(
                 self.saveFilePath, self.memory.max_size
             )
-            start_ep, \
-            decay_step, \
-            self.totalRewards, \
-            self.memory.buffer, \
-            fixed_Q_step = (
+            start_ep, decay_step, self.totalRewards, self.memory.buffer, fixed_Q_step = (
                 train_params
             )
         else:
@@ -294,18 +292,19 @@ class Agent:
                 self.totalRewards.append(np.sum(episode_rewards))
             # Save the model
             if (episode % self.savePeriod == 0 and done is True) or (
-                episode % self.savePeriod == 0 and step == self.maxEpSteps):
+                episode % self.savePeriod == 0 and step == self.maxEpSteps
+            ):
                 # Make sure the directory exists
                 if not os.path.exists(self.saveFilePath):
                     os.mkdir(self.saveFilePath)
                 self.qNet.model.save(
-                    os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
+                    os.path.join(self.saveFilePath, self.ckptFile + ".h5")
                 )
                 if self.fixedQ == 1:
                     self.targetQNet.model.save(
                         os.path.join(
                             self.saveFilePath, self.ckptFile + "-target.h5"
-                        ),
+                        )
                     )
                 nu.save_train_params(
                     decay_step,
@@ -321,13 +320,13 @@ class Agent:
             if not os.path.exists(self.saveFilePath):
                 os.mkdir(self.saveFilePath)
             self.qNet.model.save(
-                os.path.join(self.saveFilePath, self.ckptFile + ".h5"),
+                os.path.join(self.saveFilePath, self.ckptFile + ".h5")
             )
             if self.fixedQ == 1:
                 self.targetQNet.model.save(
                     os.path.join(
                         self.saveFilePath, self.ckptFile + "-target.h5"
-                    ),
+                    )
                 )
         if early_abort is True:
             sys.exit()
