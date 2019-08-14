@@ -106,7 +106,16 @@ class Agent:
         self.crop = (self.cropTop, self.cropBot, self.cropLeft, self.cropRight)
         self.shrink = (self.shrinkRows, self.shrinkCols)
         # Set the size of the input frame stack
-        self.inputShape = (self.shrinkRows, self.shrinkCols, self.stackSize)
+        # See nnetworks.py, build_rnn1_net
+        if hyperparams['architecture'] == 'rnn1':
+            self.inputShape = (
+                self.traceLen,
+                self.shrinkRows,
+                self.shrinkCols,
+                self.stackSize
+            )
+        else:
+            self.inputShape = (self.shrinkRows, self.shrinkCols, self.stackSize)
         # Set up memory
         if self.enablePer:
             perParams = [self.perA, self.perB, self.perBAnneal, self.perE]
