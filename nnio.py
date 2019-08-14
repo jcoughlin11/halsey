@@ -149,6 +149,9 @@ def check_agent_option_conflicts(params):
     # Make sure either the train flag or test flag (or both) are set
     if not params["train_flag"] and not params["test_flag"]:
         raise ValueError("Error, neither training nor testing enabled!")
+    # Make sure we're using single frame stacks if using an RNN
+    if params['architecture'] == 'rnn1' and params['stack_size'] != 1:
+        raise ValueError("Must use stack_size = 1 with an RNN!")
 
 
 # ============================================
