@@ -410,7 +410,7 @@ class EpisodeMemory(Memory):
     buffer instead of individual experience tuples. As such, episodes
     are sampled rather than random experience tuples. A random string,
     or trace, of frames of a particular length is chosen from each
-    episdoe. These traces are used to train a RNN.
+    episode. These traces are used to train a RNN.
 
     Attributes:
     -----------
