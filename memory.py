@@ -42,7 +42,7 @@ class Memory:
                 before it "forgets".
 
             pretrain_len : int
-                The number of initial, samply/dummy experiences to fill
+                The number of initial, sample/dummy experiences to fill
                 the buffer with so we don't run into the empty memory
                 problem when trying to train initially.
 
@@ -128,7 +128,8 @@ class Memory:
 
         Parameters:
         -----------
-            experience : tuple
+            experience : tuple (or list of tuples in the case of an
+                         RNN)
                 Contains the state, action, reward, next_state, and done
                 flag.
 
@@ -424,7 +425,7 @@ class EpisodeMemory(Memory):
     # -----
     # Constructor
     # -----
-    def __init__(self, max_size, pretrain_len, preTrainEpLen, traceLen):
+    def __init__(self, max_size, pretrain_len, preTrainNEp, traceLen):
         """
         Parameters:
         -----------
@@ -440,7 +441,7 @@ class EpisodeMemory(Memory):
         """
         # Call parent's constructor
         super().__init__(max_size, pretrain_len)
-        self.preTrainEpLen = self.preTrainEpLen
+        self.preTrainNEp = self.preTrainNEp
         self.traceLen = traceLen
 
     # -----
@@ -479,20 +480,20 @@ class EpisodeMemory(Memory):
         --------
             None
         """
-        # Get initial state
-        state = env.reset()
-        # Process and stack initial frames
-        state, frame_stack = frames.stack_frames(
-            None, state, True, stack_size, crop, shrink
-        )
         # Loop over the desired number of sample episodes
-        for i in range(self.pretrain_len):
+        for i in range(self.preTrainNEp):
+            # Get initial state
+            state = env.reset()
+            # Process and stack initial frames
+            state, frame_stack = frames.stack_frames(
+                None, state, True, stack_size, crop, shrink
+            )
             # Clear episode buffer
             episodeBuffer = []
             # Loop over the max number of steps we can take per episode
-            for j in range(self.preTrainEpLen):
-                # Choose a random action. randint chooses in [a,b)
-                action = np.random.randint(0, env.action_space.n)
+            for j in range(self.pretrain_len):
+                # Choose a random action
+                action = env.action_space.sample()
                 # Take action
                 next_state, reward, done, _ = env.step(action)
                 # Add next state to stack of frames
@@ -501,27 +502,15 @@ class EpisodeMemory(Memory):
                 )
                 # Add experience to episode buffer
                 episodeBuffer.append((state, action, reward, next_state, done))
-                # If we're in a terminal state, we need to reset things
-                # and go to the next episode
+                # If we're in a terminal state, go to next episode
                 if done:
-                    # Add the episode buffer to memory
-                    self.add(episodeBuffer)
-                    state = env.reset()
-                    state, frame_stack = frames.stack_frames(
-                        None, state, True, stack_size, crop, shrink
-                    )
                     break
                 # Otherwise, update the state and continue
                 else:
                     state = next_state
             # When done with the current episode, add the experience to
-            # memory and reset if we ended because of a time out
-            if not done:
-                self.add(episodeBuffer)
-                state = env.reset()
-                state, frame_stack = frames.stack_frames(
-                    None, state, True, stack_size, crop, shrink
-                )
+            # buffer
+            self.add(episodeBuffer)
 
     # -----
     # sample
