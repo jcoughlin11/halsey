@@ -32,7 +32,7 @@
     per_b_anneal        : 0.001
     per_e               : 0.01
     pretrain_len        : 64
-    pretrain_max_ep_len : 1000
+    pretrain_n_eps      : 1
 
 # Run-time parameters
 #--------------------
