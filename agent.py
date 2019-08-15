@@ -61,6 +61,7 @@ class Agent:
             pass
         """
         # Initialize
+        self.arch = hyperparams['architecture']
         self.batchSize = hyperparams["batch_size"]
         self.ckptFile = hyperparams["ckpt_file"]
         self.cropBot = hyperparams["crop_bot"]
@@ -86,7 +87,7 @@ class Agent:
         self.perB = hyperparams["per_b"]
         self.perBAnneal = hyperparams["per_b_anneal"]
         self.perE = hyperparams["per_e"]
-        self.preTrainEpLen = hyperparams["pretrain_max_ep_len"]
+        self.preTrainNEp = hyperparams["pretrain_n_eps"]
         self.preTrainLen = hyperparams["pretrain_len"]
         self.qNet = None
         self.renderFlag = hyperparams["render_flag"]
@@ -107,7 +108,7 @@ class Agent:
         self.shrink = (self.shrinkRows, self.shrinkCols)
         # Set the size of the input frame stack
         # See nnetworks.py, build_rnn1_net
-        if hyperparams['architecture'] == 'rnn1':
+        if self.arch == 'rnn1':
             self.inputShape = (
                 self.traceLen,
                 self.shrinkRows,
@@ -122,11 +123,11 @@ class Agent:
             self.memory = mem.PriorityMemory(
                 self.memSize, self.preTrainLen, perParams
             )
-        elif hyperparams["architecture"] == "rnn1":
+        elif self.arch == "rnn1":
             self.memory = mem.EpisodeMemory(
                 self.memSize,
                 self.preTrainLen,
-                self.preTrainEpLen,
+                self.preTrainNEp,
                 self.traceLen,
             )
         else:
@@ -190,7 +191,11 @@ class Agent:
             )
             # Initialize parameters: startEp, decayStep, step,
             # fixedQStep, totalRewards, epRewards, state, frameStack,
-            # and buffer
+            # and buffer, and epBuffer
+            if self.arch == 'rnn1':
+                epBuffer = []
+            else:
+                epBuffer = None
             trainParams = (
                 0,
                 0,
@@ -255,11 +260,15 @@ class Agent:
         episodeRewards, \
         state, \
         frameStack, \
-        self.memory.buffer = self.initialize_training(restart)
+        self.memory.buffer, \
+        epBuffer = self.initialize_training(restart)
         # Loop over desired number of training episodes
         for episode in range(startEp, self.nEpisodes):
             print("Episode: %d / %d" % (episode + 1, self.nEpisodes))
             if episode > startEp:
+                # Clear episode buffer for rnns
+                if self.arch == 'rnn1':
+                    epBuffer = []
                 # Reset time spent on current episode
                 step = 0
                 # Track the rewards for the episode
@@ -302,7 +311,10 @@ class Agent:
                 )
                 # Save experience
                 experience = (state, action, reward, nextState, done)
-                self.memory.add(experience)
+                if self.arch == 'rnn1':
+                    epBuffer.append(experience)
+                else:
+                    self.memory.add(experience)
                 # Learn from the experience
                 loss = self.learn()
                 # Update the targetQNet if applicable
@@ -320,6 +332,9 @@ class Agent:
                 # Otherwise, set up for the next step
                 else:
                     state = nextState
+            # Save episode in the case of a time-out for an rnn
+            if self.arch == 'rnn1' and not earlyStop:
+                self.memory.add(epBuffer)
             # Print info to screen
             if not earlyStop:
                 # Save total episode reward
@@ -341,6 +356,7 @@ class Agent:
                     state,
                     frameStack,
                     self.memory.buffer,
+                    epBuffer
                 )
                 io.save_model(
                     self.saveFilePath,
