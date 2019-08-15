@@ -75,7 +75,7 @@ def param_file_registers():
         "n_episodes",
         "n_stacked_frames",
         "pretrain_len",
-        "pretrain_max_ep_len",
+        "pretrain_n_eps",
         "render_flag",
         "shrink_cols",
         "shrink_rows",
@@ -193,7 +193,7 @@ def read_param_file(fname):
     per_e               : float, epsilon parameter in prop. prior. of
                           Schaul16
     pretrain_len        : int, num experiences to initially fill mem
-    pretrain_max_ep_len : int, max ep length when filling mem buffer
+    pretrain_n_eps      : int, Num eps to use when prepopulating RNN
     render_flag         : int, if 1, render scene during testing
     save_path           ; string, path of checkpoint and param file
     save_period         : int, save model every savePeriod episodes
@@ -329,7 +329,7 @@ def backup_param_file(fname, savePath):
 # ============================================
 #                save_memory
 # ============================================
-def save_memory(memBuffer, savePath):
+def save_memory(memBuffer, epBuff, savePath):
     """
     Saves the contents of the memory buffer to an hdf5 file.
 
@@ -345,10 +345,13 @@ def save_memory(memBuffer, savePath):
     --------
         pass
     """
-    # Case 1: memBuffer is a deque
-    if isinstance(memBuffer, collections.deque):
+    # Case 1: memBuffer is a deque, no RNN
+    if isinstance(memBuffer, collections.deque) and epBuff is None:
         save_deque_memory(memBuffer, savePath)
-    # Case 2: memBuffer is a SumTree. In this case, the whole data
+    # Case 2: RNN
+    elif isinstance(memBuffer, collections.deque) and isinstance(epBuff, list):
+        save_episode_memory(memBuffer, epBuffer, savePath)
+    # Case 3: memBuffer is a SumTree. In this case, the whole data
     # structure needs to be saved
     elif isinstance(memBuffer, nu.SumTree):
         save_sumtree_memory(memBuffer, savePath)
@@ -428,6 +431,32 @@ def save_deque_memory(memBuffer, savePath):
             g["rewards"][i] = sample[2]
             g["next_states"][i] = sample[3]
             g["dones"][i] = sample[4]
+
+
+#============================================
+#            save_episode_memory
+#============================================
+def save_episode_memory(memBuffer, epBuffer, savePath):
+    """
+    When using an RNN the memBuffer is a list of lists of tuples. 
+    For Memory(), memBuffer is a list of tuples. Also, the epBuffer
+    holds all of the experiences from the current (incomplete) episode.
+    It needs to be saved so training can continue from where it left
+    off.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    pass
 
 
 # ============================================
@@ -555,6 +584,27 @@ def load_deque_memory(h5f, maxLen):
     return memBuffer
 
 
+#============================================
+#           load_episode_memory
+#============================================
+def load_episode_memory(h5f, maxLen):
+    """
+    Loads the memBuffer and epBuffer when using an RNN.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+    """
+    pass
+
+
 # ============================================
 #            load_sumtree_memory
 # ============================================
@@ -616,12 +666,17 @@ def load_memory(savePath, memLen):
         # Buffer is a deque
         if "deque" in h5f.keys():
             memBuffer = load_deque_memory(h5f, memLen)
+            epBuffer = None
+        # RNN buffer
+        elif 'epBuffer' in h5f.keys():
+            memBuffer, epBuffer = load_episode_memory(h5f, memLen)
         # Buffer is a SumTree
         elif "sumtree" in h5f.keys():
             memBuffer = load_sumtree_memory(h5f, memLen)
+            epBuffer = None
         else:
             raise KeyError("Error, could not infer type of memory buffer!")
-    return memBuffer
+    return memBuffer, epBuffer
 
 
 # ============================================
@@ -653,7 +708,8 @@ def save_train_params(trainParams, savePath):
     epRewards, \
     state, \
     frameStack, \
-    memBuffer = trainParams
+    memBuffer, \
+    epBuffer = trainParams
     # Create hdf5 file
     with h5py.File(os.path.join(savePath, "training_params.h5"), "w") as h5f:
         # Save the counters: startEp, decayStep, step, and fixedQStep
@@ -680,7 +736,7 @@ def save_train_params(trainParams, savePath):
         )
     # Memory. This is where compression and io speed is important,
     # because this is huge (or can be)
-    save_memory(memBuffer, savePath)
+    save_memory(memBuffer, epBuffer, savePath)
 
 
 # ============================================
@@ -720,7 +776,7 @@ def load_train_params(savePath, memLen):
         frameStack = [state[:, :, i] for i in range(state.shape[-1])]
         frameStack = collections.deque(frameStack, maxlen=state.shape[-1])
     # Memory
-    memBuffer = load_memory(savePath, memLen)
+    memBuffer, epBuffer = load_memory(savePath, memLen)
     # Package the parameters
     trainParams = (
         episode,
@@ -732,6 +788,7 @@ def load_train_params(savePath, memLen):
         state,
         frameStack,
         memBuffer,
+        epBuffer
     )
     return trainParams
 
