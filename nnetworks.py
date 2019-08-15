@@ -201,7 +201,7 @@ class DQN:
         )(advantageFC1)
         # Aggregation layer: (eq. 9 in paper)
         # Q(s,a) = V(s) + [A(s,a) - 1/|A| * sum_{a'} A(s,a')]
-        # Using tf ops here results in an erro when saving:
+        # Using tf ops here results in an error when saving:
         # https://tinyurl.com/y5hyn8zh
         Q = tf.keras.layers.Lambda(
             lambda q: q[0] + (q[1] - K.mean(q[1], axis=1, keepdims=True))
@@ -240,7 +240,9 @@ class DQN:
         Hausknecht says that, when using randomly sampled traces, the
         RNN state needs to be re-initialized before each update. The
         cross-batch statefulness section of the Keras RNN API docs seem
-        to imply that this is handled automatically?
+        to imply that this is handled automatically unless
+        stateful=True, in which case the re-initialization is done
+        manually.
 
         Parameters:
         -----------
