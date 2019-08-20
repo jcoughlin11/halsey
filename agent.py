@@ -206,6 +206,7 @@ class Agent:
                 state,
                 frameStack,
                 self.memory.buffer,
+                epBuffer
             )
         # Continue where we left off
         else:
@@ -344,20 +345,21 @@ class Agent:
                     "Total Reward for episode: {}\n".format(totReward),
                     "Training loss: {:.4f}".format(loss),
                 )
+            # Package the training params
+            trainParams = (
+                episode,
+                decayStep,
+                step,
+                fixedQStep,
+                self.totalRewards,
+                episodeRewards,
+                state,
+                frameStack,
+                self.memory.buffer,
+                epBuffer
+            )
             # Save the model, if applicable
             if episode % self.savePeriod == 0 or earlyStop:
-                trainParams = (
-                    episode,
-                    decayStep,
-                    step,
-                    fixedQStep,
-                    self.totalRewards,
-                    episodeRewards,
-                    state,
-                    frameStack,
-                    self.memory.buffer,
-                    epBuffer
-                )
                 io.save_model(
                     self.saveFilePath,
                     self.ckptFile,
