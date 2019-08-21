@@ -122,7 +122,7 @@ def preprocess_frame(frame, crop, shrink):
 # ============================================
 #               stack_frames
 # ============================================
-def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
+def stack_frames(frameStack, state, newEpisode, stackSize, crop, shrink, arch, traceLen):
     """
     Takes in the current state and preprocesses it. Then, it adds the
     processed frame to the stack of frames. Two versions of this stack
@@ -132,18 +132,18 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
 
     Parameters:
     -----------
-        frame_stack : deque
+        frameStack : deque
             The deque version of the stack of processed frames.
 
         state : gym state
             This is effectively the raw frame from the game.
 
-        new_episodes : bool
+        newEpisode : bool
             If True, then we need to produce a clean deque and tensor.
             Otherwise, we can just add the given frame (state) to the
             stack.
 
-        stack_size : int
+        stackSize : int
             The number of frames to include in the stack.
 
         crop : tuple
@@ -165,19 +165,27 @@ def stack_frames(frame_stack, state, new_episode, stack_size, crop, shrink):
             The deque version of the stack of frames.
     """
     # Error check
-    if not new_episode and not isinstance(frame_stack, collections.deque):
+    if not newEpisode and not isinstance(frameStack, collections.deque):
         print("Error, must pass existing stack if not starting a new episode!")
         sys.exit(1)
-    # Preprocess the given state
+    # Preprocess the given state. Has shape = (shrinkRows, shrinkCols)
     state = preprocess_frame(state, crop, shrink)
     # Start fresh if this is a new episode
-    if new_episode:
-        frame_stack = collections.deque(
-            [state for i in range(stack_size)], maxlen=stack_size
-        )
+    if newEpisode:
+        if arch == 'rnn1':
+            frameStack = collections.deque([state for i in range(traceLen)], maxlen=traceLen)
+        else:
+            frameStack = collections.deque(
+                [state for i in range(stackSize)], maxlen=stackSize
+            )
     # Otherwise, add the frame to the stack
     else:
-        frame_stack.append(state)
-    # Create the tensorial version of the stack
-    stacked_state = np.stack(frame_stack, axis=2)
-    return stacked_state, frame_stack
+        frameStack.append(state)
+    # Create the tensorial version of the stack. Has
+    # shape = (shrinkRows, shrinkCols, stackSize) for non-RNN and
+    # (traceLen, shrinkRows, shrinkCols) for RNN
+    if arch == 'rnn1':
+       stackedState = np.stack(frameStack, axis=0) 
+    else:
+        stackedState = np.stack(frameStack, axis=2)
+    return stackedState, frameStack
