@@ -236,14 +236,6 @@ class DQN:
         to the wrapping TimeDistributed layer. All of this is then
         passed normally to the LSTM layer(s).
 
-        The only thing I'm not sure of is RNN state re-initialization.
-        Hausknecht says that, when using randomly sampled traces, the
-        RNN state needs to be re-initialized before each update. The
-        cross-batch statefulness section of the Keras RNN API docs seem
-        to imply that this is handled automatically unless
-        stateful=True, in which case the re-initialization is done
-        manually.
-
         Parameters:
         -----------
             pass
