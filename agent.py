@@ -113,7 +113,6 @@ class Agent:
                 self.traceLen,
                 self.shrinkRows,
                 self.shrinkCols,
-                self.stackSize
             )
         else:
             self.inputShape = (self.shrinkRows, self.shrinkCols, self.stackSize)
@@ -121,7 +120,7 @@ class Agent:
         if self.enablePer:
             perParams = [self.perA, self.perB, self.perBAnneal, self.perE]
             self.memory = mem.PriorityMemory(
-                self.memSize, self.preTrainLen, perParams
+                self.memSize, self.preTrainLen, perParams, self.arch, self.traceLen
             )
         elif self.arch == "rnn1":
             self.memory = mem.EpisodeMemory(
@@ -129,9 +128,10 @@ class Agent:
                 self.preTrainLen,
                 self.preTrainNEp,
                 self.traceLen,
+                self.arch
             )
         else:
-            self.memory = mem.Memory(self.memSize, self.preTrainLen)
+            self.memory = mem.Memory(self.memSize, self.preTrainLen, self.arch, self.traceLen)
         self.memory.pre_populate(
             self.env, self.stackSize, self.crop, self.shrink
         )
@@ -186,8 +186,12 @@ class Agent:
             # Reset the environment
             state = self.env.reset()
             # Stack and process initial state
+            # state.shape=(shrinkRows, shrinkCols, stackSize) for 
+            # non-RNN and state = trace =>
+            # trace.shape=(traceLen, nrows, ncols) for RNN
             state, frameStack = frames.stack_frames(
-                None, state, True, self.stackSize, self.crop, self.shrink
+                None, state, True, self.stackSize, self.crop, self.shrink,
+                self.arch, self.traceLen
             )
             # Initialize parameters: startEp, decayStep, step,
             # fixedQStep, totalRewards, epRewards, state, frameStack,
@@ -277,8 +281,10 @@ class Agent:
                 # Reset the environment
                 state = self.env.reset()
                 # Stack and process initial state
+                # state.shape=(shrinkRows, shrinkCols, stackSize)
                 state, frameStack = frames.stack_frames(
-                    None, state, True, self.stackSize, self.crop, self.shrink
+                    None, state, True, self.stackSize, self.crop, self.shrink,
+                    self.arch, self.traceLen
                 )
             # Loop over the max amount of time the agent gets per
             # episode
@@ -287,6 +293,7 @@ class Agent:
                 if nu.check_early_stop(self.saveFilePath):
                     earlyStop = True
                     break
+                # Check for time limit reached
                 if nu.time_limit_reached(startTime, self.timeLimit):
                     earlyStop = True
                     break
@@ -302,6 +309,7 @@ class Agent:
                 # Track the reward
                 episodeRewards.append(reward)
                 # Add the next state to the stack of frames
+                # state.shape=(shrinkRows, shrinkCols, stackSize)
                 nextState, frameStack = frames.stack_frames(
                     frameStack,
                     nextState,
@@ -309,12 +317,22 @@ class Agent:
                     self.stackSize,
                     self.crop,
                     self.shrink,
+                    self.arch,
+                    self.traceLen
                 )
                 # Save experience
-                experience = (state, action, reward, nextState, done)
                 if self.arch == 'rnn1':
+                    # For an RNN, I have stack_frames returning a trace
+                    # of shape (traceLen, rows, cols), but the memory
+                    # buffer needs to hold episodes, where each episode
+                    # is comprised of individual frames. As such, I'm
+                    # taking the current addition to each slice so that
+                    # the experience tuple is comprised of one frame
+                    # for the states and nextStates
+                    experience = (state[-1], action, reward, nextState[-1], done)
                     epBuffer.append(experience)
                 else:
+                    experience = (state, action, reward, nextState, done)
                     self.memory.add(experience)
                 # Learn from the experience
                 loss = self.learn()
@@ -424,11 +442,10 @@ class Agent:
             action = self.env.action_space.sample()
         # Exploit
         else:
-            # Keras expects a group of samples of the specified shape,
-            # even if there's just one sample, so we need to reshape
-            state = state.reshape(
-                (1, state.shape[0], state.shape[1], state.shape[2])
-            )
+            # Keras requires the batch size as a part of the input
+            # shape when training or predicting, but not setting up
+            # the network
+            state = state.reshape([1] + list(state.shape[:]))
             # Get the beliefs in each action for the current state
             Q_vals = self.qNet.model.predict_on_batch(state)
             # Choose the one with the highest Q value
@@ -456,11 +473,18 @@ class Agent:
             pass
         """
         # Set up the unpack arrays
-        states = np.zeros([self.batchSize] + [d for d in self.inputShape])
-        actions = np.zeros(self.batchSize, dtype=np.int)
-        rewards = np.zeros(self.batchSize)
-        nextStates = np.zeros([self.batchSize] + [d for d in self.inputShape])
-        dones = np.zeros(self.batchSize, dtype=np.bool)
+        if self.arch != 'rnn1':
+            states = np.zeros([self.batchSize] + list(self.inputShape[:]))
+            actions = np.zeros(self.batchSize, dtype=np.int)
+            rewards = np.zeros(self.batchSize)
+            nextStates = np.zeros([self.batchSize] + list(self.inputShape[:]))
+            dones = np.zeros(self.batchSize, dtype=np.bool)
+        else:
+            states = np.zeros([self.batchSize] + list(self.inputShape[:]))
+            actions = np.zeros((self.batchSize, self.traceLen), dtype=np.int)
+            rewards = np.zeros((self.batchSize, self.traceLen))
+            nextStates = np.zeros([self.batchSize] + list(self.inputShape[:]))
+            dones = np.zeros((self.batchSize, self.traceLen), dtype=np.bool)
         # Get batch of experiences
         if self.enablePer:
             treeInds, sample, isWeights = self.memory.sample(self.batchSize)
@@ -468,12 +492,21 @@ class Agent:
             sample = self.memory.sample(self.batchSize)
             isWeights = None
         # Unpack the batch
-        for i, s in enumerate(sample):
-            states[i] = s[0]
-            actions[i] = s[1]
-            rewards[i] = s[2]
-            nextStates[i] = s[3]
-            dones[i] = s[4]
+        if self.arch != 'rnn1':
+            for i, s in enumerate(sample):
+                states[i] = s[0]
+                actions[i] = s[1]
+                rewards[i] = s[2]
+                nextStates[i] = s[3]
+                dones[i] = s[4]
+        else:
+            for i, episode in enumerate(sample):
+                for j, experience in enumerate(episode):
+                    states[i][j] = experience[0]
+                    actions[i][j] = experiences[1]
+                    rewards[i][j] = experiences[2]
+                    nextStates[i][j] = experiences[3]
+                    dones[i][j] = experiences[4]
         # Update the weights based on which technique is being used
         # Double DQN
         if self.enableDoubleDQN:
