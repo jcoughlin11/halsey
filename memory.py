@@ -33,7 +33,7 @@ class Memory:
     # -----
     # Constructor
     # -----
-    def __init__(self, max_size, pretrain_len):
+    def __init__(self, max_size, pretrain_len, arch, traceLen):
         """
         Parameters:
         -----------
@@ -57,6 +57,8 @@ class Memory:
         self.max_size = max_size
         self.pretrain_len = pretrain_len
         self.buffer = collections.deque(maxlen=self.max_size)
+        self.arch = arch
+        self.traceLen = traceLen
 
     # -----
     # Pre-Populate
@@ -95,7 +97,7 @@ class Memory:
         state = env.reset()
         # Process and stack initial frames
         state, frame_stack = frames.stack_frames(
-            None, state, True, stack_size, crop, shrink
+            None, state, True, stack_size, crop, shrink, self.arch, self.traceLen
         )
         # Loop over the desired number of sample experiences
         for i in range(self.pretrain_len):
@@ -105,7 +107,7 @@ class Memory:
             next_state, reward, done, _ = env.step(action)
             # Add next state to stack of frames
             next_state, frame_stack = frames.stack_frames(
-                frame_stack, next_state, False, stack_size, crop, shrink
+                frame_stack, next_state, False, stack_size, crop, shrink, self.arch, self.traceLen
             )
             # Add experience to memory
             self.add((state, action, reward, next_state, done))
@@ -113,7 +115,7 @@ class Memory:
             if done:
                 state = env.reset()
                 state, frame_stack = frames.stack_frames(
-                    None, state, True, stack_size, crop, shrink
+                    None, state, True, stack_size, crop, shrink, self.arch, self.traceLen
                 )
             # Otherwise, update the state and continue
             else:
@@ -207,7 +209,7 @@ class PriorityMemory(Memory):
     # -----
     # Constructor
     # -----
-    def __init__(self, max_size, pretrain_len, perParams):
+    def __init__(self, max_size, pretrain_len, perParams, arch, traceLen):
         """
         Parameters:
         -----------
@@ -248,7 +250,7 @@ class PriorityMemory(Memory):
             pass
         """
         # Call parent's constructor
-        super().__init__(max_size, pretrain_len)
+        super().__init__(max_size, pretrain_len, arch, traceLen)
         # Set per parameters
         self.perA = perParams[0]
         self.perB = perParams[1]
@@ -425,7 +427,7 @@ class EpisodeMemory(Memory):
     # -----
     # Constructor
     # -----
-    def __init__(self, max_size, pretrain_len, preTrainNEp, traceLen):
+    def __init__(self, max_size, pretrain_len, preTrainNEp, traceLen, arch):
         """
         Parameters:
         -----------
@@ -440,9 +442,8 @@ class EpisodeMemory(Memory):
             pass
         """
         # Call parent's constructor
-        super().__init__(max_size, pretrain_len)
+        super().__init__(max_size, pretrain_len, arch, traceLen)
         self.preTrainNEp = self.preTrainNEp
-        self.traceLen = traceLen
 
     # -----
     # Pre-Populate
@@ -486,7 +487,7 @@ class EpisodeMemory(Memory):
             state = env.reset()
             # Process and stack initial frames
             state, frame_stack = frames.stack_frames(
-                None, state, True, stack_size, crop, shrink
+                None, state, True, stack_size, crop, shrink, self.arch, self.traceLen
             )
             # Clear episode buffer
             episodeBuffer = []
@@ -498,7 +499,7 @@ class EpisodeMemory(Memory):
                 next_state, reward, done, _ = env.step(action)
                 # Add next state to stack of frames
                 next_state, frame_stack = frames.stack_frames(
-                    frame_stack, next_state, False, stack_size, crop, shrink
+                    frame_stack, next_state, False, stack_size, crop, shrink, self.arch, self.traceLen
                 )
                 # Add experience to episode buffer
                 episodeBuffer.append((state, action, reward, next_state, done))
