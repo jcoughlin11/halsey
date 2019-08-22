@@ -9,3 +9,6 @@
 
 # Trained models directory
 /trained_models
+
+# Output directory
+/output
