@@ -3,10 +3,11 @@ Title:   run_agent.py
 Author:  Jared Coughlin
 Date:    3/19/19
 Purpose: Driver code for using DQL to train an agent to play a game
-Notes:  1. This is based on https://tinyurl.com/ya8d9wcd
+Notes:
 """
-import agent
-import nnutils as nu
+import sys
+
+import anna
 
 
 # ============================================
@@ -28,19 +29,28 @@ def main():
     --------
         None
     """
+    # Do an args check
+    try:
+        paramFile = sys.argv[1]
+    except IndexError:
+        print("Error, must pass a parameter file!")
+        sys.exit(1)
+    try:
+        if int(sys.argv[2]) == 1:
+            restartFlag = True
+        else:
+            restartFlag = False
+    except ValueError:
+        print("Error, restart flag must be an integer!")
+        sys.exit(1)
+    except IndexError:
+        restartFlag = False
     # Initialize the run
-    hyperparams, env = nu.initialize()
-    # Set up the agent
-    print("Setting up agent...")
-    ag = agent.Agent(hyperparams, env)
-    # Train the network
-    if hyperparams["train_flag"]:
-        print("Training...")
-        ag.train(hyperparams["restart_training"])
-    # Test the network
-    if hyperparams["test_flag"]:
-        print("Testing agent...")
-        ag.test(hyperparams["render_flag"])
+    agent = anna.agents.qagent.Agent(paramFile, restartFlag)
+    # Train
+    agent.train()
+    # Test
+    agent.test()
 
 
 # ============================================
