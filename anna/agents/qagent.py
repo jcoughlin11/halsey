@@ -46,7 +46,7 @@ class Agent:
         # Read in parameter file
         self.params = self.ioManager.reader.read_parameter_file(args.paramFile)
         # Set up the memory
-        self.memory = anna.memory.initialize.init_memory(self.params)
+        self.memory = anna.memory.utils.init_memory(self.params)
 
     #-----
     # train
