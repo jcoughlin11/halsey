@@ -12,6 +12,7 @@
     epsDecayRate : 0.00001
     epsilonStart : 1.0
     epsilonStop  : 0.01
+    exploitMode  : epsilon-greedy
 
 # Image preprocessing parameters
 #-------------------------------
@@ -44,6 +45,7 @@
 
 # Q parameters
 #-------------
+    agentType       : q
     architecture    : dueling1
     discount        : 0.9
     enableDoubleDqn : False

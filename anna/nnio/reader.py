@@ -39,6 +39,7 @@ class Reader:
         """
         Reads in the parameter file into a dictionary.
         
+        agentType       : string, specifies the type of agent
         architecture    : string, the network architecture to use
         batchSize       : int, size of batches used for training
         ckptFile        : string, name of file to use for saving/loading
@@ -54,6 +55,7 @@ class Reader:
         epsDecayRate    : float, rate the  explore-exploit param decays
         epsilonStart    : float, start val of explore-exploit parameter
         epsilonStop     : float, min value of explore-exploit parameter
+        exploitMode     : string, explore-exploit strategy to use
         fixedQSteps     : int, steps between weight copies w/ fixed-Q
         learningRate    : float, network learning rate
         loss            : string, the loss function to minimize

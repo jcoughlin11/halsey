@@ -10,10 +10,12 @@ import os
 
 
 # Registers
+agentRegister = ['q']
 archRegister = ["conv1", "dueling1", "rnn1"]
-rnnRegister = ["rnn1"]
+exploitRegister = ['epsilon-greedy']
 lossRegister = ["mse", "per_mse"]
 optimizerRegister = ["adam"]
+rnnRegister = ["rnn1"]
 floatParams = [
     "discount",
     "epsDecayRate",
@@ -53,9 +55,11 @@ boolParams = [
     "trainFlag",
 ]
 stringParams = [
+    "agentType",
     "architecture",
     "ckpt_file",
     "env",
+    "exploitMode",
     "loss",
     "optimizer",
     "savePath",
@@ -172,6 +176,9 @@ def conflict_check(params):
     --------
         pass
     """
+    # Check for valid agent
+    if params['agentType'] not in agentRegister:
+        raise ValueError("Error, unrecognized agent type!")
     # Check to make sure the architecture has been defined
     if params["architecture"] not in archRegister:
         raise ValueError("Error, unrecognized network architecture!")
@@ -184,6 +191,9 @@ def conflict_check(params):
     # Double DQN requires fixed-Q
     if params["enableDoubleDqn"] and not params["enableFixedQ"]:
         raise ValueError("Error, double dqn requires the use of fixed Q!")
+    # Check for valid exploitation strategy
+    if params['exploitMode'] not in exploitRegister:
+        raise ValueError("Error, unrecognized exploitation strategy!")
     # Make sure the save path exists. If it doesn't, try and make it
     if not os.path.exists(params["savePath"]):
         os.path.makedirs(params["savePath"])
