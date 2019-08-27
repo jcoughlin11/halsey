@@ -1,0 +1,58 @@
+# Training hyperparameters
+#-------------------------
+    batchSize       : 64
+    learningRate    : 0.00025
+    loss            : mse
+    maxEpisodeSteps : 50000
+    nEpisodes       : 50
+    optimizer       : adam
+
+# Exploitation parameters
+#------------------------
+    epsDecayRate : 0.00001
+    epsilonStart : 1.0
+    epsilonStop  : 0.01
+
+# Image preprocessing parameters
+#-------------------------------
+    cropBot        : 12
+    cropLeft       : 4
+    cropRight      : 12
+    cropTop        : 8
+    nStackedFrames : 4
+    shrinkCols     : 84
+    shrinkRows     : 110
+
+# Memory parameters
+#------------------
+    enablePer    : True
+    memorySize   : 100
+    perA         : 0.6
+    perB         : 0.4
+    perBAnneal   : 0.001
+    perE         : 0.01
+    pretrainLen  : 64
+    pretrainNEps : 1
+
+# Run-time parameters
+#--------------------
+    env        : SpaceInvaders-v0
+    renderFlag : True 
+    testFlag   : False
+    timeLimit  : 30
+    trainFlag  : True
+
+# Q parameters
+#-------------
+    architecture    : dueling1
+    discount        : 0.9
+    enableDoubleDqn : False
+    enableFixedQ    : False
+    fixedQSteps     : 100
+    traceLen        : 4
+
+# I/O parameters
+#---------------
+    ckptFile   : si
+    savePath   : /home/latitude/Code/academic/ai/RL/agents/anna/checkpoints
+    savePeriod : 5
