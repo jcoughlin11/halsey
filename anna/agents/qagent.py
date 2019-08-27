@@ -45,6 +45,8 @@ class Agent:
         self.ioManager = anna.nnio.manager.IOManager()
         # Read in parameter file
         self.params = self.ioManager.reader.read_parameter_file(args.paramFile)
+        # Set up the memory
+        self.memory = anna.memory.initialize.init_memory(self.params)
 
     #-----
     # train
@@ -65,7 +67,8 @@ class Agent:
         --------
             None
         """
-        pass
+        if self.params['trainFlag']:
+            pass
 
     #-----
     # test
@@ -86,4 +89,5 @@ class Agent:
         --------
             pass
         """
-        pass
+        if self.params['testFlag']:
+            pass
