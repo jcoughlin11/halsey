@@ -26,17 +26,13 @@ class Agent:
     #-----
     # Constructor
     #-----
-    def __init__(self, paramFile, restartFlag):
+    def __init__(self, args) 
         """
         Parameters:
         -----------
-            paramFile : string
-                Name of the parameter file to read.
-
-            restartFlag : bool
-                If True, restart training from the beginning, otherwise
-                continue where training left off.
-
+            args : argparse.Namespace
+                Class whose attributes are the known command line
+                arguments. See ioutils.parse_args() in anna.nnio.
         Raises:
         -------
             pass
@@ -48,7 +44,7 @@ class Agent:
         # Set up object for handling I/O
         self.ioManager = anna.nnio.manager.IOManager()
         # Read in parameter file
-        self.params = self.ioManager.reader.read_parameter_file(paramFile)
+        self.params = self.ioManager.reader.read_parameter_file(args.paramFile)
 
     #-----
     # train
@@ -69,8 +65,7 @@ class Agent:
         --------
             None
         """
-        if self.params['trainFlag']:
-            pass
+        pass
 
     #-----
     # test
@@ -91,5 +86,4 @@ class Agent:
         --------
             pass
         """
-        if self.params['testFlag']:
-            pass
+        pass
