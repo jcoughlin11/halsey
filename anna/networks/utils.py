@@ -62,33 +62,3 @@ def set_optimizer(optimizer, learningRate):
             learning_rate=learningRate
         )
     return optimizer 
-
-
-#============================================
-#               init_network
-#============================================
-def init_network(params):
-    """
-    Driver function for building the appropriate network for the agent.
-
-    Parameters:
-    -----------
-        params : dict
-            Dictionary of parameters read in from the parameter file.
-
-    Raises:
-    -------
-        pass
-
-    Returns:
-    --------
-        pass
-    """
-    # Set the loss function
-    params['loss'] = set_loss(params['loss'])
-    # Set the optimizer
-    params['optimizer'] = set_optimizer(params['optimizer'], params['learningRate'])
-    # Set up the brain object
-    if params['agentType'] == 'q':
-        brain = anna.brains.qbrain.Brain(params)
-    return brain

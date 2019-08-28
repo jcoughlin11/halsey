@@ -41,14 +41,19 @@ class Agent:
         --------
             None
         """
+        self.memory = None
+        self.brain = None
         # Set up object for handling I/O
         self.ioManager = anna.nnio.manager.IOManager()
+        # Save the restart flag
+        self.restart = args.restart
         # Read in parameter file
         self.params = self.ioManager.reader.read_parameter_file(args.paramFile)
-        # Set up the memory
-        self.memory = anna.memory.utils.init_memory(self.params)
-        # Set up the network(s)
-        self.brain = anna.networks.utils.init_network(self.params)
+        if self.restart:
+            # Set up the memory
+            self.memory = anna.memory.utils.init_memory(self.params)
+            # Set up the network(s)
+            self.brain = anna.brains.qbrain.Brain(self.params)
 
     #-----
     # train
@@ -69,8 +74,13 @@ class Agent:
         --------
             None
         """
-        if self.params['trainFlag']:
-            pass
+        # Initialize training
+        if self.restart:
+            trainParams = anna.navigation.reset()
+        else:
+            trainParams = self.ioManager.loader.load_train_params(params)
+            self.memory = self.ioManager.loader.load_memory(params)
+            self.brain = self.ioManager.loader.load_brain(self.params)
 
     #-----
     # test

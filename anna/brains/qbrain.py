@@ -41,6 +41,10 @@ class Brain:
         """
         self.qNet = None
         self.tNet = None
+        # Set the loss function
+        params['loss'] = anna.networks.utils.set_loss(params['loss'])
+        # Set the optimizer
+        params['optimizer'] = anna.networks.utils.set_optimizer(params['optimizer'], params['learningRate'])
         # Build the primary network
         if params['architecture'] == 'conv1':
             self.qNet = anna.networks.conv1.build_conv1_net(params)

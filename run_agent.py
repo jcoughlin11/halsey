@@ -32,9 +32,11 @@ def main():
     # Set up the agent 
     agent = anna.agents.qagent.Agent(args)
     # Train
-    agent.train()
+    if agent.params['trainFlag']:
+        agent.train()
     # Test
-    agent.test()
+    if agent.params['testFlag']:
+        agent.test()
 
 
 # ============================================
