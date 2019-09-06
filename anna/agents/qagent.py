@@ -46,3 +46,5 @@ class Agent:
         clArgs = self.ioManager.parse_cl_args()
         # Read in the parameter file
         params = self.ioManager.reader.read_param_file(clArgs.paramFile)
+        # Validate the params and command-line args
+        utils.validation.validate_params(params, clArgs)
