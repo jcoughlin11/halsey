@@ -1,0 +1,81 @@
+# Run-time parameters
+#--------------------
+run:
+    env       : SpaceInvaders-v0
+    render    : True 
+    test      : False
+    timeLimit : 30
+    train     : True
+
+
+# I/O parameters
+#---------------
+io:
+    ckptBase   : si
+    outputDir  : ~/Data/ai_data/test_run/output
+    savePeriod : 5
+
+
+# Training hyperparameters
+#-------------------------
+training:
+    batchSize       : 64
+    discount        : 0.9
+    learningRate    : 0.00025
+    maxEpisodeSteps : 50000
+    nEpisodes       : 50
+
+
+# Network parameters 
+#-------------
+network:
+    architecture    : dueling1
+    loss            : mse
+    optimizer       : adam
+    mode:
+        doubleDqn:
+            enable : False
+        fixedQ:
+            enable      : False
+            fixedQSteps : 100
+
+
+# Memory parameters
+#------------------
+memory:
+    memorySize   : 100
+    pretrainLen  : 64
+    priority:
+        enable     : False
+        perA       : 0.6
+        perB       : 0.4
+        perBAnneal : 0.001
+        perE       : 0.01
+    mode:
+        qbuffer:
+            enable : True
+        episode:
+            enable       : False
+            pretrainNEps : 1
+
+
+# Exploration parameters
+#------------------------
+explore:
+    epsilonGreedy:
+        enable       : True
+        epsDecayRate : 0.00001
+        epsilonStart : 1.0
+        epsilonStop  : 0.01
+
+
+# Frame preprocessing parameters
+#-------------------------------
+frame:
+    cropBot    : 12
+    cropLeft   : 4
+    cropRight  : 12
+    cropTop    : 8
+    shrinkCols : 84
+    shrinkRows : 110
+    traceLen   : 4
