@@ -39,4 +39,27 @@ class Writer:
         --------
             pass
         """
-        pass
+        self.baseDir  = None
+        self.fileBase = None
+
+    #-----
+    # set_params
+    #-----
+    def set_params(self, params):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        self.baseDir  = params['outputDir']
+        self.fileBase = params['fileBase']

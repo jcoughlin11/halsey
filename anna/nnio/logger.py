@@ -3,6 +3,7 @@ Title:   logger.py
 Purpose: Contains the Logger class
 Notes:
 """
+import os
 
 
 #============================================
@@ -44,4 +45,27 @@ class Logger:
         --------
             pass
         """
-        pass
+        self.baseDir  = None
+        self.fileBase = None
+
+    #-----
+    # set_params
+    #-----
+    def set_params(self, params):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        self.baseDir  = os.path.join(params['outputDir'], 'logs')
+        self.fileBase = params['fileBase']

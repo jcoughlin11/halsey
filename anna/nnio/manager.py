@@ -1,12 +1,9 @@
 """
 Title:   manager.py
 Purpose: Contains the IoManager class, which is a convenience object
-            for holding the Reader, Writer, and Logger objects, as well
-            as various io utility functions.
+            for holding the Reader, Writer, and Logger objects.
 Notes:
 """
-import argparse
-
 from . import logger
 from . import reader
 from . import writer
@@ -17,8 +14,8 @@ from . import writer
 #============================================
 class IoManager:
     """
-    A convenience object for holding a Writer, Reader, and Logger
-    objects as well as various io utility functions.
+    A convenience object for holding Writer, Reader, and Logger
+    objects.
 
     Attributes:
     -----------
@@ -52,11 +49,11 @@ class IoManager:
         self.writer = writer.Writer()
 
     #-----
-    # parse_cl_args
+    # set_params
     #-----
-    def parse_cl_args(self):
+    def set_params(self, clArgs, params):
         """
-        Parses the given command line arguments.
+        Doc string.
 
         Parameters:
         -----------
@@ -70,19 +67,6 @@ class IoManager:
         --------
             pass
         """
-        # Set up the parser
-        parser = argparse.ArgumentParser()
-        # Parameter file
-        parser.add_argument(
-            "paramFile",
-            help="The name of the yaml file containing parameters for the run.",
-        )
-        # Restart flag
-        parser.add_argument(
-            "--restart",
-            "-r",
-            action="store_true",
-            help="Restarts training using the parameter file specified in the output directory.",
-        )
-        args = parser.parse_args()
-        return args
+        self.logger.set_params(params)
+        self.reader.set_params(params)
+        self.writer.set_params(params)
