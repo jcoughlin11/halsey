@@ -29,14 +29,14 @@ def main():
     # Set up the agent
     agent = anna.agents.qagent.Agent()
     # Train, if applicable
-    if agent.doTraining:
+    if agent.trainingEnabled:
         agent.train()
     # Test, if applicable
-    if agent.doTesting:
+    if agent.testingEnabled:
         agent.test()
     # Make plots, if applicable
-    if agent.doVisualize:
-        agent.visualize()
+    if agent.plottingEnabled:
+        agent.plot()
 
 
 #============================================
