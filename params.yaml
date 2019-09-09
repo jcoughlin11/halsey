@@ -1,7 +1,9 @@
 # Run-time parameters
 #--------------------
 run:
+    backend   : tensorflow
     env       : SpaceInvaders-v0
+    plot      : False
     render    : True 
     test      : False
     timeLimit : 30
@@ -11,7 +13,7 @@ run:
 # I/O parameters
 #---------------
 io:
-    ckptBase   : si
+    fileBase   : si
     outputDir  : ~/Data/ai_data/test_run/output
     savePeriod : 5
 
