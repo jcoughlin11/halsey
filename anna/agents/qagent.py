@@ -76,7 +76,7 @@ class Agent:
         --------
             pass
         """
-        return self.params['run']['train']
+        return self.params.runTime.train
 
     #-----
     # testingEnabled 
@@ -98,7 +98,7 @@ class Agent:
         --------
             pass
         """
-        return self.params['run']['test']
+        return self.params.runTime.test
 
     #-----
     # plottingEnabled 
@@ -120,7 +120,7 @@ class Agent:
         --------
             pass
         """
-        return self.params['run']['plot']
+        return self.params.runTime.plot
 
     #-----
     # train
@@ -147,9 +147,9 @@ class Agent:
             memory  = self.ioManager.reader.load_memory()
             trainer = self.ioManager.reader.load_trainer()
         else:
-            brain   = anna.brains.utils.get_brain()
-            memory  = anna.memory.utils.get_memory_object()
-            trainer = anna.trainers.utils.get_trainer()
+            brain   = anna.brains.utils.get_new_brain()
+            memory  = anna.memory.utils.get_new_memory_object()
+            trainer = anna.trainers.utils.get_new_trainer()
         # Train the network
         while not trainer.done:
             brain, memory = trainer.train(brain, memory)
@@ -161,6 +161,11 @@ class Agent:
         # Save a copy of the current parameter file that's in use, if
         # it hasn't been saved already (from a previous run)
         self.ioManager.writer.save_param_file(self.params)
+        # If early stopping, prevent this function from returning to
+        # run_agent and therefore continuing the program with potential
+        # calls to other methods
+        if trainer.earlyStop:
+            sys.exit()
 
     #-----
     # test
@@ -182,7 +187,7 @@ class Agent:
             pass
         """
         # Load the saved final network
-        brain = self.ioManager.reader.load_brain('final')
+        brain = self.ioManager.reader.load_brain()
         # Instantiate the tester object
         tester = anna.testers.utils.get_tester()
         # Test the agent
