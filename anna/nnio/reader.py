@@ -89,7 +89,7 @@ class Reader:
         --------
             pass
         """
-        # If we're given a dir, as in the case of continuing trainging,
+        # If we're given a dir, as in the case of continuing training,
         # look for a yaml file to load in the given dir
         if os.path.isdir(paramFile):
             paramFiles = glob.glob(os.path.join(paramFile, '*_backup.yaml'))
