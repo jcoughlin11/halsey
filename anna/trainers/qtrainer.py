@@ -24,7 +24,7 @@ class QTrainer:
     #-----
     # constructor
     #-----
-    def __init__(self):
+    def __init__(self, env, trainParams, frameParams, exploreParams):
         """
         Doc string.
 
@@ -40,12 +40,18 @@ class QTrainer:
         --------
             pass
         """
-        self.done = False
+        self.env            = env
+        self.episode        = 0
+        self.earlyStop      = False
+        self.done           = False
         self.saveCheckpoint = False
-        self.saveFinal = False
-        self.params = self.initialize_params()
-        self.frameHandler = FrameHandler()
-        self.actionSelector = anna.exploration.utils.get_new_action_selector()
+        self.startEpisode   = trainParams.startEpisode
+        self.state          = self.env.reset()
+        self.episodeStep    = trainParams.episodeStep
+        self.nEpisodes      = trainParams.nEpisodes
+        self.maxEpSteps     = trainParams.maxEpSteps
+        self.frameHandler   = FrameHandler(frameParams)
+        self.actionSelector = anna.exploration.utils.get_new_action_selector(exploreParams)
 
     #-----
     # train
@@ -67,26 +73,26 @@ class QTrainer:
             pass
         """
         # Loop over the desired number of training episodes
-        for self.params.episode in range(self.params.startEpisode, self.params.nEpisodes):
+        for self.episode in range(self.startEpisode, self.nEpisodes):
             # Reset to prepare for next episode after starting episode
             # since everything enters this loop as it should be
-            if episode > self.params.startEpisode:
+            if self.episode > self.startEpisode:
                 self.reset_episode()
             # Loop over the max number of steps allowed per episode
-            while self.params.episodeStep < self.params.maxEpSteps:
+            while self.episodeStep < self.maxEpSteps:
                 # Check for early stopping
                 if self.earlyStop = anna.utils.endrun.check_early_stop():
+                    self.done = True
                     break
                 # Transition to next state
-                experience = self.transition()
+                experience = self.transition(brain)
                 # Save the experience
-                memory.save(experience)
+                memory.save(self.state, experience)
                 # Update network weights
-                metrics = brain.learn()
-                # Update the brain's parameters, if needed (e.g.,
-                # update the target q-network)
+                metrics = brain.learn(memory)
+                # Update the brain's parameters (e.g., target q-network)
                 brain.update()
-                # Update the trainer's params
+                # Update trainer's params
                 self.update_params()
                 # Check for terminal state
                 if experience.done:
@@ -96,19 +102,112 @@ class QTrainer:
                     break
                 # Otherwise, set up for next step
                 else:
-                    state = nextState
-            # See if we need to save a checkpoint
-            if self.earlyStop or self.params.episode % self.savePeriod == 0:
+                    self.state = experience['nextState']
+            # See if we need to save a checkpoint. Don't save on early
+            # stop since a checkpoint is always saved upon returning
+            # below
+            if self.episode % self.savePeriod == 0 and not self.earlyStop:
                 self.saveCheckpoint = True
-                break
-        # If we're early stopping we want to exit but not save the
-        # final model because the episode loop didn't finish
-        if self.earlyStop:
-            self.done = True
-        # The only way this triggers is if the episode loop finished
-        # normally for the final episode, so we do want to save the
-        # final model because it means training is done
-        elif self.params.episode == self.params.nEpisodes - 1:
-            self.done = True
-            self.saveFinal = True
+                yield brain, memory
+        # If we get here, we're done
+        self.done = True
+        self.saveCheckpoint = True
         return brain, memory
+
+    #-----
+    # reset_episode
+    #-----
+    def reset_episode(self):
+        """
+        Resets everything (including the environment) for a new
+        episode.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        self.state = self.env.reset()
+        self.episodeStep = 0
+        self.saveCheckpoint = False
+
+    #-----
+    # update_params
+    #-----
+    def update_params(self):
+        """
+        Handles incrementing the counters.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        self.episodeStep += 1
+
+    #-----
+    # update_episode_metrics
+    #-----
+    def update_episode_metrics(self):
+        """
+        Handles things like getting the total episode rewards.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass
+
+    #-----
+    # transition
+    #-----
+    def transition(self, brain):
+        """
+        Uses the chosen strategy to select an action, take the action,
+        and receive experience from the environment.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Choose an action using the desired action-selection scheme
+        action = self.actionSelector.choose_action(self.state, brain)
+        # Take the action
+        nextState, reward, done, _ = self.env.step(action)
+        # Package all of this into an experience and return
+        experience = {}
+        experience['action'] = action
+        experience['reward'] = reward
+        experience['nextState'] = nextState
+        experience['done'] = done
+        return experience
