@@ -4,7 +4,6 @@ Purpose: Contains the IoManager class, which is a convenience object
             for holding the Reader, Writer, and Logger objects.
 Notes:
 """
-from . import logger
 from . import reader
 from . import writer
 
@@ -14,8 +13,7 @@ from . import writer
 #============================================
 class IoManager:
     """
-    A convenience object for holding Writer, Reader, and Logger
-    objects.
+    A convenience object for holding the Writer and Reader objects.
 
     Attributes:
     -----------
@@ -44,14 +42,13 @@ class IoManager:
         --------
             pass
         """
-        self.logger = logger.Logger()
         self.reader = reader.Reader()
         self.writer = writer.Writer()
 
     #-----
     # set_params
     #-----
-    def set_params(self, clArgs, params):
+    def set_params(self, ioParams):
         """
         Doc string.
 
@@ -67,6 +64,5 @@ class IoManager:
         --------
             pass
         """
-        self.logger.set_params(params)
-        self.reader.set_params(params)
-        self.writer.set_params(params)
+        self.reader.set_params(ioParams)
+        self.writer.set_params(ioParams)
