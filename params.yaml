@@ -1,8 +1,7 @@
 # Run-time parameters
 #--------------------
 run:
-    backend   : tensorflow
-    env       : SpaceInvaders-v0
+    envName   : SpaceInvaders-v0
     plot      : False
     render    : True 
     test      : False
@@ -15,26 +14,32 @@ run:
 io:
     fileBase   : si
     outputDir  : ~/Data/ai_data/test_run/output
-    savePeriod : 5
 
 
 # Training hyperparameters
 #-------------------------
 training:
     batchSize       : 64
-    discount        : 0.9
-    learningRate    : 0.00025
     maxEpisodeSteps : 50000
-    nEpisodes       : 50
+    mode:
+        qtrainer:
+            enable: True
+    nEpisodes  : 50
+    savePeriod : 5
 
 
 # Network parameters 
 #-------------
 network:
     architecture    : dueling1
+    backend         : tensorflow
+    discount        : 0.9
+    learningRate    : 0.00025
     loss            : mse
     optimizer       : adam
     mode:
+        vanillaQ:
+            enable : True
         doubleDqn:
             enable : False
         fixedQ:
