@@ -44,13 +44,13 @@ class Reader:
         --------
             pass
         """
-        self.baseDir  = None
+        self.baseDir = None
         self.fileBase = None
 
     #-----
     # set_params
     #-----
-    def set_params(self, params):
+    def set_params(self, ioParams):
         """
         Doc string.
 
@@ -66,8 +66,8 @@ class Reader:
         --------
             pass
         """
-        self.baseDir  = params['outputDir']
-        self.fileBase = params['fileBase']
+        self.baseDir = ioParams.outputDir
+        self.fileBase = ioParams.fileBase
 
     #-----
     # read_param_file
@@ -90,13 +90,16 @@ class Reader:
             pass
         """
         # If we're given a dir, as in the case of continuing training,
-        # look for a yaml file to load in the given dir
+        # look for a yaml file to load
         if os.path.isdir(paramFile):
             paramFiles = glob.glob(os.path.join(paramFile, '*_backup.yaml'))
             if len(paramFiles) != 1:
-                raise FileNotFoundError("Couldn't determine saved parameter file in output directory: {}".format(paramFile))
+                msg = "Couldn't determine backup parameter file in output " \
+                    "directory: {}.".format(paramFile)
+                raise FileNotFoundError(msg)
             paramFile = paramFiles[0]
         # Read the file
+        paramFile = os.path.abspath(os.path.expanduser(paramFile))
         with open(paramFile, 'r') as f:
             params = yaml.load(f)
         return params
@@ -134,7 +137,7 @@ class Reader:
             "-c",
             dest='continueTraining',
             action="store_true",
-            help="Continues training using the parameter file saved in the specified in the output directory.",
+            help="Continues training with parameter file in output directory.",
         )
         args = parser.parse_args()
         return args
