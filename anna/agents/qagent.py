@@ -45,11 +45,7 @@ class Agent:
         # Parse the command-line arguments
         clArgs = self.ioManager.reader.parse_cl_args()
         # Read in the parameter file
-        params = self.ioManager.reader.read_param_file(clArgs.paramFile)
-        # Read saved version of param file, if applicable. Guards
-        # against potential changes made to param file
-        if clArgs.continueTraining:
-            params = self.ioManager.reader.read_param_file(params['io']['outputDir'])
+        params = self.ioManager.reader.read_param_file(clArgs.paramFile, clArgs.continueTraining)
         # Validate command-line args and params
         anna.utils.validation.validate_params(clArgs, params)
         # Build messenger object
@@ -171,7 +167,7 @@ class Agent:
         --------
             pass
         """
-        return self.params.runTime.train
+        return self.messenger.runParams.train
 
     #-----
     # testingEnabled 
@@ -193,7 +189,7 @@ class Agent:
         --------
             pass
         """
-        return self.params.runTime.test
+        return self.messenger.runParams.test
 
     #-----
     # plottingEnabled 
@@ -215,4 +211,4 @@ class Agent:
         --------
             pass
         """
-        return self.params.runTime.plot
+        return self.messenger.runParams.plot
