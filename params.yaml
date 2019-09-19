@@ -2,29 +2,29 @@
 #--------------------
 run:
     envName   : SpaceInvaders-v0
-    plot      : False
-    render    : True 
-    test      : False
-    timeLimit : 30
     train     : True
+    test      : False
+    render    : True 
+    plot      : False
+    timeLimit : 30
 
 
 # I/O parameters
 #---------------
 io:
-    fileBase   : si
     outputDir  : ~/Data/ai_data/test_run/output
+    fileBase   : si
 
 
 # Training hyperparameters
 #-------------------------
 training:
-    batchSize       : 64
-    maxEpisodeSteps : 50000
     mode:
         qtrainer:
             enable: True
     nEpisodes  : 50
+    maxEpisodeSteps : 50000
+    batchSize       : 64
     savePeriod : 5
 
 
