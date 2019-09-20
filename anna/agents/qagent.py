@@ -49,9 +49,9 @@ class Agent:
         # Validate command-line args and params
         anna.utils.validation.validate_params(clArgs, params)
         # Build messenger object
-        self.messenger = anna.utils.messenger.Messenger(clArgs, params)
+        self.relay = anna.utils.relay.Relay(clArgs, params)
         # Set the relevant io params
-        self.ioManager.set_params(self.messenger.ioParams)
+        self.ioManager.set_params(self.relay.ioParams)
 
     #-----
     # train
@@ -72,64 +72,20 @@ class Agent:
         --------
             pass
         """
-        # Initialize the game environment
-        env = anna.utils.env.init_env(self.messenger.runParams.envName)
-        # Set up the brain, memory, and trainer objects
-        if self.messenger.runParams.continueTraining:
-            brain   = self.ioManager.reader.load_checkpoint_brain()
-            memory  = self.ioManager.reader.load_memory()
-            trainer = self.ioManager.reader.load_trainer(env)
+        # Initialize game environment
+        env = anna.navigation.utils.init_env(self.relay.runParams.envName)
+        # If continuing training, load the checkpoint files
+        if self.relay.runParams.continueTraining:
+            pass
+        # Otherwise, instantiate new objects
         else:
-            brain   = anna.brains.utils.get_new_brain(self.messenger)
-            memory  = anna.memory.utils.get_new_memory(self.messenger)
-            trainer = anna.trainers.utils.get_new_trainer(self.messenger, env)
-        # Train the network
-        while not trainer.done:
-            brain, memory = trainer.train(brain, memory)
-            if trainer.saveCheckpoint:
-                self.ioManager.writer.save_checkpoint(brain, memory, trainer)
-        # Save final model if training wasn't ended early
-        if not trainer.earlyStop:
-            self.ioManager.writer.save_final(brain)
-        # Save a copy of the current parameter file that's in use, if
-        # it hasn't been saved already (from a previous run)
-        self.ioManager.writer.save_param_file()
-        # If early stopping, prevent this function from returning to
-        # run_agent and therefore continuing the program with potential
-        # calls to other methods
-        if trainer.earlyStop:
-            sys.exit()
+            brain = anna.brains.utils.get_new_brain(self.relay.networkParams, env.action_space.n, self.relay.frameParams)
+            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams, self.relay.trainingParams.batchSize)
 
     #-----
     # test
     #-----
     def test(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        # Load the saved final network
-        brain = self.ioManager.reader.load_final_brain()
-        # Instantiate the tester object
-        tester = anna.testers.utils.get_tester()
-        # Test the agent
-        tester.test(brain)
-
-    #-----
-    # plot
-    #-----
-    def plot(self):
         """
         Doc string.
 
@@ -167,7 +123,7 @@ class Agent:
         --------
             pass
         """
-        return self.messenger.runParams.train
+        return self.relay.runParams.train
 
     #-----
     # testingEnabled 
@@ -189,26 +145,4 @@ class Agent:
         --------
             pass
         """
-        return self.messenger.runParams.test
-
-    #-----
-    # plottingEnabled 
-    #-----
-    @property
-    def plottingEnabled(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        return self.messenger.runParams.plot
+        return self.relay.runParams.test
