@@ -32,7 +32,6 @@ training:
 #-------------
 network:
     architecture    : dueling1
-    backend         : tensorflow
     discount        : 0.9
     learningRate    : 0.00025
     loss            : mse
@@ -50,7 +49,7 @@ network:
 # Memory parameters
 #------------------
 memory:
-    memorySize   : 100
+    maxSize   : 100
     pretrainLen  : 64
     priority:
         enable     : False
@@ -59,11 +58,10 @@ memory:
         perBAnneal : 0.001
         perE       : 0.01
     mode:
-        qbuffer:
+        experience:
             enable : True
         episode:
             enable       : False
-            pretrainNEps : 1
 
 
 # Exploration parameters
