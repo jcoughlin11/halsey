@@ -34,9 +34,6 @@ def main():
     # Test, if applicable
     if agent.testingEnabled:
         agent.test()
-    # Make plots, if applicable
-    if agent.plottingEnabled:
-        agent.plot()
 
 
 #============================================
