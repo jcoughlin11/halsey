@@ -1,18 +1,14 @@
 """
 Title:   utils.py
-Purpose: Contains functions related to assissting in setting up a new
-            brain object.
+Purpose: Contains functions related to creating a new brain object.
 Notes:
 """
-from . import double_dqn_brain
-from . import fixed_q_brain
-from . import vanilla_q_brain 
 
 
 #============================================
-#              get_new_brain
+#               get_new_brain
 #============================================
-def get_new_brain(networkParams):
+def get_new_brain(networkParams, nActions, frameParams):
     """
     Doc string.
 
@@ -28,12 +24,15 @@ def get_new_brain(networkParams):
     --------
         pass
     """
+    # Get the input shape. When passing data to the network, this is
+    # batch size x trace length x n rows x n cols. For building the
+    # nets, we omit batch size, since that's variable. Having the
+    # trace length first makes it inherently compatible with RNNs
+    inputShape = (frameParams.traceLen, frameParams.shrinkRows, frameParams.shrinkCols)
     if networkParams.mode == 'vanillaQ':
-        brain = vanilla_q_brain.Brain(networkParams)
+        brain = VanillaQBrain(networkParams, nActions, inputShape)
     elif networkParams.mode == 'fixedQ':
-        brain = fixed_q_brain.Brain(networkParams)
+        brain = FixedQBrain(networkParams, nActions, inputShape)
     elif networkParams.mode == 'doubleDqn':
-        brain = double_dqn_brain.Brain(networkParams)
-    else:
-        raise ValueError("Unrecognized brain type.")
+        brain = DoubleDqnBrain(networkParams, nActions, inputShape)
     return brain
