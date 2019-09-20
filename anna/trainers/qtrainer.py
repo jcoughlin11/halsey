@@ -24,7 +24,7 @@ class QTrainer:
     #-----
     # constructor
     #-----
-    def __init__(self, env, trainParams, frameParams, exploreParams):
+    def __init__(self):
         """
         Doc string.
 
@@ -40,23 +40,12 @@ class QTrainer:
         --------
             pass
         """
-        self.env            = env
-        self.episode        = 0
-        self.earlyStop      = False
-        self.done           = False
-        self.saveCheckpoint = False
-        self.startEpisode   = trainParams.startEpisode
-        self.state          = self.env.reset()
-        self.episodeStep    = trainParams.episodeStep
-        self.nEpisodes      = trainParams.nEpisodes
-        self.maxEpSteps     = trainParams.maxEpSteps
-        self.frameHandler   = FrameHandler(frameParams)
-        self.actionSelector = anna.exploration.utils.get_new_action_selector(exploreParams)
+        pass
 
     #-----
     # train
     #-----
-    def train(self, brain, memory):
+    def train(self):
         """
         Doc string.
 
@@ -85,129 +74,31 @@ class QTrainer:
                     self.done = True
                     break
                 # Transition to next state
-                experience = self.transition(brain)
+                TRANSITION()
                 # Save the experience
-                memory.save(self.state, experience)
+                memory.save()
                 # Update network weights
-                metrics = brain.learn(memory)
+                brain.learn(memory)
                 # Update the brain's parameters (e.g., target q-network)
                 brain.update()
+                # Update memory, if applicable (e.g., priority weights)
+                memory.update()
                 # Update trainer's params
                 self.update_params()
                 # Check for terminal state
-                if experience.done:
+                if done:
                     # Get totals for episode metrics
                     self.update_episode_metrics()
                     # Go to next episode
                     break
                 # Otherwise, set up for next step
                 else:
-                    self.state = experience['nextState']
+                    state = nextState
             # See if we need to save a checkpoint. Don't save on early
             # stop since a checkpoint is always saved upon returning
             # below
             if self.episode % self.savePeriod == 0 and not self.earlyStop:
-                self.saveCheckpoint = True
-                yield brain, memory
+                yield STUFF 
         # If we get here, we're done
         self.done = True
-        self.saveCheckpoint = True
-        return brain, memory
-
-    #-----
-    # reset_episode
-    #-----
-    def reset_episode(self):
-        """
-        Resets everything (including the environment) for a new
-        episode.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        self.state = self.env.reset()
-        self.episodeStep = 0
-        self.saveCheckpoint = False
-
-    #-----
-    # update_params
-    #-----
-    def update_params(self):
-        """
-        Handles incrementing the counters.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        self.episodeStep += 1
-
-    #-----
-    # update_episode_metrics
-    #-----
-    def update_episode_metrics(self):
-        """
-        Handles things like getting the total episode rewards.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    #-----
-    # transition
-    #-----
-    def transition(self, brain):
-        """
-        Uses the chosen strategy to select an action, take the action,
-        and receive experience from the environment.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        # Choose an action using the desired action-selection scheme
-        action = self.actionSelector.choose_action(self.state, brain)
-        # Take the action
-        nextState, reward, done, _ = self.env.step(action)
-        # Package all of this into an experience and return
-        experience = {}
-        experience['action'] = action
-        experience['reward'] = reward
-        experience['nextState'] = nextState
-        experience['done'] = done
-        return experience
+        return STUFF 
