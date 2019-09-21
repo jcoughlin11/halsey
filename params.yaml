@@ -74,6 +74,13 @@ explore:
         epsilonStop  : 0.01
 
 
+# Navigation parameters
+#----------------------
+navigation:
+    mode:
+        frameByFrame: True
+
+
 # Frame preprocessing parameters
 #-------------------------------
 frame:
