@@ -52,6 +52,17 @@ class Agent:
         self.relay = anna.utils.relay.Relay(clArgs, params)
         # Set the relevant io params
         self.ioManager.set_params(self.relay.ioParams)
+        # Build the explorer object that handles action  selection during
+        # training via the chosen explore-exploit method
+        explorer = anna.explorers.utils.get_new_explorer(self.relay.exploreParams)
+        # Build the frame handler object used for processing the incoming
+        # frames from the game
+        frameHandler = anna.frames.utils.get_new_frame_handler(self.relay.frameParams)
+        # Build the game environment that the agent interacts with
+        env = anna.navigation.utils.build_env(self.relay.runParams.envName)
+        # Build the navigator object used for transitioning between
+        # states
+        self.navigator = anna.navigation.utils.get_new_navigator(self.relay.navParams, explorer, frameHandler, env)
 
     #-----
     # train
@@ -72,15 +83,13 @@ class Agent:
         --------
             pass
         """
-        # Initialize game environment
-        env = anna.navigation.utils.init_env(self.relay.runParams.envName)
         # If continuing training, load the checkpoint files
         if self.relay.runParams.continueTraining:
             pass
         # Otherwise, instantiate new objects
         else:
-            brain = anna.brains.utils.get_new_brain(self.relay.networkParams, env.action_space.n, self.relay.frameParams)
-            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams, self.relay.trainingParams.batchSize)
+            brain = anna.brains.utils.get_new_brain(self.relay.networkParams, self.navigator.env.action_space.n, self.relay.frameParams)
+            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams, self.relay.trainingParams.batchSize, self.navigator)
 
     #-----
     # test
