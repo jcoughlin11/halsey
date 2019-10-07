@@ -40,10 +40,10 @@ class ExperienceMemory:
         --------
             pass
         """
-        self.maxSize = None
-        self.pretrainLen = None
-        self.batchSize = None
-        self.buffer = collections.deque(maxlen=self.maxSize)
+        self.maxSize     = memoryParams.maxSize
+        self.pretrainLen = memoryParams.pretrainLen
+        self.batchSize   = batchsize
+        self.buffer      = collections.deque(maxlen=self.maxSize)
 
     # -----
     # Pre-Populate
@@ -69,8 +69,8 @@ class ExperienceMemory:
         state = frameHandler.process(env.reset())
         # Loop over the desired number of sample experiences
         for i in range(self.pretrainLen):
-            # Choose a random action. randint chooses in [a,b)
-            action = np.random.randint(0, env.action_space.n)
+            # Choose a random action
+            action = env.action_space.sample() 
             # Take action
             next_state, reward, done, _ = env.step(action)
             # Add next state to stack of frames
