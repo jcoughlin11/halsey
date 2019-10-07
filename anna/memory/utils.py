@@ -5,10 +5,10 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #              get_new_memory
-#============================================
-def get_new_memory(memoryParams, batchSize, navigator):
+# ============================================
+def get_new_memory(memoryParams):
     """
     Doc string.
 
@@ -25,10 +25,8 @@ def get_new_memory(memoryParams, batchSize, navigator):
         pass
     """
     # Build the memory object of the desired type
-    if memoryParams.mode == 'experience':
-        memory = ExperienceMemory(memoryParams, batchSize)
-    elif memoryParams.mode == 'episode':
-        memory = EpisodeMemory(memoryParams, batchSize)
-    # Pre-populate the memory buffer to avoid the empty-memory problem
-    memory.pre_populate(navigator.env, navigator.frameHandler)
+    if memoryParams.mode == "experience":
+        memory = ExperienceMemory(memoryParams)
+    elif memoryParams.mode == "episode":
+        memory = EpisodeMemory(memoryParams)
     return memory

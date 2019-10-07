@@ -61,7 +61,7 @@ memory:
         experience:
             enable : True
         episode:
-            enable       : False
+            enable : False
 
 
 # Exploration parameters
@@ -84,10 +84,13 @@ navigation:
 # Frame preprocessing parameters
 #-------------------------------
 frame:
-    cropBot    : 12
-    cropLeft   : 4
-    cropRight  : 12
-    cropTop    : 8
-    shrinkCols : 84
-    shrinkRows : 110
-    traceLen   : 4
+    mode:
+        vanilla:
+            enable     : True
+            cropBot    : 12
+            cropLeft   : 4
+            cropRight  : 12
+            cropTop    : 8
+            shrinkCols : 84
+            shrinkRows : 110
+            traceLen   : 4

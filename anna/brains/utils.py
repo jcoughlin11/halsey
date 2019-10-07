@@ -5,10 +5,10 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #               get_new_brain
-#============================================
-def get_new_brain(networkParams, nActions, frameParams):
+# ============================================
+def get_new_brain(networkParams, nActions, inputShape):
     """
     Doc string.
 
@@ -24,15 +24,10 @@ def get_new_brain(networkParams, nActions, frameParams):
     --------
         pass
     """
-    # Get the input shape. When passing data to the network, this is
-    # batch size x trace length x n rows x n cols. For building the
-    # nets, we omit batch size, since that's variable. Having the
-    # trace length first makes it inherently compatible with RNNs
-    inputShape = (frameParams.traceLen, frameParams.shrinkRows, frameParams.shrinkCols)
-    if networkParams.mode == 'vanillaQ':
+    if networkParams.mode == "vanillaQ":
         brain = VanillaQBrain(networkParams, nActions, inputShape)
-    elif networkParams.mode == 'fixedQ':
+    elif networkParams.mode == "fixedQ":
         brain = FixedQBrain(networkParams, nActions, inputShape)
-    elif networkParams.mode == 'doubleDqn':
+    elif networkParams.mode == "doubleDqn":
         brain = DoubleDqnBrain(networkParams, nActions, inputShape)
     return brain

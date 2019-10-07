@@ -5,9 +5,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #                   QBrain
-#============================================
+# ============================================
 class QBrain:
     """
     Doc string.
@@ -20,9 +20,10 @@ class QBrain:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self, networkParams, nActions, inputShape):
         """
         Doc string.
@@ -40,13 +41,20 @@ class QBrain:
             pass
         """
         # Initialize attributes
-        self.arch          = networkParams.architecture 
-        self.inputShape    = inputShape
-        self.nActions      = nActions
-        self.learningRate  = networkParams.learningRate
-        self.discountRate  = retworkParams.discountRate
+        self.arch = networkParams.architecture
+        self.inputShape = inputShape
+        self.nActions = nActions
+        self.learningRate = networkParams.learningRate
+        self.discountRate = retworkParams.discountRate
         self.optimizerName = networkParams.optimizer
-        self.lossName      = networkParams.loss
-        self.qNet          = None
+        self.lossName = networkParams.loss
+        self.qNet = None
         # Build primary network
-        self.qNet = anna.networks.utils.build_network(self.arch, self.inputShape, self.nActions, self.optimizerName, self.lossName, self.learningRate)
+        self.qNet = anna.networks.utils.build_network(
+            self.arch,
+            self.inputShape,
+            self.nActions,
+            self.optimizerName,
+            self.lossName,
+            self.learningRate,
+        )

@@ -6,10 +6,10 @@ Notes:
 import anna
 
 
-#============================================
-#                   Agent
-#============================================
-class Agent:
+# ============================================
+#                  QAgent
+# ============================================
+class QAgent(BaseAgent):
     """
     The primary object manager for using Q-learning techniques.
 
@@ -21,9 +21,10 @@ class Agent:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self):
         """
         Doc string.
@@ -40,33 +41,11 @@ class Agent:
         --------
             pass
         """
-        # Instantiate the ioManager object
-        self.ioManager = anna.nnio.manager.IoManager()
-        # Parse the command-line arguments
-        clArgs = self.ioManager.reader.parse_cl_args()
-        # Read in the parameter file
-        params = self.ioManager.reader.read_param_file(clArgs.paramFile, clArgs.continueTraining)
-        # Validate command-line args and params
-        anna.utils.validation.validate_params(clArgs, params)
-        # Build messenger object
-        self.relay = anna.utils.relay.Relay(clArgs, params)
-        # Set the relevant io params
-        self.ioManager.set_params(self.relay.ioParams)
-        # Build the explorer object that handles action  selection during
-        # training via the chosen explore-exploit method
-        explorer = anna.explorers.utils.get_new_explorer(self.relay.exploreParams)
-        # Build the frame handler object used for processing the incoming
-        # frames from the game
-        frameHandler = anna.frames.utils.get_new_frame_handler(self.relay.frameParams)
-        # Build the game environment that the agent interacts with
-        env = anna.navigation.utils.build_env(self.relay.runParams.envName)
-        # Build the navigator object used for transitioning between
-        # states
-        self.navigator = anna.navigation.utils.get_new_navigator(self.relay.navParams, explorer, frameHandler, env)
+        super().__init__()
 
-    #-----
+    # -----
     # train
-    #-----
+    # -----
     def train(self):
         """
         Doc string.
@@ -84,74 +63,35 @@ class Agent:
             pass
         """
         # If continuing training, load the checkpoint files
-        if self.relay.runParams.continueTraining:
+        if self.relay.continueTraining:
             pass
         # Otherwise, instantiate new objects
         else:
-            brain = anna.brains.utils.get_new_brain(self.relay.networkParams, self.navigator.env.action_space.n, self.relay.frameParams)
-            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams, self.relay.trainingParams.batchSize, self.navigator)
-
-    #-----
-    # test
-    #-----
-    def test(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    #-----
-    # trainingEnabled 
-    #-----
-    @property
-    def trainingEnabled(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        return self.relay.runParams.train
-
-    #-----
-    # testingEnabled 
-    #-----
-    @property
-    def testingEnabled(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        return self.relay.runParams.test
+            navigator = anna.navigation.utils.get_new_navigator(
+                self.relay.runParams.envName,
+                self.relay.navParams,
+                self.relay.exploreParams,
+                self.relay.frameParams,
+            )
+            brain = anna.brains.utils.get_new_brain(
+                self.relay.networkParams,
+                navigator.env.action_space.n_actions,
+                navigator.frameManager.inputShape,
+            )
+            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams)
+            trainer = anna.trainers.utils.get_new_trainer(
+                self.relay.trainParams
+            )
+            memory.pre_populate(navigator)
+            navigator.reset()
+        # Training loop
+        while not trainer.doneTraining:
+            brain, memory, navigator = trainer.train(brain, memory, navigator)
+            self.ioManager.writer.save_checkpoint(brain, memory, navigator, trainer)
+        # Save a copy of the parameter file
+        self.ioManager.writer.save_param_file(self.relay)
+        # If early stopping, exit
+        if trainer.earlyStop:
+            return False
+        else:
+            return True

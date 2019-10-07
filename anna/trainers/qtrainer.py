@@ -5,9 +5,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #                 QTrainer
-#============================================
+# ============================================
 class QTrainer:
     """
     Handles choosing actions, interacting with the environment, and
@@ -21,10 +21,11 @@ class QTrainer:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
-    def __init__(self):
+    # -----
+    def __init__(self, trainParams):
         """
         Doc string.
 
@@ -40,12 +41,20 @@ class QTrainer:
         --------
             pass
         """
-        pass
+        self.nEpisodes = trainParams.nEpisodes
+        self.maxEpisodeSteps = trainParams.maxEpisodeSteps
+        self.batchSize = trainParams.batchSize
+        self.savePeriod = trainParams.savePeriod
+        self.episode = 0
+        self.startEpisode = 0
+        self.earlyStop = False
+        self.doneTraining = False
+        self.episodeStep = 0
 
-    #-----
+    # -----
     # train
-    #-----
-    def train(self):
+    # -----
+    def train(self, brain, memory, navigator):
         """
         Doc string.
 
@@ -63,22 +72,18 @@ class QTrainer:
         """
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
-            # Reset to prepare for next episode after starting episode
-            # since everything enters this loop as it should be
-            if self.episode > self.startEpisode:
-                self.reset_episode()
             # Loop over the max number of steps allowed per episode
-            while self.episodeStep < self.maxEpSteps:
+            for self.episodeStep in range(self.maxEpisodeSteps):
                 # Check for early stopping
-                if self.earlyStop = anna.utils.endrun.check_early_stop():
-                    self.done = True
+                self.earlyStop = anna.utils.endrun.check_early_stop()
+                if self.earlyStop:
                     break
                 # Transition to next state
-                TRANSITION()
+                experience = navigator.transition(brain)
                 # Save the experience
-                memory.save()
+                memory.add(experience)
                 # Update network weights
-                brain.learn(memory)
+                brain.learn(memory, self.batchSize)
                 # Update the brain's parameters (e.g., target q-network)
                 brain.update()
                 # Update memory, if applicable (e.g., priority weights)
@@ -86,19 +91,14 @@ class QTrainer:
                 # Update trainer's params
                 self.update_params()
                 # Check for terminal state
-                if done:
-                    # Get totals for episode metrics
-                    self.update_episode_metrics()
-                    # Go to next episode
+                if experience.done:
                     break
-                # Otherwise, set up for next step
-                else:
-                    state = nextState
-            # See if we need to save a checkpoint. Don't save on early
-            # stop since a checkpoint is always saved upon returning
-            # below
-            if self.episode % self.savePeriod == 0 and not self.earlyStop:
-                yield STUFF 
+            # Break out of the training loop if needed
+            if self.earlyStop:
+                break
+            # See if we need to save a checkpoint
+            if self.episode % self.savePeriod == 0:
+                yield brain, memory, navigator
         # If we get here, we're done
-        self.done = True
-        return STUFF 
+        self.doneTraining = True
+        return brain, memory, navigator 

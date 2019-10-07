@@ -1,19 +1,16 @@
 """
-Title:   manager.py
-Purpose: Contains the IoManager class, which is a convenience object
-            for holding the Reader, Writer, and Logger objects.
+Title: basenavigator.py
+Purpose: Contains the BaseNavigator class
 Notes:
 """
-from . import reader
-from . import writer
 
 
 # ============================================
-#                 IoManager
+#               BaseNavigator
 # ============================================
-class IoManager:
+class BaseNavigator:
     """
-    A convenience object for holding the Writer and Reader objects.
+    Doc string.
 
     Attributes:
     -----------
@@ -27,7 +24,7 @@ class IoManager:
     # -----
     # constructor
     # -----
-    def __init__(self):
+    def __init__(self, env, navParams, frameManager, actionManager):
         """
         Doc string.
 
@@ -43,13 +40,15 @@ class IoManager:
         --------
             pass
         """
-        self.reader = reader.Reader()
-        self.writer = writer.Writer()
+        self.env = env
+        self.frameManager = frameManager
+        self.actionManager = actionManager
+        self.state = None
 
-    # -----
-    # set_params
-    # -----
-    def set_params(self, ioParams):
+    #-----
+    # reset
+    #-----
+    def reset(self):
         """
         Doc string.
 
@@ -65,5 +64,7 @@ class IoManager:
         --------
             pass
         """
-        self.reader.set_params(ioParams)
-        self.writer.set_params(ioParams)
+        # Reset the game environment
+        state = self.env.reset()
+        # Process the initial frame
+        self.state = self.frameManager.process_frame(state, newEpisode=True)

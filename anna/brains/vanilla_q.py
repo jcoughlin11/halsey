@@ -5,9 +5,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #               VanillaQBrain
-#============================================
+# ============================================
 class VanillaQBrain(QBrain):
     """
     Doc string.
@@ -20,9 +20,10 @@ class VanillaQBrain(QBrain):
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self, networkParams, nActions, inputShape):
         """
         Doc string.
@@ -42,9 +43,9 @@ class VanillaQBrain(QBrain):
         # Call parent's constructor
         super().__init__(networkParams, nActions, inputShape)
 
-    #-----
+    # -----
     # learn
-    #-----
+    # -----
     def learn(self, memory):
         """
         The estimates of the max discounted future rewards (qTarget) are
@@ -118,9 +119,9 @@ class VanillaQBrain(QBrain):
         )
         return STUFF
 
-        #-----
+        # -----
         # update
-        #-----
+        # -----
         def update(self):
             """
             Updates the brain's internal state (counters, non-primary

@@ -6,9 +6,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #              DoubleDqnBrain
-#============================================
+# ============================================
 class DoubleDqnBrain(FixedQBrain):
     """
     Doc string.
@@ -21,9 +21,10 @@ class DoubleDqnBrain(FixedQBrain):
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self, networkParams, nActions, inputShape):
         """
         Doc string.
@@ -110,4 +111,4 @@ class DoubleDqnBrain(FixedQBrain):
         loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=isWeights
         )
-        return STUFF 
+        return STUFF

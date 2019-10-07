@@ -6,9 +6,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #             ExperienceMemory
-#============================================
+# ============================================
 class ExperienceMemory:
     """
     Doc string.
@@ -21,10 +21,11 @@ class ExperienceMemory:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
-    def __init__(self, memoryParams, batchSize):
+    # -----
+    def __init__(self, memoryParams):
         """
         Doc string.
 
@@ -40,15 +41,14 @@ class ExperienceMemory:
         --------
             pass
         """
-        self.maxSize     = memoryParams.maxSize
+        self.maxSize = memoryParams.maxSize
         self.pretrainLen = memoryParams.pretrainLen
-        self.batchSize   = batchsize
-        self.buffer      = collections.deque(maxlen=self.maxSize)
+        self.buffer = collections.deque(maxlen=self.maxSize)
 
     # -----
     # Pre-Populate
     # -----
-    def pre_populate(self, env, frameHandler):
+    def pre_populate(self, navigator):
         """
         This function initially fills the experience buffer with sample
         experience tuples to avoid the empty memory problem.
@@ -65,29 +65,13 @@ class ExperienceMemory:
         --------
             pass 
         """
-        # Get initial state
-        state = frameHandler.process(env.reset())
+        # Reset the environment
+        navigator.reset()
         # Loop over the desired number of sample experiences
         for i in range(self.pretrainLen):
-            # Choose a random action
-            action = env.action_space.sample() 
-            # Take action
-            next_state, reward, done, _ = env.step(action)
-            # Add next state to stack of frames
-            next_state, frame_stack = frames.stack_frames(
-                frame_stack, next_state, False, stack_size, crop, shrink, self.arch, self.traceLen
-            )
+            experience = navigator.transition(mode='random')
             # Add experience to memory
-            self.add((state, action, reward, next_state, done))
-            # If we're in a terminal state, we need to reset things
-            if done:
-                state = env.reset()
-                state, frame_stack = frames.stack_frames(
-                    None, state, True, stack_size, crop, shrink, self.arch, self.traceLen
-                )
-            # Otherwise, update the state and continue
-            else:
-                state = next_state
+            self.add(experience)
 
     # -----
     # Add
@@ -113,7 +97,7 @@ class ExperienceMemory:
     # -----
     # Sample
     # -----
-    def sample(self, batch_size):
+    def sample(self, batchSize):
         """
         This function returns a randomly selected subsample of size
         batch_size from the buffer. This subsample is used to train the
@@ -121,6 +105,7 @@ class ExperienceMemory:
         elements that are in it, not from maxlen. That is, if you have a
         deque with maxlen = 10, but only one element has been added to
         it, then it's size is actually 1.
+
         Parameters:
         -----------
             batch_size : int

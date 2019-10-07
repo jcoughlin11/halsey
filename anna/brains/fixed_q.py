@@ -6,9 +6,9 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #                FixedQBrain
-#============================================
+# ============================================
 class FixedQBrain(QBrain):
     """
     Doc string.
@@ -21,9 +21,10 @@ class FixedQBrain(QBrain):
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self, networkParams, nActions, inputShape):
         """
         Doc string.
@@ -43,7 +44,14 @@ class FixedQBrain(QBrain):
         # Call parent's constructor
         super().__init__(networkParams, nActions, inputShape)
         # Build secondary network
-        self.tNet = anna.networks.utils.build_network(self.arch, self.inputShape, self.nActions, self.optimizerName, self.lossName, self.learningRate)
+        self.tNet = anna.networks.utils.build_network(
+            self.arch,
+            self.inputShape,
+            self.nActions,
+            self.optimizerName,
+            self.lossName,
+            self.learningRate,
+        )
         # Make weights the same in both networks
         self.tNet.set_weights(self.qNet.get_weights())
 
@@ -98,12 +106,14 @@ class FixedQBrain(QBrain):
         # Get abs error
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.train_on_batch(states, qTarget, sample_weight=isWeights)
-        return STUFF 
+        loss = self.qNet.train_on_batch(
+            states, qTarget, sample_weight=isWeights
+        )
+        return STUFF
 
-    #-----
+    # -----
     # update
-    #-----
+    # -----
     def update(self):
         """
         Doc string.

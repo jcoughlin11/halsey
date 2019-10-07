@@ -5,10 +5,12 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #               build_network
-#============================================
-def build_network(arch, inputShape, nActions, optimizerName, lossName, learningRate):
+# ============================================
+def build_network(
+    arch, inputShape, nActions, optimizerName, lossName, learningRate
+):
     """
     Doc string.
 
@@ -25,7 +27,7 @@ def build_network(arch, inputShape, nActions, optimizerName, lossName, learningR
         pass
     """
     # Set up network architecture
-    if arch == 'conv1':
+    if arch == "conv1":
         net = build_conv1_net(inputShape, nActions)
     elif arch == "dueling1":
         net = build_dueling1_net(inputShape, nActions)
@@ -39,9 +41,9 @@ def build_network(arch, inputShape, nActions, optimizerName, lossName, learningR
     return net
 
 
-#============================================
+# ============================================
 #             set_optimizer
-#============================================
+# ============================================
 def set_optimizer(optimizerName, learningRate):
     """
     Doc string.
@@ -58,14 +60,14 @@ def set_optimizer(optimizerName, learningRate):
     --------
         pass
     """
-    if optimizerName == 'adam':
+    if optimizerName == "adam":
         optimizer = tf.keras.optimizers.Adam(lr=learningRate)
     return optimizer
 
 
-#============================================
+# ============================================
 #                set_loss
-#============================================
+# ============================================
 def set_loss(lossName):
     """
     Doc string.
@@ -82,6 +84,6 @@ def set_loss(lossName):
     --------
         pass
     """
-    if lossName == 'mse':
+    if lossName == "mse":
         loss = tf.keras.losses.MeanSquaredError()
     return loss

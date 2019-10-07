@@ -6,10 +6,10 @@ Notes:
 """
 
 
-#============================================
+# ============================================
 #             get_new_navigator
-#============================================
-def get_new_navigator(navParams, explorer, frameHandler, env):
+# ============================================
+def get_new_navigator(envName, navParams, exploreParams, frameParams):
     """
     Doc string.
 
@@ -26,33 +26,14 @@ def get_new_navigator(navParams, explorer, frameHandler, env):
         pass
     """
     # Build the gym environment
-    if navParams.mode == 'frameByFrame':
-        navigator = FrameByFrameNavigator(navParams, explorer, frameHandler, env)
+    env = anna.utils.env.build_env(envName)
+    # Build the frame manager
+    frameManager = anna.frames.utils.get_new_frame_manager(frameParams)
+    # Build the action manager
+    actionManager = anna.actions.utils.get_new_action_manager(exploreParams)
+    # Build the navigator
+    if navParams.mode == "frameByFrame":
+        navigator = FrameByFrameNavigator(
+            env, navParams, frameManager, actionManager
+        )
     return navigator
-
-
-#============================================
-#                 build_env
-#============================================
-def build_env(envName):
-    """
-    Doc string.
-
-    Parameters:
-    -----------
-        pass
-
-    Raises:
-    -------
-        pass
-
-    Returns:
-    --------
-        pass
-    """
-    # Build the named environment
-    env = gym.make(envName)
-    # Call reset so that everything works later on (seed setting,
-    # loading the emulator state, etc.)
-    state = env.reset()
-    return env
