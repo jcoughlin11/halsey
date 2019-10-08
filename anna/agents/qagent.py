@@ -90,6 +90,8 @@ class QAgent(BaseAgent):
             self.ioManager.writer.save_checkpoint(brain, memory, navigator, trainer)
         # Save a copy of the parameter file
         self.ioManager.writer.save_param_file(self.relay)
+        # Clean up (close env, files, etc)
+        self.cleanup()
         # If early stopping, exit
         if trainer.earlyStop:
             return False
