@@ -4,6 +4,7 @@ Purpose: Contains the Agent class for using Q-learning techniques
 Notes:
 """
 import anna
+from anna.agents.baseagent import BaseAgent
 
 
 # ============================================
@@ -63,7 +64,7 @@ class QAgent(BaseAgent):
             pass
         """
         # If continuing training, load the checkpoint files
-        if self.relay.continueTraining:
+        if self.relay.clArgs.continueTraining:
             pass
         # Otherwise, instantiate new objects
         else:
@@ -87,7 +88,9 @@ class QAgent(BaseAgent):
         # Training loop
         while not trainer.doneTraining:
             brain, memory, navigator = trainer.train(brain, memory, navigator)
-            self.ioManager.writer.save_checkpoint(brain, memory, navigator, trainer)
+            self.ioManager.writer.save_checkpoint(
+                brain, memory, navigator, trainer
+            )
         # Save a copy of the parameter file
         self.ioManager.writer.save_param_file(self.relay)
         # Clean up (close env, files, etc)
