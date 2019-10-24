@@ -3,11 +3,15 @@ Title: vanillaframemanager.py
 Purpose: Contains the standard frame manager.
 Notes:
 """
+import collections
+
+import numpy as np
+import skimage
 
 
-#============================================
+# ============================================
 #           VanillaFrameManager
-#============================================
+# ============================================
 class VanillaFrameManager:
     """
     Doc string.
@@ -20,9 +24,10 @@ class VanillaFrameManager:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self, frameParams):
         """
         Doc string.
@@ -49,9 +54,9 @@ class VanillaFrameManager:
         self.frameStack = None
         self.inputShape = [self.traceLen, self.shrinkRows, self.shrinkCols]
 
-    #-----
+    # -----
     # process_frame
-    #-----
+    # -----
     def process_frame(self, frame, newEpisode=False):
         """
         Doc string.
@@ -73,18 +78,20 @@ class VanillaFrameManager:
         # Start fresh if this is a new episode
         if newEpisode:
             self.frameStack = collections.deque(
-                [preProcessedFrame for i in range(self.traceLen)], maxlen=self.traceLen
+                [preprocessedFrame for i in range(self.traceLen)],
+                maxlen=self.traceLen,
             )
         # Otherwise, add the frame to the stack
         else:
             self.frameStack.append(preprocessedFrame)
-        # Create the tensorial version of the stack
-        stackedFrame = np.stack(self.frameStack, axis=2)
+        # Create the tensorial version of the stack. Using axis=0 makes
+        # an array with shape (traceLen, shrinkRows, shrinkCols)
+        stackedFrame = np.stack(self.frameStack, axis=0)
         return stackedFrame
 
-    #-----
+    # -----
     # preprocess_frame
-    #-----
+    # -----
     def preprocess_frame(self, frame):
         """
         Doc string.
@@ -109,12 +116,14 @@ class VanillaFrameManager:
         # Normalize the image
         normFrame = self.norm_frame(croppedFrame)
         # To reduce the computational complexity, we can shrink the image
-        shrunkFrame = skimage.transform.resize(normFrame, [self.shrinkRows, self.shrinkCols])
+        shrunkFrame = skimage.transform.resize(
+            normFrame, [self.shrinkRows, self.shrinkCols]
+        )
         return shrunkFrame
 
-    #-----
+    # -----
     # crop_frame
-    #-----
+    # -----
     def crop_frame(self, frame):
         """
         Doc string.
@@ -133,9 +142,13 @@ class VanillaFrameManager:
         """
         # Crop the frame
         if self.cropBot != 0 and self.cropRight != 0:
-            croppedFrame = frame[self.cropTop : -self.cropBot, self.cropLeft : -self.cropRight]
+            croppedFrame = frame[
+                self.cropTop : -self.cropBot, self.cropLeft : -self.cropRight
+            ]
         elif self.cropBot == 0 and self.cropRight != 0:
-            croppedFrame = frame[self.cropTop :, self.cropLeft : -self.cropRight]
+            croppedFrame = frame[
+                self.cropTop :, self.cropLeft : -self.cropRight
+            ]
         elif self.cropBot == 0 and self.cropRight == 0:
             croppedFrame = frame[self.cropTop :, self.cropLeft :]
         elif self.cropBot != 0 and self.cropRight == 0:
@@ -143,3 +156,25 @@ class VanillaFrameManager:
         else:
             raise ValueError
         return croppedFrame
+
+        # -----
+        # norm_frame
+        # -----
+        def norm_frame(self, frame):
+            """
+            Doc string.
+
+            Parameters:
+            -----------
+                pass
+
+            Raises:
+            -------
+                pass
+
+            Returns:
+            --------
+                pass
+            """
+            frame = frame / 255.0
+            return frame

@@ -9,9 +9,9 @@ Notes:
 modeParams = {}
 
 
-#============================================
+# ============================================
 #                   Relay
-#============================================
+# ============================================
 class Relay:
     """
     Doc string.
@@ -24,17 +24,18 @@ class Relay:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init(self):
         pass
 
 
-#============================================
+# ============================================
 #                  get_mode
-#============================================
-def get_mode(d, baseKey=''):
+# ============================================
+def get_mode(d, baseKey=""):
     """
     Doc string (see practice/class_attr_adding/add.py)
 
@@ -51,15 +52,15 @@ def get_mode(d, baseKey=''):
         pass
     """
     for k, v in d.items():
-        if k == 'mode':
+        if k == "mode":
             for modeKey, modeVal in v.items():
-                if modeVal['enable']:
+                if modeVal["enable"]:
                     mode = modeKey
                     if len(modeVal.keys()) > 1:
                         modeParams[baseKey] = {}
                         for modeParam, paramValue in modeVal.items():
-                            if modeParam != 'enable':
-                                mode_params[baseKey][modeParam] = paramValue
+                            if modeParam != "enable":
+                                modeParams[baseKey][modeParam] = paramValue
                     break
             d[k] = mode
         elif isinstance(v, dict):
@@ -70,9 +71,9 @@ def get_mode(d, baseKey=''):
     return d
 
 
-#============================================
+# ============================================
 #                  update
-#============================================
+# ============================================
 def update(d):
     """
     Doc string. NOTE: calling dict.update on a nested dictionary
@@ -94,15 +95,15 @@ def update(d):
         pass
     """
     for k, v in d.items():
-        if k in mode_params.keys():
-            d[k].update(mode_params[k])
+        if k in modeParams.keys():
+            d[k].update(modeParams[k])
     return d
 
 
-#============================================
+# ============================================
 #              dict_to_class
-#============================================
-def recurse(cls, d):
+# ============================================
+def dict_to_class(cls, d):
     """
     Doc string.
 
@@ -121,15 +122,15 @@ def recurse(cls, d):
     for k, v in d.items():
         if isinstance(v, dict):
             r = Relay()
-            setattr(cls, k, recurse(r, v))
+            setattr(cls, k, dict_to_class(r, v))
         else:
             setattr(cls, k, v)
     return cls
 
 
-#============================================
+# ============================================
 #               get_new_relay
-#============================================
+# ============================================
 def get_new_relay(clArgs, params):
     """
     Doc string.
@@ -157,5 +158,5 @@ def get_new_relay(clArgs, params):
     relay = Relay()
     relay = dict_to_class(relay, prunedParams)
     # Now add the clArgs Namespace object as an attribute of relay
-    setattr(relay, 'clArgs', clArgs)
+    setattr(relay, "clArgs", clArgs)
     return relay

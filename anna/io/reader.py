@@ -81,6 +81,7 @@ class Reader:
             "-c",
             dest="continueTraining",
             action="store_true",
+            default=False,
             help="Continues training with parameter file in output directory.",
         )
         args = parser.parse_args()
