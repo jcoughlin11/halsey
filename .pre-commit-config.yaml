@@ -3,13 +3,13 @@ repos:
     rev: master
     hooks:
     -   id: trailing-whitespace
--   repo: https://gitlab.com/pycqa/flake8
-    rev: master
-    hooks:
-    -   id: flake8
-        args: [--max-line-length=80]
 -   repo: https://github.com/psf/black
     rev: master
     hooks:
     -   id: black
         language_version: python3.6
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: master
+    hooks:
+    -   id: flake8
+        args: [--max-line-length=80]
