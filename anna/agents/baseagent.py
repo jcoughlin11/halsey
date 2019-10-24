@@ -11,7 +11,7 @@ import anna
 # ============================================
 class BaseAgent:
     """
-    Doc string. 
+    Doc string.
 
     Attributes:
     -----------
@@ -42,7 +42,7 @@ class BaseAgent:
             pass
         """
         # Instantiate the ioManager object
-        self.ioManager = anna.nnio.manager.IoManager()
+        self.ioManager = anna.io.manager.IoManager()
         # Parse the command-line arguments
         clArgs = self.ioManager.reader.parse_cl_args()
         # Read in the parameter file
