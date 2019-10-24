@@ -1,15 +1,15 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: master 
+    rev: master
     hooks:
     -   id: trailing-whitespace
 -   repo: https://gitlab.com/pycqa/flake8
-    rev: master 
+    rev: master
     hooks:
     -   id: flake8
         args: [--max-line-length=80]
 -   repo: https://github.com/psf/black
-    rev: master 
+    rev: master
     hooks:
     -   id: black
         language_version: python3.6
