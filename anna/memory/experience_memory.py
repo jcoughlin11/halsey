@@ -4,6 +4,9 @@ Purpose: Contains the object that holds and manages the vanilla
             Q-learning experience buffer.
 Notes:
 """
+import collections
+
+import numpy as np
 
 
 # ============================================
@@ -63,13 +66,13 @@ class ExperienceMemory:
 
         Returns:
         --------
-            pass 
+            pass
         """
         # Reset the environment
         navigator.reset()
         # Loop over the desired number of sample experiences
         for i in range(self.pretrainLen):
-            experience = navigator.transition(mode='random')
+            experience = navigator.transition(mode="random")
             # Add experience to memory
             self.add(experience)
 
@@ -125,10 +128,12 @@ class ExperienceMemory:
         # will complain
         try:
             indices = np.random.choice(
-                np.arange(len(self.buffer)), size=batch_size, replace=False
+                np.arange(len(self.buffer)), size=batchSize, replace=False
             )
         except ValueError:
             raise (
                 "Error, need batch_size < buf_size when sampling from memory!"
             )
-        return [self.buffer[i] for i in indices]
+        # return STATES, NEXTSTATES, DONES, etc. processed. See the learn()
+        # return [self.buffer[i] for i in indices]
+        assert False

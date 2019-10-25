@@ -3,6 +3,7 @@ Title: qbrain.py
 Purpose: Contains the base Brain class for Q-learning techniques.
 Notes:
 """
+import anna
 
 
 # ============================================
@@ -45,7 +46,7 @@ class QBrain:
         self.inputShape = inputShape
         self.nActions = nActions
         self.learningRate = networkParams.learningRate
-        self.discountRate = retworkParams.discountRate
+        self.discountRate = networkParams.discountRate
         self.optimizerName = networkParams.optimizer
         self.lossName = networkParams.loss
         self.qNet = None

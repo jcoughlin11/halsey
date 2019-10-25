@@ -3,6 +3,8 @@ Title: utils.py
 Purpose: Contains functions related to creating a new memory object.
 Notes:
 """
+from anna.memory.episode_memory import EpisodeMemory
+from anna.memory.experience_memory import ExperienceMemory
 
 
 # ============================================

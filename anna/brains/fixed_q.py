@@ -4,6 +4,11 @@ Purpose: Contains the brain class for learning via the fixed-Q
             technique.
 Notes:
 """
+import numpy as np
+import tensorflow as tf
+
+import anna
+from anna.brains.qbrain import QBrain
 
 
 # ============================================
@@ -109,7 +114,8 @@ class FixedQBrain(QBrain):
         loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=isWeights
         )
-        return STUFF
+        assert False
+        # return STUFF
 
     # -----
     # update

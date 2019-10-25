@@ -4,6 +4,10 @@ Purpose: Contains the brain class for learning via the double-DQN
             technique.
 Notes:
 """
+import numpy as np
+import tensorflow as tf
+
+from anna.brains.fixed_q import FixedQBrain
 
 
 # ============================================
@@ -60,7 +64,7 @@ class DoubleDqnBrain(FixedQBrain):
         As such, double dqn separates out the estimate of the Q value
         and the determination of the best action to take at the next
         state.
-        
+
         We use our primary network to choose an action for the
         next state and then pass that action to our target network,
         which handles calculating the target Q value.
@@ -111,4 +115,5 @@ class DoubleDqnBrain(FixedQBrain):
         loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=isWeights
         )
-        return STUFF
+        assert False
+        # return STUFF

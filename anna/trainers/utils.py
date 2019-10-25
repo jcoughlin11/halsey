@@ -3,6 +3,7 @@ Title: utils.py
 Purpose: Contains methods related to setting up a new trainer object.
 Notes:
 """
+from anna.trainers.qtrainer import QTrainer
 
 
 # ============================================

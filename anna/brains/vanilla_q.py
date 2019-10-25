@@ -3,6 +3,10 @@ Title: vanillaq.py
 Purpose: Contains the VanillaQBrain class.
 Notes:
 """
+import numpy as np
+import tensorflow as tf
+
+from anna.brains.qbrain import QBrain
 
 
 # ============================================
@@ -70,9 +74,9 @@ class VanillaQBrain(QBrain):
 
         See Mnih13 algorithm 1 for the calculation of qTarget.
         See https://keon.io/deep-q-learning/ for implementation logic.
-        
+
         Note: The way OpenAI baselines does this is better.
-        
+
         Parameters:
         -----------
             pass
@@ -117,7 +121,8 @@ class VanillaQBrain(QBrain):
         loss = self.qNet.model.train_on_batch(
             states, qTarget, sample_weight=isWeights
         )
-        return STUFF
+        assert False
+        # return STUFF
 
         # -----
         # update

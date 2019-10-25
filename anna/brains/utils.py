@@ -3,6 +3,9 @@ Title:   utils.py
 Purpose: Contains functions related to creating a new brain object.
 Notes:
 """
+from anna.brains.double_dqn import DoubleDqnBrain
+from anna.brains.fixed_q import FixedQBrain
+from anna.brains.vanilla_q import VanillaQBrain
 
 
 # ============================================

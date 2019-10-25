@@ -3,6 +3,7 @@ Title:   qtrainer.py
 Purpose: Contains the QTrainer class.
 Notes:
 """
+import anna
 
 
 # ============================================
@@ -101,4 +102,4 @@ class QTrainer:
                 yield brain, memory, navigator
         # If we get here, we're done
         self.doneTraining = True
-        return brain, memory, navigator 
+        return brain, memory, navigator
