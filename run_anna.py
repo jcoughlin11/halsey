@@ -3,6 +3,8 @@ Title:   run_anna.py
 Purpose: Primary driver for using ANNA
 Notes:
 """
+import sys
+
 import anna
 
 
@@ -30,7 +32,8 @@ def main():
     agent = anna.agents.qagent.Agent()
     # Train, if applicable
     if agent.trainingEnabled:
-        agent.train()
+        if not agent.train():
+            sys.exit()
     # Test, if applicable
     if agent.testingEnabled:
         agent.test()

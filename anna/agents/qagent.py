@@ -94,7 +94,7 @@ class QAgent(BaseAgent):
         # Save a copy of the parameter file
         self.ioManager.writer.save_param_file(self.relay)
         # Clean up (close env, files, etc)
-        self.cleanup()
+        navigator.env.close()
         # If early stopping, exit
         if trainer.earlyStop:
             return False
