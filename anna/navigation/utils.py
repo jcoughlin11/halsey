@@ -4,6 +4,8 @@ Purpose: Contains helper functions relating to setting up and going
             through the game world.
 Notes:
 """
+import anna
+from anna.navigation.framebyframe import FrameByFrameNavigator
 
 
 # ============================================

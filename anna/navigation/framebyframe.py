@@ -3,6 +3,8 @@ Title: framebyframe.py
 Purpose: Class for stepping through the game world one frame at a time.
 Notes:
 """
+from anna.navigation.basenavigator import BaseNavigator
+from anna.utils.experience import Experience
 
 
 # ============================================
@@ -24,7 +26,7 @@ class FrameByFrameNavigator(BaseNavigator):
     # -----
     # constructor
     # -----
-    def __init__(self, env, navParams, frameManger, actionManager):
+    def __init__(self, env, navParams, frameManager, actionManager):
         """
         Doc string.
 
@@ -42,10 +44,10 @@ class FrameByFrameNavigator(BaseNavigator):
         """
         super().__init__(env, navParams, frameManager, actionManager)
 
-    #-----
+    # -----
     # transition
-    #-----
-    def transition(self, brain=None, mode='train'):
+    # -----
+    def transition(self, brain=None, mode="train"):
         """
         Doc string.
 
@@ -68,5 +70,5 @@ class FrameByFrameNavigator(BaseNavigator):
         # Process the next state
         nextState = self.frameManager.process_frame(nextState)
         # Package up the experience
-        experience = Experience(state, action, reward, nextState, done)
+        experience = Experience(self.state, action, reward, nextState, done)
         return experience
