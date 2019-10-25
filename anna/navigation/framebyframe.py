@@ -64,7 +64,7 @@ class FrameByFrameNavigator(BaseNavigator):
             pass
         """
         # Choose an action
-        action = self.actionManager.choose(self.state, brain, mode)
+        action = self.actionManager.choose(self.state, self.env, brain, mode)
         # Take the action
         nextState, reward, done, _ = self.env.step(action)
         # Process the next state
