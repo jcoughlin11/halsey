@@ -4,7 +4,7 @@ run:
     envName   : SpaceInvaders-v0
     train     : True
     test      : False
-    render    : True 
+    render    : True
     plot      : False
     timeLimit : 30
 
@@ -28,7 +28,7 @@ training:
     savePeriod : 5
 
 
-# Network parameters 
+# Network parameters
 #-------------
 network:
     architecture    : dueling1
@@ -67,18 +67,20 @@ memory:
 # Exploration parameters
 #------------------------
 explore:
-    epsilonGreedy:
-        enable       : True
-        epsDecayRate : 0.00001
-        epsilonStart : 1.0
-        epsilonStop  : 0.01
+    mode:
+        epsilonGreedy:
+            enable       : True
+            epsDecayRate : 0.00001
+            epsilonStart : 1.0
+            epsilonStop  : 0.01
 
 
 # Navigation parameters
 #----------------------
 navigation:
     mode:
-        frameByFrame: True
+        frameByFrame:
+            enable: True
 
 
 # Frame preprocessing parameters
