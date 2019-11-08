@@ -129,6 +129,33 @@ def dict_to_class(cls, d):
 
 
 # ============================================
+#              class_to_dict
+# ============================================
+def class_to_dict(cls, d):
+    """
+    Doc string.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    for k, v in cls.__dict__.items():
+        if isinstance(v, Relay):
+            d.update({k: class_to_dict(v, {})})
+        else:
+            d.update({k: v})
+    return d
+
+
+# ============================================
 #               get_new_relay
 # ============================================
 def get_new_relay(clArgs, params):
