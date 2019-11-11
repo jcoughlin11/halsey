@@ -49,8 +49,6 @@ class BaseAgent:
         params = self.ioManager.reader.read_param_file(
             clArgs.paramFile, clArgs.continueTraining
         )
-        # Validate command-line args and params
-        anna.utils.validation.validate_params(clArgs, params)
         # Build messenger object
         self.relay = anna.utils.relay.get_new_relay(clArgs, params)
         # Set the relevant io params
