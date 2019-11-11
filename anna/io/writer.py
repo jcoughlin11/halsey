@@ -7,6 +7,7 @@ import os
 import pickle
 from collections import deque
 
+import h5py
 import numpy as np
 import tensorflow as tf
 import yaml
@@ -289,12 +290,57 @@ class Writer:
         --------
             pass
         """
-        ard = np.zeros(size=(3, len(buf)), dtype=float)
-        for i in range(len(buf)):
-            exp = buf.popleft()
-            ard[0][i] = float(exp.action)
-            ard[1][i] = float(exp.reward)
-            ard[2][i] = float(exp.done)
+        # Create hdf5 file
+        with h5py.File(os.path.join(dirName, "memory_buffer.h5"), "w") as h5f:
+            # Create the empty datasets to store the memory components in
+            # a group named after the memory type. This makes reading the
+            # data back in easier because type(memBuffer) can be identified
+            # without passing any flags
+            nSamples = len(buf)
+            stateShape = list(nSamples) + list(buf[0].state.shape)
+            g = h5f.create_group("experience_memory")
+            g.create_dataset(
+                "states",
+                shape=stateShape,
+                compression="gzip",
+                compression_opts=4,
+                dtype=np.float,
+            )
+            g.create_dataset(
+                "actions",
+                shape=(nSamples,),
+                compression="gzip",
+                compression_opts=4,
+                dtype=np.int,
+            )
+            g.create_dataset(
+                "rewards",
+                shape=(nSamples,),
+                compression="gzip",
+                compression_opts=4,
+                dtype=np.float,
+            )
+            g.create_dataset(
+                "next_states",
+                shape=stateShape,
+                compression="gzip",
+                compression_opts=4,
+                dtype=np.float,
+            )
+            g.create_dataset(
+                "dones",
+                shape=(nSamples,),
+                compression="gzip",
+                compression_opts=4,
+                dtype=np.int,
+            )
+            # Loop over each sample in the buffer
+            for i, exp in enumerate(buf):
+                g["states"][i] = exp.state
+                g["actions"][i] = exp.action
+                g["rewards"][i] = exp.reward
+                g["next_states"][i] = exp.nextState
+                g["dones"][i] = exp.done
 
     # -----
     # save_param_file
