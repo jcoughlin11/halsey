@@ -21,3 +21,18 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.poetry]
+name = 'anna'
+version = '0.1.0'
+description = ''
+authors = ['Jared Coughlin']
+
+[tool.poetry.dependencies]
+python = '^3.6'
+numpy = "^1.17"
+pyyaml = "^5.1"
+scikit-image = "^0.16.2"
+h5py = "^2.10"
+gym = "^0.15.4"
+atari_py = "^0.2.6"
