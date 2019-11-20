@@ -29,7 +29,7 @@ def main():
         pass
     """
     # Set up the agent
-    agent = anna.agents.qagent.Agent()
+    agent = anna.agents.qagent.QAgent()
     # Train, if applicable
     if agent.trainingEnabled:
         if not agent.train():
