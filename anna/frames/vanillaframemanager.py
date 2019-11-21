@@ -6,7 +6,8 @@ Notes:
 import collections
 
 import numpy as np
-import skimage
+from skimage import color
+from skimage import transform
 
 
 # ============================================
@@ -109,14 +110,14 @@ class VanillaFrameManager:
             pass
         """
         # Grayscale the image
-        greyFrame = skimage.color.rgb2grey(frame)
+        greyFrame = color.rgb2grey(frame)
         # Crop the image b/c we don't need blank space or things on the
         # screen that aren't game objects
         croppedFrame = self.crop_frame(greyFrame)
         # Normalize the image
         normFrame = self.norm_frame(croppedFrame)
         # To reduce the computational complexity, we can shrink the image
-        shrunkFrame = skimage.transform.resize(
+        shrunkFrame = transform.resize(
             normFrame, [self.shrinkRows, self.shrinkCols]
         )
         return shrunkFrame
@@ -157,24 +158,24 @@ class VanillaFrameManager:
             raise ValueError
         return croppedFrame
 
-        # -----
-        # norm_frame
-        # -----
-        def norm_frame(self, frame):
-            """
-            Doc string.
+    # -----
+    # norm_frame
+    # -----
+    def norm_frame(self, frame):
+        """
+        Doc string.
 
-            Parameters:
-            -----------
-                pass
+        Parameters:
+        -----------
+            pass
 
-            Raises:
-            -------
-                pass
+        Raises:
+        -------
+            pass
 
-            Returns:
-            --------
-                pass
-            """
-            frame = frame / 255.0
-            return frame
+        Returns:
+        --------
+            pass
+        """
+        frame = frame / 255.0
+        return frame
