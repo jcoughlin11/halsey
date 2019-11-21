@@ -33,6 +33,7 @@ def build_conv1_net(inputShape, nActions):
     model.add(
         tf.keras.layers.Conv2D(
             input_shape=inputShape,
+            data_format="channels_first",
             filters=16,
             kernel_size=[8, 8],
             strides=[4, 4],

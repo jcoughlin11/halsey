@@ -44,6 +44,7 @@ def build_dueling1_net(inputShape, nActions):
     inputLayer = tf.keras.layers.Input(shape=inputShape, name="input")
     # First convolutional layer
     conv1Layer = tf.keras.layers.Conv2D(
+        data_format="channels_first",
         filters=16,
         kernel_size=[8, 8],
         strides=[4, 4],
