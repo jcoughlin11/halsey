@@ -3,6 +3,7 @@ Title: rnn1.py
 Purpose: Contains the rnn1 network architecture.
 Notes:
 """
+import tensorflow as tf
 
 
 # ============================================

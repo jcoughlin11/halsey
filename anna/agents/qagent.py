@@ -69,20 +69,18 @@ class QAgent(BaseAgent):
         # Otherwise, instantiate new objects
         else:
             navigator = anna.navigation.utils.get_new_navigator(
-                self.relay.runParams.envName,
-                self.relay.navParams,
-                self.relay.exploreParams,
-                self.relay.frameParams,
+                self.relay.run.envName,
+                self.relay.navigation,
+                self.relay.explore,
+                self.relay.frame,
             )
             brain = anna.brains.utils.get_new_brain(
-                self.relay.networkParams,
-                navigator.env.action_space.n_actions,
+                self.relay.network,
+                navigator.env.action_space.n,
                 navigator.frameManager.inputShape,
             )
-            memory = anna.memory.utils.get_new_memory(self.relay.memoryParams)
-            trainer = anna.trainers.utils.get_new_trainer(
-                self.relay.trainParams
-            )
+            memory = anna.memory.utils.get_new_memory(self.relay.memory)
+            trainer = anna.trainers.utils.get_new_trainer(self.relay.training)
             memory.pre_populate(navigator)
             navigator.reset()
         # Training loop

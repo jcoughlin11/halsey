@@ -46,7 +46,7 @@ class QBrain:
         self.inputShape = inputShape
         self.nActions = nActions
         self.learningRate = networkParams.learningRate
-        self.discountRate = networkParams.discountRate
+        self.discountRate = networkParams.discount
         self.optimizerName = networkParams.optimizer
         self.lossName = networkParams.loss
         self.qNet = None

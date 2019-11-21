@@ -1,7 +1,7 @@
 # Run-time parameters
 #--------------------
 run:
-    envName   : SpaceInvaders-v0
+    envName   : SpaceInvaders-v4
     train     : True
     test      : False
     render    : True
@@ -22,16 +22,16 @@ training:
     mode:
         qtrainer:
             enable: True
-    nEpisodes  : 50
+    nEpisodes  : 1
     maxEpisodeSteps : 50000
     batchSize       : 64
-    savePeriod : 5
+    savePeriod : 1
 
 
 # Network parameters
 #-------------
 network:
-    architecture    : dueling1
+    architecture    : conv1
     discount        : 0.9
     learningRate    : 0.00025
     loss            : mse

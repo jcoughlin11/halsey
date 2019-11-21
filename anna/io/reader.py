@@ -69,10 +69,11 @@ class Reader:
         """
         # Set up the parser
         parser = argparse.ArgumentParser()
-        # Parameter file
+        # Parameter file (if -- is not a prefix to the option name then
+        # argparse assumes it's a positional argument and therefore
+        # required by default
         parser.add_argument(
             "paramFile",
-            required=True,
             help="The name of the yaml file containing parameters for the run.",
         )
         # Training continuation flag
@@ -110,7 +111,7 @@ class Reader:
         # Read the file
         paramFile = os.path.abspath(os.path.expanduser(paramFile))
         with open(paramFile, "r") as f:
-            params = yaml.load(f)
+            params = yaml.load(f, Loader=yaml.Loader)
         # If continuing training, read the saved copy of the original
         # parameter file. This guards against changes made to passed-in
         # version since the original run

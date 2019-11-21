@@ -3,6 +3,11 @@ Title: utils.py
 Purpose: Contains functions used in building the desired network.
 Notes:
 """
+import tensorflow as tf
+
+from . import conv1
+from . import dueling1
+from . import rnn1
 
 
 # ============================================
@@ -28,11 +33,11 @@ def build_network(
     """
     # Set up network architecture
     if arch == "conv1":
-        net = build_conv1_net(inputShape, nActions)
+        net = conv1.build_conv1_net(inputShape, nActions)
     elif arch == "dueling1":
-        net = build_dueling1_net(inputShape, nActions)
+        net = dueling1.build_dueling1_net(inputShape, nActions)
     elif arch == "rnn1":
-        net = build_rnn1_net(inputShape, nActions)
+        net = rnn1.build_rnn1_net(inputShape, nActions)
     # Set the optimizer and loss functions appropriately
     optimizer = set_optimizer(optimizerName, learningRate)
     loss = set_loss(lossName)

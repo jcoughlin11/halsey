@@ -3,6 +3,8 @@ Title: dueling1.py
 Purpose: Contains the dueling1 network architecture.
 Notes:
 """
+import tensorflow as tf
+import tensorflow.keras.backend as K
 
 
 # ============================================

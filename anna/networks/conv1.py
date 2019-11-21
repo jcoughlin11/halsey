@@ -3,6 +3,7 @@ Title:   conv1.py
 Purpose: Contains the conv1 network architecture.
 Notes:
 """
+import tensorflow as tf
 
 
 # ============================================

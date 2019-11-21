@@ -52,7 +52,7 @@ class BaseAgent:
         # Build messenger object
         self.relay = anna.utils.relay.get_new_relay(clArgs, params)
         # Set the relevant io params
-        self.ioManager.set_params(self.relay.ioParams)
+        self.ioManager.set_params(self.relay.io)
 
     # -----
     # trainingEnabled
@@ -74,7 +74,7 @@ class BaseAgent:
         --------
             pass
         """
-        return self.relay.runParams.train
+        return self.relay.run.train
 
     # -----
     # testingEnabled
@@ -96,4 +96,4 @@ class BaseAgent:
         --------
             pass
         """
-        return self.relay.runParams.test
+        return self.relay.run.test
