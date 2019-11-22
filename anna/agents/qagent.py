@@ -80,7 +80,9 @@ class QAgent(BaseAgent):
                 navigator.frameManager.inputShape,
             )
             memory = anna.memory.utils.get_new_memory(self.relay.memory)
-            trainer = anna.trainers.utils.get_new_trainer(self.relay.training)
+            trainer = anna.trainers.utils.get_new_trainer(
+                self.relay.training, self.relay.run.timeLimit
+            )
             memory.pre_populate(navigator)
             navigator.reset()
         # Training loop
