@@ -18,7 +18,7 @@ class Experience:
         pass
     """
 
-    def __init__(self):
+    def __init__(self, state, action, reward, nextState, done):
         """
         Doc string.
 
@@ -34,4 +34,8 @@ class Experience:
         --------
             pass
         """
-        pass
+        self.state = state
+        self.action = action
+        self.reward = reward
+        self.nextState = nextState
+        self.done = done
