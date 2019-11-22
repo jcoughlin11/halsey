@@ -90,11 +90,20 @@ class VanillaQBrain(QBrain):
         # Get sample of experiences
         states, actions, rewards, nextStates, dones = memory.sample(batchSize)
         # Get network's current guesses for Q values
-        qPred = self.qNet.model.predict_on_batch(states)
+        # NOTE: The cpu version of tf2 does not support the NCHW format
+        # (batchSize, channels, height, width), so the use of
+        # data_format = "channels_first" when building the network
+        # doesn't work on the cpu. It has to be NHWC. To tell which
+        # version of tf is being used (gpu or not), use:
+        # tf.test.is_built_with_gpu_support(). If this is False, the
+        # data foramt needs to be "channels_last" and the input shape
+        # needs to be changed to that foramt. This is unspeakably
+        # irksome.
+        qPred = self.qNet.predict_on_batch(states)
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate
         # of Q-target
-        qNext = self.qNet.model.predict_on_batch(nextStates)
+        qNext = self.qNet.predict_on_batch(nextStates)
         # Update only the entry for the current state-action pair in the
         # vector of Q-values that corresponds to the chosen action. For
         # a terminal state it's just the reward, and otherwise we use
@@ -118,7 +127,7 @@ class VanillaQBrain(QBrain):
         # for each experience is just a float, not a sequence
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.model.train_on_batch(
+        loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=isWeights
         )
         assert False
