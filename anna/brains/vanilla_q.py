@@ -50,7 +50,7 @@ class VanillaQBrain(QBrain):
     # -----
     # learn
     # -----
-    def learn(self, memory):
+    def learn(self, memory, batchSize):
         """
         The estimates of the max discounted future rewards (qTarget) are
         the "labels" assigned to the input states.
@@ -88,7 +88,7 @@ class VanillaQBrain(QBrain):
             pass
         """
         # Get sample of experiences
-        states, actions, rewards, nextStates, dones = memory.sample()
+        states, actions, rewards, nextStates, dones = memory.sample(batchSize)
         # Get network's current guesses for Q values
         qPred = self.qNet.model.predict_on_batch(states)
         # Get qNext: estimate of best trajectory obtained by playing
