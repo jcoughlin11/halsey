@@ -9,7 +9,7 @@ from anna.trainers.qtrainer import QTrainer
 # ============================================
 #              get_new_trainer
 # ============================================
-def get_new_trainer(trainParams):
+def get_new_trainer(trainParams, timeLimit):
     """
     Doc string.
 
@@ -26,5 +26,5 @@ def get_new_trainer(trainParams):
         pass
     """
     if trainParams.mode == "qtrainer":
-        trainer = QTrainer(trainParams)
+        trainer = QTrainer(trainParams, timeLimit)
     return trainer
