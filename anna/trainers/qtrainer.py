@@ -3,6 +3,8 @@ Title:   qtrainer.py
 Purpose: Contains the QTrainer class.
 Notes:
 """
+import time
+
 import anna
 
 
@@ -26,7 +28,7 @@ class QTrainer:
     # -----
     # constructor
     # -----
-    def __init__(self, trainParams):
+    def __init__(self, trainParams, timeLimit):
         """
         Doc string.
 
@@ -46,6 +48,7 @@ class QTrainer:
         self.maxEpisodeSteps = trainParams.maxEpisodeSteps
         self.batchSize = trainParams.batchSize
         self.savePeriod = trainParams.savePeriod
+        self.timeLimit = timeLimit
         self.episode = 0
         self.startEpisode = 0
         self.earlyStop = False
@@ -71,12 +74,16 @@ class QTrainer:
         --------
             pass
         """
+        # Get the start time
+        startTime = time.time()
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
             # Loop over the max number of steps allowed per episode
             for self.episodeStep in range(self.maxEpisodeSteps):
                 # Check for early stopping
-                self.earlyStop = anna.utils.endrun.check_early_stop()
+                self.earlyStop = anna.utils.endrun.check_early_stop(
+                    startTime, self.timeLimit
+                )
                 if self.earlyStop:
                     break
                 # Transition to next state
