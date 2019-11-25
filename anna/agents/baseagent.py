@@ -3,6 +3,8 @@ Title:   baseagent.py
 Purpose: Contains the BaseAgent class.
 Notes:
 """
+import tensorflow as tf
+
 import anna
 
 
@@ -53,6 +55,16 @@ class BaseAgent:
         self.relay = anna.utils.relay.get_new_relay(clArgs, params)
         # Set the relevant io params
         self.ioManager.set_params(self.relay.io)
+        # Set input shape format
+        # NOTE: tf does not support the NCHW inputShape format on cpu,
+        # but performance is better with channels first on gpu. Also, RNNs
+        # require channels first. Cpu needs NHWC
+        arch = self.relay.network.architecture
+        if not tf.test.is_built_with_gpu_support() and not arch == "rnn1":
+            channelsFirst = False
+        else:
+            channelsFirst = True
+        setattr(self.relay.frame, "channelsFirst", channelsFirst)
 
     # -----
     # trainingEnabled
