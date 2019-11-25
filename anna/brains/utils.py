@@ -11,7 +11,7 @@ from anna.brains.vanilla_q import VanillaQBrain
 # ============================================
 #               get_new_brain
 # ============================================
-def get_new_brain(networkParams, nActions, inputShape):
+def get_new_brain(networkParams, nActions, frameManager):
     """
     Doc string.
 
@@ -28,9 +28,9 @@ def get_new_brain(networkParams, nActions, inputShape):
         pass
     """
     if networkParams.mode == "vanillaQ":
-        brain = VanillaQBrain(networkParams, nActions, inputShape)
+        brain = VanillaQBrain(networkParams, nActions, frameManager)
     elif networkParams.mode == "fixedQ":
-        brain = FixedQBrain(networkParams, nActions, inputShape)
+        brain = FixedQBrain(networkParams, nActions, frameManager)
     elif networkParams.mode == "doubleDqn":
-        brain = DoubleDqnBrain(networkParams, nActions, inputShape)
+        brain = DoubleDqnBrain(networkParams, nActions, frameManager)
     return brain

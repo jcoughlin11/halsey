@@ -29,7 +29,7 @@ class DoubleDqnBrain(FixedQBrain):
     # -----
     # constructor
     # -----
-    def __init__(self, networkParams, nActions, inputShape):
+    def __init__(self, networkParams, nActions, frameManager):
         """
         Doc string.
 
@@ -46,7 +46,7 @@ class DoubleDqnBrain(FixedQBrain):
             pass
         """
         # Call parent's constructor
-        super().__init__(networkParams, nActions, inputShape)
+        super().__init__(networkParams, nActions, frameManager)
 
     # -----
     # learn

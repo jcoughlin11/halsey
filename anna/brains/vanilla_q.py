@@ -28,7 +28,7 @@ class VanillaQBrain(QBrain):
     # -----
     # constructor
     # -----
-    def __init__(self, networkParams, nActions, inputShape):
+    def __init__(self, networkParams, nActions, frameManager):
         """
         Doc string.
 
@@ -45,7 +45,7 @@ class VanillaQBrain(QBrain):
             pass
         """
         # Call parent's constructor
-        super().__init__(networkParams, nActions, inputShape)
+        super().__init__(networkParams, nActions, frameManager)
 
     # -----
     # learn
@@ -90,15 +90,9 @@ class VanillaQBrain(QBrain):
         # Get sample of experiences
         states, actions, rewards, nextStates, dones = memory.sample(batchSize)
         # Get network's current guesses for Q values
-        # NOTE: The cpu version of tf2 does not support the NCHW format
-        # (batchSize, channels, height, width), so the use of
-        # data_format = "channels_first" when building the network
-        # doesn't work on the cpu. It has to be NHWC. To tell which
-        # version of tf is being used (gpu or not), use:
-        # tf.test.is_built_with_gpu_support(). If this is False, the
-        # data foramt needs to be "channels_last" and the input shape
-        # needs to be changed to that foramt. This is unspeakably
-        # irksome.
+        import pdb
+
+        pdb.set_trace()
         qPred = self.qNet.predict_on_batch(states)
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate

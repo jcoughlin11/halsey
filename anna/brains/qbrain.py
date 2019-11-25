@@ -25,7 +25,7 @@ class QBrain:
     # -----
     # constructor
     # -----
-    def __init__(self, networkParams, nActions, inputShape):
+    def __init__(self, networkParams, nActions, frameManager):
         """
         Doc string.
 
@@ -43,7 +43,8 @@ class QBrain:
         """
         # Initialize attributes
         self.arch = networkParams.architecture
-        self.inputShape = inputShape
+        self.inputShape = frameManager.inputShape
+        self.channelsFirst = frameManager.channelsFirst
         self.nActions = nActions
         self.learningRate = networkParams.learningRate
         self.discountRate = networkParams.discount
@@ -54,6 +55,7 @@ class QBrain:
         self.qNet = anna.networks.utils.build_network(
             self.arch,
             self.inputShape,
+            self.channelsFirst,
             self.nActions,
             self.optimizerName,
             self.lossName,
