@@ -9,44 +9,47 @@ import tensorflow as tf
 # ============================================
 #              build_rnn1_net
 # ============================================
-def build_rnn1_net(inputShape, nActions):
+def build_rnn1_net(inputShape, channelsFirst, nActions):
     """
-        Architecture for Recurrent Deep Q-Learning, from Hausknecht et
-        al. 2017.
+    Architecture for Recurrent Deep Q-Learning, from Hausknecht et
+    al. 2017.
 
-        See: https://www.tensorflow.org/beta/guide/keras/rnn
+    See: https://www.tensorflow.org/beta/guide/keras/rnn
 
-        and: https://tinyurl.com/y5g4f9hn (input and output shape for
-            LSTMs)
+    and: https://tinyurl.com/y5g4f9hn (input and output shape for
+        LSTMs)
 
-        and: https://tinyurl.com/y28llddb (CNN LSTM,
-            https://arxiv.org/abs/1411.4389)
+    and: https://tinyurl.com/y28llddb (CNN LSTM,
+        https://arxiv.org/abs/1411.4389)
 
-        and: https://tinyurl.com/y28tkxak (how to use TimeDistributed)
+    and: https://tinyurl.com/y28tkxak (how to use TimeDistributed)
 
-        The input shape to an LSTM needs to be:
-        (batchSize, nTimeSteps, nFeatures). A CNN, though doesn't care
-        about time, just space, so it's shape is:
-        (batchSize, nFeaturesDim1, ...)
+    The input shape to an LSTM needs to be:
+    (batchSize, nTimeSteps, nFeatures). A CNN, though doesn't care
+    about time, just space, so it's shape is:
+    (batchSize, nFeaturesDim1, ...)
 
-        The way that the convolutional layers are applied to every
-        time-step is to use the TimeDistributed layer. We pass the
-        normal spatial shape to the CNN layer and then pass nTimeSteps
-        to the wrapping TimeDistributed layer. All of this is then
-        passed normally to the LSTM layer(s).
+    The way that the convolutional layers are applied to every
+    time-step is to use the TimeDistributed layer. We pass the
+    normal spatial shape to the CNN layer and then pass nTimeSteps
+    to the wrapping TimeDistributed layer. All of this is then
+    passed normally to the LSTM layer(s).
 
-        Parameters:
-        -----------
-            pass
+    Parameters:
+    -----------
+        pass
 
-        Raises:
-        -------
-            pass
+    Raises:
+    -------
+        pass
 
-        Returns:
-        --------
-            pass
-        """
+    Returns:
+    --------
+        pass
+    """
+    # Data format
+    if not channelsFirst:
+        raise ValueError
     # Initialize empty model
     model = tf.keras.models.Sequential()
     # First convolutional layer. Here, inputShape should be

@@ -10,41 +10,46 @@ import tensorflow.keras.backend as K
 # ============================================
 #            build_dueling1_net
 # ============================================
-def build_dueling1_net(inputShape, nActions):
+def build_dueling1_net(inputShape, channelsFirst, nActions):
     """
-        Uses the keras functional API to build the dueling DQN given in
-        Wang et al. 2016.
+    Uses the keras functional API to build the dueling DQN given in
+    Wang et al. 2016.
 
-        The basic idea is that calculating a Q value provides an
-        estimate how how good a certain action is in a given state.
-        However, it provides no information whatsoever on whether or not
-        it is desirable to be in that state in the first place.
+    The basic idea is that calculating a Q value provides an
+    estimate how how good a certain action is in a given state.
+    However, it provides no information whatsoever on whether or not
+    it is desirable to be in that state in the first place.
 
-        Dueling DQN solves this by separating Q = V + A, where V is the
-        value stream and it estimates how desirable being in the
-        current state is. A is the advantage stream, and it estimates
-        the quality of each action for the state.
+    Dueling DQN solves this by separating Q = V + A, where V is the
+    value stream and it estimates how desirable being in the
+    current state is. A is the advantage stream, and it estimates
+    the quality of each action for the state.
 
-        Also see:
-        https://keras.io/getting-started/functional-api-guide/
+    Also see:
+    https://keras.io/getting-started/functional-api-guide/
 
-        Parameters:
-        -----------
-            pass
+    Parameters:
+    -----------
+        pass
 
-        Raises:
-        -------
-            pass
+    Raises:
+    -------
+        pass
 
-        Returns:
-        --------
-            pass
-        """
+    Returns:
+    --------
+        pass
+    """
+    # Data format
+    if channelsFirst:
+        dataFormat = "channels_first"
+    else:
+        dataFormat = "channels_last"
     # Input layer
     inputLayer = tf.keras.layers.Input(shape=inputShape, name="input")
     # First convolutional layer
     conv1Layer = tf.keras.layers.Conv2D(
-        data_format="channels_first",
+        data_format=dataFormat,
         filters=16,
         kernel_size=[8, 8],
         strides=[4, 4],

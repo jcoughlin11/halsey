@@ -14,7 +14,13 @@ from . import rnn1
 #               build_network
 # ============================================
 def build_network(
-    arch, inputShape, nActions, optimizerName, lossName, learningRate
+    arch,
+    inputShape,
+    channelsFirst,
+    nActions,
+    optimizerName,
+    lossName,
+    learningRate,
 ):
     """
     Doc string.
@@ -33,11 +39,11 @@ def build_network(
     """
     # Set up network architecture
     if arch == "conv1":
-        net = conv1.build_conv1_net(inputShape, nActions)
+        net = conv1.build_conv1_net(inputShape, channelsFirst, nActions)
     elif arch == "dueling1":
-        net = dueling1.build_dueling1_net(inputShape, nActions)
+        net = dueling1.build_dueling1_net(inputShape, channelsFirst, nActions)
     elif arch == "rnn1":
-        net = rnn1.build_rnn1_net(inputShape, nActions)
+        net = rnn1.build_rnn1_net(inputShape, channelsFirst, nActions)
     # Set the optimizer and loss functions appropriately
     optimizer = set_optimizer(optimizerName, learningRate)
     loss = set_loss(lossName)

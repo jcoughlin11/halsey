@@ -9,7 +9,7 @@ import tensorflow as tf
 # ============================================
 #              build_conv1_net
 # ============================================
-def build_conv1_net(inputShape, nActions):
+def build_conv1_net(inputShape, channelsFirst, nActions):
     """
     Constructs the layers of the network. Uses two convolutional
     layers followed by a FC and then output layer. See the last
@@ -27,13 +27,18 @@ def build_conv1_net(inputShape, nActions):
     --------
         pass
     """
+    # Set the data format
+    if channelsFirst:
+        dataFormat = "channels_first"
+    else:
+        dataFormat = "channels_last"
     # Initialize empty model
     model = tf.keras.Sequential()
     # First convolutional layer
     model.add(
         tf.keras.layers.Conv2D(
             input_shape=inputShape,
-            data_format="channels_first",
+            data_format=dataFormat,
             filters=16,
             kernel_size=[8, 8],
             strides=[4, 4],
