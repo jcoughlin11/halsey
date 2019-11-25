@@ -52,8 +52,12 @@ class VanillaFrameManager:
         self.shrinkCols = frameParams.shrinkCols
         self.shrinkRows = frameParams.shrinkRows
         self.traceLen = frameParams.traceLen
+        self.channelsFirst = frameParams.channelsFirst
         self.frameStack = None
-        self.inputShape = [self.traceLen, self.shrinkRows, self.shrinkCols]
+        if self.channelsFirst:
+            self.inputShape = [self.traceLen, self.shrinkRows, self.shrinkCols]
+        else:
+            self.inputShape = [self.shrinkRows, self.shrinkCols, self.traceLen]
 
     # -----
     # process_frame
@@ -86,8 +90,12 @@ class VanillaFrameManager:
         else:
             self.frameStack.append(preprocessedFrame)
         # Create the tensorial version of the stack. Using axis=0 makes
-        # an array with shape (traceLen, shrinkRows, shrinkCols)
-        stackedFrame = np.stack(self.frameStack, axis=0)
+        # an array with shape (traceLen, shrinkRows, shrinkCols) and
+        # axis=2 gives (shrinkRows, shrinkCols, traceLen)
+        if self.channelsFirst:
+            stackedFrame = np.stack(self.frameStack, axis=0)
+        else:
+            stackedFrame = np.stack(self.frameStack, axis=2)
         return stackedFrame
 
     # -----
