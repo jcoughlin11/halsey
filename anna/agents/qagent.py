@@ -77,7 +77,7 @@ class QAgent(BaseAgent):
             brain = anna.brains.utils.get_new_brain(
                 self.relay.network,
                 navigator.env.action_space.n,
-                navigator.frameManager.inputShape,
+                navigator.frameManager,
             )
             memory = anna.memory.utils.get_new_memory(self.relay.memory)
             trainer = anna.trainers.utils.get_new_trainer(
