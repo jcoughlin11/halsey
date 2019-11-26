@@ -101,12 +101,15 @@ class DoubleDqnBrain(FixedQBrain):
         # Now get targetQ values as is done in dqn_learn
         qPred = self.qNet.predict_on_batch(states)
         qTarget = np.zeros(qPred.shape)
-        doneInds = np.where(dones)
-        nDoneInds = np.where(~dones)
-        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = (
-            rewards[nDoneInds]
-            + self.discountRate * qNext[nDoneInds, nextActions[nDoneInds]]
+        doneInds = np.where(dones)[0]
+        nDoneInds = np.where(~dones)[0]
+        qTarget[doneInds, actions[doneInds].flatten()] = rewards[
+            doneInds
+        ].flatten()
+        qTarget[nDoneInds, actions[nDoneInds].flatten()] = rewards[
+            nDoneInds
+        ].flatten() + self.discountRate * tf.gather_nd(
+            qNext, [nDoneInds, nextActions[nDoneInds].flatten()]
         )
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error

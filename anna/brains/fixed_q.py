@@ -102,12 +102,16 @@ class FixedQBrain(QBrain):
         # Get the qTarget values according to dqn_learn
         qPred = self.qNet.predict_on_batch(states)
         qTarget = np.zeros(qPred.shape)
-        doneInds = np.where(dones)
-        nDoneInds = np.where(~dones)
-        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = rewards[
+        doneInds = np.where(dones)[0]
+        nDoneInds = np.where(~dones)[0]
+        qTarget[doneInds, actions[doneInds].flatten()] = rewards[
+            doneInds
+        ].flatten()
+        qTarget[nDoneInds, actions[nDoneInds].flatten()] = rewards[
             nDoneInds
-        ] + self.discountRate * np.amax(qNext[nDoneInds])
+        ].flatten() + self.discountRate * np.amax(
+            tf.boolean_mask(qNext, ~(dones.flatten())), axis=1
+        )
         qTarget[qTarget == 0] = qPred[qTarget == 0]
         # Get abs error
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)

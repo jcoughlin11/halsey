@@ -90,9 +90,6 @@ class VanillaQBrain(QBrain):
         # Get sample of experiences
         states, actions, rewards, nextStates, dones = memory.sample(batchSize)
         # Get network's current guesses for Q values
-        import pdb
-
-        pdb.set_trace()
         qPred = self.qNet.predict_on_batch(states)
         # Get qNext: estimate of best trajectory obtained by playing
         # optimally from the next state. This is used in the estimate
@@ -102,15 +99,19 @@ class VanillaQBrain(QBrain):
         # vector of Q-values that corresponds to the chosen action. For
         # a terminal state it's just the reward, and otherwise we use
         # the Bellmann equation
-        doneInds = np.where(dones)
-        nDoneInds = np.where(~dones)
+        doneInds = np.where(dones)[0]
+        nDoneInds = np.where(~dones)[0]
         # This third array is needed so I can get absError, otherwise
         # just the specified entries of qPred could be changed
         qTarget = np.zeros(qPred.shape)
-        qTarget[doneInds, actions[doneInds]] = rewards[doneInds]
-        qTarget[nDoneInds, actions[nDoneInds]] = rewards[
+        qTarget[doneInds, actions[doneInds].flatten()] = rewards[
+            doneInds
+        ].flatten()
+        qTarget[nDoneInds, actions[nDoneInds].flatten()] = rewards[
             nDoneInds
-        ] + self.discountRate * np.amax(qNext[nDoneInds])
+        ].flatten() + self.discountRate * np.amax(
+            tf.boolean_mask(qNext, ~(dones.flatten())), axis=1
+        )
         # Fill in qTarget with the unaffected Q values. This is so the
         # TD error for those terms is 0, since they did not change.
         # Otherwise, the TD error for those terms would be equal to
