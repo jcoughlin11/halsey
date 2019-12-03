@@ -47,6 +47,7 @@ class ExperienceMemory:
         self.maxSize = memoryParams.maxSize
         self.pretrainLen = memoryParams.pretrainLen
         self.buffer = collections.deque(maxlen=self.maxSize)
+        self.isWeights = None
 
     # -----
     # Pre-Populate
