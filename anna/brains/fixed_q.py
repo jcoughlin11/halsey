@@ -117,7 +117,7 @@ class FixedQBrain(QBrain):
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
         loss = self.qNet.train_on_batch(
-            states, qTarget, sample_weight=isWeights
+            states, qTarget, sample_weight=memory.isWeights
         )
         assert False
         # return STUFF
