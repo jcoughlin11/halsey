@@ -122,11 +122,9 @@ class VanillaQBrain(QBrain):
         # for each experience is just a float, not a sequence
         absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
-        loss = self.qNet.train_on_batch(
+        self.loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=memory.isWeights
         )
-        assert False
-        # return STUFF
 
         # -----
         # update

@@ -1,0 +1,19 @@
+TFRecord format
+callbacks to autosave model
+callbacks in general (early stopping on stall, learning rate adjuster, etc.)
+tf.Dataset usage (can use map to preprocess images. see input pipelines in docs)
+ImageDataGenerator (can augment in real-time)
+metrics
+tf.keras.utils.progbar (and keras.utils in general)
+tf.keras.models.model_from_yaml
+tf.io.serialize_tensor
+tf.image to do image preprocessing
+tf.make_ndarray (tensor -> np)
+tf.stack (also tf.parallel_stack)
+tf.reshape
+tf.split (maybe in sample() instead of a for loop to unroll the sample?) (also tf.unstack)
+tf.slice (to slice a tensor (since : notation doesn't work))
+tf.quantization (https://medium.com/@joel_34050/quantization-in-deep-learning-478417eab72b)
+tf.SparseTensor (also tf.sparse)
+tf can do ffts!
+tf.summary for visualizing with tensorboard

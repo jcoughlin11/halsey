@@ -50,6 +50,7 @@ class QBrain:
         self.discountRate = networkParams.discount
         self.optimizerName = networkParams.optimizer
         self.lossName = networkParams.loss
+        self.loss = 0.0
         self.qNet = None
         # Build primary network
         self.qNet = anna.networks.utils.build_network(
