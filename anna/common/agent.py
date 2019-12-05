@@ -1,17 +1,15 @@
 """
-Title:   manager.py
-Purpose: 
+Title: agent.py
+Purpose:
 Notes:
 """
-import os
-
 import anna
 
 
-# ============================================
-#                 IoManager
-# ============================================
-class IoManager:
+#============================================
+#                  Agent
+#============================================
+class Agent:
     """
     Doc string.
 
@@ -23,10 +21,9 @@ class IoManager:
     --------
         pass
     """
-
-    # -----
+    #-----
     # constructor
-    # -----
+    #-----
     def __init__(self):
         """
         Doc string.
@@ -43,13 +40,17 @@ class IoManager:
         --------
             pass
         """
-        self.reader = anna.io.reader.Reader()
-        self.writer = anna.io.writer.Writer()
+        # Instantiate the io manager
+        self.ioManager = anna.io.manager.IoManager()
+        # Read the parameter file and command-line options
+        self.folio = self.ioManager.load_params() 
+        # Save a copy of the parameters for the run
+        self.ioManager.save_params(self.folio)
 
-    # -----
-    # load_params 
-    # -----
-    def load_params(self):
+    #-----
+    # train
+    #-----
+    def train(self):
         """
         Doc string.
 
@@ -65,22 +66,50 @@ class IoManager:
         --------
             pass
         """
-        # Parse the command-line args
-        clArgs = self.reader.parse_args()
-        # Read the parameter file
-        params = self.reader.read_param_file(clArgs.paramFile, clArgs.continueTraining)
-        # Build the folio
-        folio = anna.common.folio.get_new_folio(clArgs, params)
-        # Validate the parameters
-        anna.common.validation.validate_params(folio)
-        # Set the io parameters
-        self.set_io_params()
-        return folio
+        # If continuing training, load the checkpoint files
+        if self.folio.clArgs.continueTraining:
+            pass
+        # Otherwise, instantiate a new trainer
+        else:
+            trainer = anna.trainers.utils.get_new_trainer()
+        # Training loop
+        while not trainer.doneTraining:
+            trainer.train()
+            self.ioManager.save_checkpoint()
+        # Clean up 
+        trainer.cleanup()
+        self.cleanup()
+        # If early stopping, exit
+        if trainer.earlyStop:
+            return False
+        else:
+            return True
 
     #-----
-    # save_params
+    # test
     #-----
-    def save_params(self):
+    def test(self):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass
+
+    #-----
+    # cleanup
+    #-----
+    def cleanup(self):
         """
         Doc string.
 
@@ -99,9 +128,10 @@ class IoManager:
         pass
 
     #-----
-    # load_checkpoint 
+    # trainingEnabled
     #-----
-    def load_checkpoint(self):
+    @property
+    def trainingEnabled(self):
         """
         Doc string.
 
@@ -120,30 +150,10 @@ class IoManager:
         pass
 
     #-----
-    # save_checkpoint
+    # testingEnabled
     #-----
-    def save_checkpoint(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
-    # set_io_params
-    # -----
-    def set_io_params(self):
+    @property
+    def testingEnabled(self):
         """
         Doc string.
 

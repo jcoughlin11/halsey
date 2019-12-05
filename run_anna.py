@@ -13,8 +13,7 @@ import anna
 # ============================================
 def main():
     """
-    Creates an instance of the Agent object and then trains and tests
-    it.
+    Doc string.
 
     Parameters:
     -----------
@@ -29,12 +28,12 @@ def main():
         pass
     """
     # Set up the agent
-    agent = anna.agents.qagent.QAgent()
-    # Train, if applicable
+    agent = anna.common.agent.Agent()
+    # Train
     if agent.trainingEnabled:
         if not agent.train():
             sys.exit()
-    # Test, if applicable
+    # Test
     if agent.testingEnabled:
         agent.test()
 

@@ -1,10 +1,9 @@
 """
-Title:   reader.py
-Purpose: Contains the Reader class.
+Title: reader.py
+Purpose: 
 Notes:
 """
 import argparse
-import glob
 import os
 
 import yaml
@@ -15,7 +14,7 @@ import yaml
 # ============================================
 class Reader:
     """
-    Used to read data from files.
+    Doc string.
 
     Attributes:
     -----------
@@ -45,15 +44,14 @@ class Reader:
         --------
             pass
         """
-        self.baseDir = None
-        self.fileBase = None
+        pass
 
     # -----
     # parse_cl_args
     # -----
-    def parse_cl_args(self):
+    def parse_args(self):
         """
-        Parses the given command line arguments.
+        Doc string.
 
         Parameters:
         -----------
@@ -71,7 +69,7 @@ class Reader:
         parser = argparse.ArgumentParser()
         # Parameter file (if -- is not a prefix to the option name then
         # argparse assumes it's a positional argument and therefore
-        # required by default
+        # required by default)
         parser.add_argument(
             "paramFile",
             help="The name of the yaml file containing parameters for the run.",
@@ -93,8 +91,7 @@ class Reader:
     # -----
     def read_param_file(self, paramFile, continueTraining):
         """
-        Reads in the parameters from the given parameter file. See the
-        README for a list and description of each parameter.
+        Doc string.
 
         Parameters:
         -----------
@@ -119,29 +116,7 @@ class Reader:
             outDir = os.path.abspath(
                 os.path.expanduser(params["io"]["outputDir"])
             )
-            paramFiles = glob.glob(os.path.join(outDir, "*_backup.yaml"))
-            with open(paramFiles[0], "r") as f:
+            paramFile = os.path.join(outDir, "params.lock")
+            with open(paramFile, "r") as f:
                 params = yaml.load(f)
         return params
-
-    # -----
-    # set_params
-    # -----
-    def set_params(self, ioParams):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        self.baseDir = ioParams.outputDir
-        self.fileBase = ioParams.fileBase
