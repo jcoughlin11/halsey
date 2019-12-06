@@ -1,14 +1,15 @@
 """
-Title: validation.py
+Title: profiling.py
 Purpose:
 Notes:
 """
+import time
 
 
 # ============================================
-#             validate_params
+#                  timer
 # ============================================
-def validate_params(folio):
+def timer():
     """
     Doc string.
 
