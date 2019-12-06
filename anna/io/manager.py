@@ -1,6 +1,6 @@
 """
 Title:   manager.py
-Purpose: 
+Purpose:
 Notes:
 """
 import os
@@ -47,7 +47,7 @@ class IoManager:
         self.writer = anna.io.writer.Writer()
 
     # -----
-    # load_params 
+    # load_params
     # -----
     def load_params(self):
         """
@@ -68,19 +68,21 @@ class IoManager:
         # Parse the command-line args
         clArgs = self.reader.parse_args()
         # Read the parameter file
-        params = self.reader.read_param_file(clArgs.paramFile, clArgs.continueTraining)
+        params = self.reader.read_param_file(
+            clArgs.paramFile, clArgs.continueTraining
+        )
         # Build the folio
-        folio = anna.common.folio.get_new_folio(clArgs, params)
+        folio = anna.utils.folio.get_new_folio(clArgs, params)
         # Validate the parameters
-        anna.common.validation.validate_params(folio)
+        anna.utils.validation.validate_params(folio)
         # Set the io parameters
-        self.set_io_params()
+        self.set_io_params(folio.io)
         return folio
 
-    #-----
+    # -----
     # save_params
-    #-----
-    def save_params(self):
+    # -----
+    def save_params(self, folio):
         """
         Doc string.
 
@@ -96,11 +98,11 @@ class IoManager:
         --------
             pass
         """
-        pass
+        self.writer.save_params(folio)
 
-    #-----
-    # load_checkpoint 
-    #-----
+    # -----
+    # load_checkpoint
+    # -----
     def load_checkpoint(self):
         """
         Doc string.
@@ -119,10 +121,31 @@ class IoManager:
         """
         pass
 
-    #-----
+    # -----
     # save_checkpoint
-    #-----
+    # -----
     def save_checkpoint(self):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass
+
+    # -----
+    # load_brain
+    # -----
+    def load_brain(self):
         """
         Doc string.
 
@@ -143,7 +166,7 @@ class IoManager:
     # -----
     # set_io_params
     # -----
-    def set_io_params(self):
+    def set_io_params(self, ioParams):
         """
         Doc string.
 
@@ -159,4 +182,16 @@ class IoManager:
         --------
             pass
         """
-        pass
+        # Set the names of the various output directories
+        self.fileBase = ioParams.fileBase
+        self.outputDir = os.path.abspath(os.path.expanduser(ioParams.outputDir))
+        self.memoryDir = os.path.join(self.outputDir, "memory")
+        self.envDir = os.path.join(self.outputDir, "environment")
+        self.brainDir = os.path.join(self.outputDir, "brain")
+        self.trainerDir = os.path.join(self.outputDir, "trainer")
+        # Create the output directory tree, if needed
+        os.makedirs(self.outputDir)
+        os.mkdir(self.memoryDir)
+        os.mkdir(self.envDir)
+        os.mkdir(self.brainDir)
+        os.mkdir(self.trainerDir)

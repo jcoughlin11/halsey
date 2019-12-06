@@ -6,9 +6,9 @@ Notes:
 import anna
 
 
-#============================================
+# ============================================
 #                  Agent
-#============================================
+# ============================================
 class Agent:
     """
     Doc string.
@@ -21,9 +21,10 @@ class Agent:
     --------
         pass
     """
-    #-----
+
+    # -----
     # constructor
-    #-----
+    # -----
     def __init__(self):
         """
         Doc string.
@@ -43,13 +44,13 @@ class Agent:
         # Instantiate the io manager
         self.ioManager = anna.io.manager.IoManager()
         # Read the parameter file and command-line options
-        self.folio = self.ioManager.load_params() 
+        self.folio = self.ioManager.load_params()
         # Save a copy of the parameters for the run
         self.ioManager.save_params(self.folio)
 
-    #-----
+    # -----
     # train
-    #-----
+    # -----
     def train(self):
         """
         Doc string.
@@ -76,7 +77,7 @@ class Agent:
         while not trainer.doneTraining:
             trainer.train()
             self.ioManager.save_checkpoint()
-        # Clean up 
+        # Clean up
         trainer.cleanup()
         self.cleanup()
         # If early stopping, exit
@@ -85,9 +86,9 @@ class Agent:
         else:
             return True
 
-    #-----
+    # -----
     # test
-    #-----
+    # -----
     def test(self):
         """
         Doc string.
@@ -106,9 +107,9 @@ class Agent:
         """
         pass
 
-    #-----
+    # -----
     # cleanup
-    #-----
+    # -----
     def cleanup(self):
         """
         Doc string.
@@ -127,9 +128,9 @@ class Agent:
         """
         pass
 
-    #-----
+    # -----
     # trainingEnabled
-    #-----
+    # -----
     @property
     def trainingEnabled(self):
         """
@@ -149,9 +150,9 @@ class Agent:
         """
         pass
 
-    #-----
+    # -----
     # testingEnabled
-    #-----
+    # -----
     @property
     def testingEnabled(self):
         """
