@@ -96,3 +96,30 @@ def get_new_folio(clArgs, params):
     # Add the command-line arguments to the folio
     setattr(folio, "clArgs", clArgs)
     return folio
+
+
+# ============================================
+#               folio_to_dict
+# ============================================
+def folio_to_dict(folio, dictionary):
+    """
+    Doc string.
+
+    Parameters:
+    -----------
+        pass
+
+    Raises:
+    -------
+        pass
+
+    Returns:
+    --------
+        pass
+    """
+    for key, value in folio.__dict__.items():
+        if isinstance(value, Folio):
+            dictionary.update({key: folio_to_dict(value, {})})
+        else:
+            dictionary.update({key: value})
+    return dictionary
