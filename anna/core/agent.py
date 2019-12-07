@@ -148,7 +148,7 @@ class Agent:
         --------
             pass
         """
-        pass
+        return self.folio.run.train
 
     # -----
     # testingEnabled
@@ -170,4 +170,4 @@ class Agent:
         --------
             pass
         """
-        pass
+        return self.folio.run.test
