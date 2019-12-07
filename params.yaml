@@ -5,8 +5,6 @@ run:
         envName   : SpaceInvaders-v4
         train     : True
         test      : False
-        render    : True
-        plot      : False
         timeLimit : 30
 
 
