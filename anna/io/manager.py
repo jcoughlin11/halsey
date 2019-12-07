@@ -45,6 +45,12 @@ class IoManager:
         """
         self.reader = anna.io.reader.Reader()
         self.writer = anna.io.writer.Writer()
+        self.fileBase = None
+        self.outputDir = None
+        self.memoryDir = None
+        self.envDir = None
+        self.brainDir = None
+        self.trainerDir = None
 
     # -----
     # load_params
@@ -98,7 +104,7 @@ class IoManager:
         --------
             pass
         """
-        self.writer.save_params(folio)
+        self.writer.save_params(folio, self.outputDir)
 
     # -----
     # load_checkpoint
