@@ -2,6 +2,7 @@
 Title: agent.py
 Purpose:
 Notes:
+    * The Agent class oversees the ioManager, trainer, and tester
 """
 import anna
 
@@ -45,7 +46,7 @@ class Agent:
         self.ioManager = anna.io.manager.IoManager()
         # Read the parameter file and command-line options
         self.folio = self.ioManager.load_params()
-        # Save a copy of the parameters for the run
+        # Save a copy of the run's parameters
         self.ioManager.save_params(self.folio)
 
     # -----
