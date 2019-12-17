@@ -2,6 +2,7 @@
 Title:   manager.py
 Purpose:
 Notes:
+    * The IoManager class oversees the reader and writer objects
 """
 import os
 

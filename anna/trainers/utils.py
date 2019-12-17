@@ -2,6 +2,8 @@
 Title: utils.py
 Purpose:
 Notes:
+    * The trainer class oversees the navigator, brain, and memory
+    * The trainer class contains the main training loop
 """
 
 
