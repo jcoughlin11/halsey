@@ -1,3 +1,3 @@
 from anna.core.agent import Agent
 
-from . import io, trainers, utils
+from . import actions, brains, frames, io, memory, navigation, trainers, utils
