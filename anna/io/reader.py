@@ -1,6 +1,6 @@
 """
 Title: reader.py
-Purpose: 
+Purpose:
 Notes:
 """
 import argparse
@@ -108,7 +108,7 @@ class Reader:
         # Read the file
         paramFile = os.path.abspath(os.path.expanduser(paramFile))
         with open(paramFile, "r") as f:
-            params = yaml.load(f, Loader=yaml.Loader)
+            params = yaml.safe_load(f)
         # If continuing training, read the saved copy of the original
         # parameter file. This guards against changes made to passed-in
         # version since the original run
@@ -118,5 +118,5 @@ class Reader:
             )
             paramFile = os.path.join(outDir, "params.lock")
             with open(paramFile, "r") as f:
-                params = yaml.load(f)
+                params = yaml.safe_load(f)
         return params
