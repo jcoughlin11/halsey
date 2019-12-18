@@ -7,12 +7,13 @@ Notes:
     * The memory class handles constructing samples of data to use in
         learning
 """
+from anna.memory.experience.experience import ExperienceMemory
 
 
 # ============================================
 #              get_new_memory
 # ============================================
-def get_new_memory():
+def get_new_memory(memoryParams):
     """
     Doc string.
 
@@ -28,4 +29,6 @@ def get_new_memory():
     --------
         pass
     """
-    pass
+    if memoryParams.mode == "experience":
+        memory = ExperienceMemory(memoryParams)
+    return memory
