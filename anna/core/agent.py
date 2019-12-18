@@ -45,9 +45,9 @@ class Agent:
         # Instantiate the io manager
         self.ioManager = anna.io.manager.IoManager()
         # Read the parameter file and command-line options
-        self.folio = self.ioManager.load_params()
+        self.folio, params = self.ioManager.load_params()
         # Save a copy of the run's parameters
-        self.ioManager.save_params(self.folio)
+        self.ioManager.save_params(params)
 
     # -----
     # train
@@ -70,17 +70,14 @@ class Agent:
         """
         # If continuing training, load the checkpoint files
         if self.folio.clArgs.continueTraining:
-            pass
+            trainer = self.ioManager.load_checkpoint()
         # Otherwise, instantiate a new trainer
         else:
-            trainer = anna.trainers.utils.get_new_trainer()
+            trainer = anna.trainers.utils.get_new_trainer(self.folio)
         # Training loop
         while not trainer.doneTraining:
             trainer.train()
-            self.ioManager.save_checkpoint()
-        # Clean up
-        trainer.cleanup()
-        self.cleanup()
+            self.ioManager.save_checkpoint(trainer)
         # If early stopping, exit
         if trainer.earlyStop:
             return False
@@ -91,27 +88,6 @@ class Agent:
     # test
     # -----
     def test(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
-    # cleanup
-    # -----
-    def cleanup(self):
         """
         Doc string.
 
