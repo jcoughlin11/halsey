@@ -8,8 +8,6 @@ import stat
 
 import yaml
 
-import anna
-
 
 # ============================================
 #                   Writer
@@ -51,7 +49,7 @@ class Writer:
     # -----
     # save_params
     # -----
-    def save_params(self, folio, outputDir):
+    def save_params(self, params, outputDir):
         """
         Doc string.
 
@@ -69,8 +67,6 @@ class Writer:
         """
         # Set up the lock file
         paramLockFile = os.path.join(outputDir, "params.lock")
-        # Convert from the class interface to the dictionary interface
-        params = anna.utils.folio.folio_to_dict(folio, {})
         # Save the params to a read-only file (writing will fail if a
         # lock file already exists because it will be read-only)
         try:

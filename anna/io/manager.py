@@ -84,12 +84,12 @@ class IoManager:
         anna.utils.validation.validate_params(folio)
         # Set the io parameters
         self.set_io_params(folio.io)
-        return folio
+        return folio, params
 
     # -----
     # save_params
     # -----
-    def save_params(self, folio):
+    def save_params(self, params):
         """
         Doc string.
 
@@ -105,7 +105,7 @@ class IoManager:
         --------
             pass
         """
-        self.writer.save_params(folio, self.outputDir)
+        self.writer.save_params(params, self.outputDir)
 
     # -----
     # load_checkpoint
