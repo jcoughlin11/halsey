@@ -8,7 +8,7 @@ Notes:
 """
 import anna
 
-from framebyframe import FrameByFrameNavigator
+from .framebyframe import FrameByFrameNavigator
 
 
 # ============================================
