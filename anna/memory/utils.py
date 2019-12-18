@@ -7,7 +7,7 @@ Notes:
     * The memory class handles constructing samples of data to use in
         learning
 """
-from anna.memory.experience.experience import ExperienceMemory
+from .experience.experiencememory import ExperienceMemory
 
 
 # ============================================
