@@ -48,6 +48,11 @@ class Agent:
         self.folio, params = self.ioManager.load_params()
         # Save a copy of the run's parameters
         self.ioManager.save_params(params)
+        # Set up the input shape
+        channelsFirst = anna.utils.gpu.set_channels(
+            self.folio.brain.architecture
+        )
+        setattr(self.folio.frame, "channelsFirst", channelsFirst)
 
     # -----
     # train
