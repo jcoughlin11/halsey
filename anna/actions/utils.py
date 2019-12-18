@@ -4,12 +4,13 @@ Purpose:
 Notes:
     * The action manager handles action selection
 """
+import anna
 
 
 # ============================================
 #          get_new_action_manager
 # ============================================
-def get_new_action_manager():
+def get_new_action_manager(actionParams):
     """
     Doc string.
 
@@ -25,4 +26,6 @@ def get_new_action_manager():
     --------
         pass
     """
-    pass
+    if actionParams.mode == "epsilonGreedy":
+        actionManager = anna.actions.epsilongreedy.EpsilonGreedy(actionParams)
+    return actionManager
