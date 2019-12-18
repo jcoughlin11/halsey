@@ -4,6 +4,7 @@ Purpose:
 Notes:
     * The frame manager handles all image pre-processing and processing
 """
+from .vanillafm import VanillaFrameManager
 
 
 # ============================================
