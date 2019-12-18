@@ -8,6 +8,9 @@ import os
 
 import anna
 
+from .reader import Reader
+from .writer import Writer
+
 
 # ============================================
 #                 IoManager
@@ -44,8 +47,8 @@ class IoManager:
         --------
             pass
         """
-        self.reader = anna.io.reader.Reader()
-        self.writer = anna.io.writer.Writer()
+        self.reader = Reader()
+        self.writer = Writer()
         self.fileBase = None
         self.outputDir = None
         self.memoryDir = None

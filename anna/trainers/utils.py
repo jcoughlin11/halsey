@@ -7,6 +7,8 @@ Notes:
 """
 import anna
 
+from .qtrainer import QTrainer
+
 
 # ============================================
 #              get_new_trainer
@@ -41,7 +43,5 @@ def get_new_trainer(folio):
     # Create a new memory object
     memory = anna.memory.utils.get_new_memory(folio.memory)
     if folio.training.mode == "qtrainer":
-        trainer = anna.trainers.qtrainer.QTrainer(
-            folio.training, navigator, brain, memory
-        )
+        trainer = QTrainer(folio.training, navigator, brain, memory)
     return trainer
