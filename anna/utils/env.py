@@ -5,12 +5,13 @@ Notes:
     * The environment handles interaction between the game and the
         Agent
 """
+import gym
 
 
 # ============================================
 #                 build_env
 # ============================================
-def build_env():
+def build_env(envName):
     """
     Doc string.
 
@@ -26,4 +27,5 @@ def build_env():
     --------
         pass
     """
-    pass
+    env = gym.make(envName)
+    return env
