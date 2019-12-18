@@ -4,7 +4,7 @@ Purpose:
 Notes:
     * The action manager handles action selection
 """
-import anna
+from .epsilongreedy import EpsilonGreedy
 
 
 # ============================================
@@ -27,5 +27,5 @@ def get_new_action_manager(actionParams):
         pass
     """
     if actionParams.mode == "epsilonGreedy":
-        actionManager = anna.actions.epsilongreedy.EpsilonGreedy(actionParams)
+        actionManager = EpsilonGreedy(actionParams)
     return actionManager

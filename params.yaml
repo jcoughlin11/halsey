@@ -89,6 +89,8 @@ navigation:
 # Frame preprocessing parameters
 #-------------------------------
 frame:
+    general:
+        channelsFirst  : False
     mode:
         vanilla:
             enabled    : True
