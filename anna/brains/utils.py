@@ -7,9 +7,9 @@ Notes:
     * The brain class contains methods for managing and updating the
         neural network
 """
-from anna.brains.dql.double import DoubleDqnBrain
-from anna.brains.dql.fixed import FixedQBrain
-from anna.brains.dql.vanilla import VanillaQBrain
+from .dql.double import DoubleDqnBrain
+from .dql.fixed import FixedQBrain
+from .dql.vanilla import VanillaQBrain
 
 
 # ============================================

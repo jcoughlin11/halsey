@@ -7,7 +7,8 @@ import numpy as np
 import tensorflow as tf
 
 import anna
-from anna.brains.qbrain import QBrain
+
+from .qbrain import QBrain
 
 
 # ============================================

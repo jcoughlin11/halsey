@@ -6,7 +6,7 @@ Notes:
 import numpy as np
 import tensorflow as tf
 
-from anna.brains.dql.fixed import FixedQBrain
+from .fixed import FixedQBrain
 
 
 # ============================================
