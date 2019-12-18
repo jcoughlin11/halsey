@@ -5,11 +5,13 @@ Notes:
 """
 import numpy as np
 
+from .basechooser import BaseChooser
+
 
 # ============================================
 #               EpsilonGreedy
 # ============================================
-class EpsilonGreedy:
+class EpsilonGreedy(BaseChooser):
     """
     Doc string.
 
@@ -78,16 +80,8 @@ class EpsilonGreedy:
         # Explore
         if exploreProb >= exploitProb:
             # Choose randomly
-            action = env.action_space.sample()
+            action = self.random_choose(env)
         # Exploit
         else:
-            # Keras expects a group of samples of the specified shape,
-            # even if there's just one sample, so we need to reshape
-            state = state.reshape(
-                (1, state.shape[0], state.shape[1], state.shape[2])
-            )
-            # Get the beliefs in each action for the current state
-            Q_vals = brain.qNet.model.predict_on_batch(state)
-            # Choose the one with the highest Q value
-            action = np.argmax(Q_vals)
+            action = self.test_choose(state, brain)
         return action
