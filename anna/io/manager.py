@@ -134,7 +134,7 @@ class IoManager:
     # -----
     # save_checkpoint
     # -----
-    def save_checkpoint(self):
+    def save_checkpoint(self, trainer):
         """
         Doc string.
 

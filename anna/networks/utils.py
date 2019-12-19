@@ -5,7 +5,7 @@ Notes:
 """
 import tensorflow as tf
 
-from anna.utils import registers
+from anna.utils.validation import registers
 
 from . import conv
 from . import dueling
@@ -40,11 +40,11 @@ def build_network(
         pass
     """
     # Set up network architecture
-    if arch in registers.convNets:
+    if arch in registers.convNetRegister:
         net = conv.utils.build_net(arch, inputShape, channelsFirst, nActions)
-    elif arch in registers.duelingNets:
+    elif arch in registers.duelingNetRegister:
         net = dueling.utils.build_net(arch, inputShape, channelsFirst, nActions)
-    elif arch in registers.rnnNets:
+    elif arch in registers.rnnRegister:
         net = rnn.utils.build_net(arch, inputShape, channelsFirst, nActions)
     # Set the optimizer and loss functions appropriately
     optimizer = set_optimizer(optimizerName, learningRate)
