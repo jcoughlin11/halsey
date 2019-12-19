@@ -1,5 +1,5 @@
 """
-Title:   experiencememory.py
+Title: experiencememory.py
 Purpose:
 Notes:
 """
@@ -49,48 +49,20 @@ class ExperienceMemory:
         self.isWeights = None
 
     # -----
-    # Pre-Populate
-    # -----
-    def pre_populate(self, navigator):
-        """
-        This function initially fills the experience buffer with sample
-        experience tuples to avoid the empty memory problem.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        # Reset the environment
-        navigator.reset()
-        # Loop over the desired number of sample experiences
-        for i in range(self.pretrainLen):
-            experience = navigator.transition(mode="random")
-            # Add experience to memory
-            self.add(experience)
-
-    # -----
     # Add
     # -----
     def add(self, experience):
         """
-        Adds the newest experience tuple to the buffer.
+        Doc string.
+
         Parameters:
         -----------
-            experience : tuple (or list of tuples in the case of an
-                         RNN)
-                Contains the state, action, reward, next_state, and done
-                flag.
+            pass
+
         Raises:
         -------
             pass
+
         Returns:
         --------
             None
@@ -102,12 +74,7 @@ class ExperienceMemory:
     # -----
     def sample(self, batchSize):
         """
-        This function returns a randomly selected subsample of size
-        batch_size from the buffer. This subsample is used to train the
-        DQN. Note that a deque's size is determined only from the
-        elements that are in it, not from maxlen. That is, if you have a
-        deque with maxlen = 10, but only one element has been added to
-        it, then it's size is actually 1.
+        Doc string.
 
         Parameters:
         -----------

@@ -44,4 +44,6 @@ def get_new_trainer(folio):
     memory = anna.memory.utils.get_new_memory(folio.memory)
     if folio.training.mode == "qtrainer":
         trainer = QTrainer(folio.training, navigator, brain, memory)
+    # Pre-populate the memory buffer
+    trainer.pre_populate()
     return trainer

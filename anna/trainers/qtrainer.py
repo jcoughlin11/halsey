@@ -102,3 +102,32 @@ class QTrainer:
                 yield
         # If we get here, we're done
         self.doneTraining = True
+
+    # -----
+    # pre_populate
+    # -----
+    def pre_populate(self):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        # Reset the environment
+        self.navigator.reset()
+        # Loop over the desired number of sample experiences
+        for i in range(self.memory.pretrainLen):
+            experience = self.navigator.transition(mode="random")
+            # Add experience to memory
+            self.memory.add(experience)
+        # Reset the navigator
+        self.navigator.reset()
