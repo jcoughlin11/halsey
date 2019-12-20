@@ -54,12 +54,6 @@ memory:
     general:
         maxSize     : 100
         pretrainLen : 64
-        priority:
-            enabled    : False
-            perA       : 0.6
-            perB       : 0.4
-            perBAnneal : 0.001
-            perE       : 0.01
     mode:
         experience:
             enabled: True
@@ -68,7 +62,7 @@ memory:
 
 
 # Action selection parameters
-#------------------------
+#----------------------------
 action:
     mode:
         epsilonGreedy:
