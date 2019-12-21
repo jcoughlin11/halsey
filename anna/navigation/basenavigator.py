@@ -24,7 +24,7 @@ class BaseNavigator:
     # -----
     # constructor
     # -----
-    def __init__(self, env, navParams, frameManager, actionManager):
+    def __init__(self, navParams, env, frameManager, actionManager):
         """
         Doc string.
 

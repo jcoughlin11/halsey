@@ -28,7 +28,7 @@ def main():
         pass
     """
     # Set up the agent
-    agent = anna.agent.Agent()
+    agent = anna.Agent()
     # Train
     if agent.trainingEnabled:
         if not agent.train():

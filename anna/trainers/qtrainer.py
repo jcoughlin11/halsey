@@ -42,7 +42,7 @@ class QTrainer:
             pass
         """
         self.nEpisodes = trainParams.nEpisodes
-        self.maxEpisodeSteps = trainParams.mexEpisodeSteps
+        self.maxEpisodeSteps = trainParams.maxEpisodeSteps
         self.batchSize = trainParams.batchSize
         self.savePeriod = trainParams.savePeriod
         self.navigator = navigator
