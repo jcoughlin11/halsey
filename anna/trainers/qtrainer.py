@@ -75,8 +75,18 @@ class QTrainer:
         """
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
+            print(
+                "Episode: {} / {}".format(self.episode, self.nEpisodes),
+                end="\r",
+            )
             # Loop over the max number of steps allowed per episode
             for self.episodeStep in range(self.maxEpisodeSteps):
+                print(
+                    "Step: {} / {}".format(
+                        self.episodeStep, self.maxEpisodeSteps
+                    ),
+                    end="\r",
+                )
                 # Check for early stopping
                 self.earlyStop = anna.utils.endrun.check_early_stop()
                 if self.earlyStop:
