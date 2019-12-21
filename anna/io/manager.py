@@ -86,7 +86,7 @@ class IoManager:
         # Validate the parameters
         anna.utils.validation.validate_params(folio)
         # Set the io parameters
-        self.set_io_params(folio.io)
+        self.set_io_params(folio.io, folio.clArgs.continueTraining)
         return folio, params
 
     # -----
@@ -176,7 +176,7 @@ class IoManager:
     # -----
     # set_io_params
     # -----
-    def set_io_params(self, ioParams):
+    def set_io_params(self, ioParams, continueTraining):
         """
         Doc string.
 
@@ -200,8 +200,24 @@ class IoManager:
         self.brainDir = os.path.join(self.outputDir, "brain")
         self.trainerDir = os.path.join(self.outputDir, "trainer")
         # Create the output directory tree, if needed
-        os.makedirs(self.outputDir)
-        os.mkdir(self.memoryDir)
-        os.mkdir(self.envDir)
-        os.mkdir(self.brainDir)
-        os.mkdir(self.trainerDir)
+        try:
+            os.makedirs(self.outputDir)
+            os.mkdir(self.memoryDir)
+            os.mkdir(self.envDir)
+            os.mkdir(self.brainDir)
+            os.mkdir(self.trainerDir)
+        except FileExistsError:
+            # If we're continuing training then this is fine
+            if continueTraining:
+                pass
+            # Otherwise, if the directories aren't all empty, then this
+            # run may be a mistake and we don't want to overwrite
+            else:
+                if anna.utils.validation.is_empty_dir(self.outputDir):
+                    pass
+                else:
+                    raise FileExistsError(
+                        "Trying to peform fresh run on "
+                        "a non-empty output directory. Aborting so no "
+                        "overwriting occurs."
+                    )
