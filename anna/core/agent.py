@@ -80,8 +80,7 @@ class Agent:
         else:
             trainer = anna.trainers.utils.get_new_trainer(self.folio)
         # Training loop
-        while not trainer.doneTraining:
-            trainer.train()
+        for _ in trainer.train():
             self.ioManager.save_checkpoint(trainer)
         # If early stopping, exit
         if trainer.earlyStop:

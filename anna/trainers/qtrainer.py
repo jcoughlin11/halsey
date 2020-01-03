@@ -51,13 +51,34 @@ class QTrainer:
         self.episode = 0
         self.startEpisode = 0
         self.earlyStop = False
-        self.doneTraining = False
         self.episodeStep = 0
+        self.trainGen = self.training_generator()
 
     # -----
     # train
     # -----
     def train(self):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        return self.trainGen
+
+    # -----
+    # training_generator
+    # -----
+    def training_generator(self):
         """
         Doc string.
 
@@ -97,9 +118,9 @@ class QTrainer:
                 self.memory.add(experience)
                 # Update network weights
                 self.brain.learn(self.memory, self.batchSize)
-                # Update the brain's parameters (e.g., target q-network)
+                # Update brain's parameters (e.g., target q-network)
                 self.brain.update()
-                # Update memory, if applicable (e.g., priority weights)
+                # Update memory (e.g., priority weights)
                 self.memory.update()
                 # Check for terminal state
                 if experience.done:
@@ -110,8 +131,6 @@ class QTrainer:
             # See if we need to save a checkpoint
             if self.episode % self.savePeriod == 0:
                 yield
-        # If we get here, we're done
-        self.doneTraining = True
 
     # -----
     # pre_populate
