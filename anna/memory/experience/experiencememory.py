@@ -119,3 +119,24 @@ class ExperienceMemory:
             nextStates[i] = sample.nextState
             dones[i] = sample.done
         return states, actions, rewards, nextStates, dones
+
+    # -----
+    # update
+    # -----
+    def update(self):
+        """
+        Doc string.
+
+        Parameters:
+        -----------
+            pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass

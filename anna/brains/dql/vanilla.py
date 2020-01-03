@@ -126,25 +126,25 @@ class VanillaQBrain(QBrain):
             states, qTarget, sample_weight=memory.isWeights
         )
 
-        # -----
-        # update
-        # -----
-        def update(self):
-            """
-            Updates the brain's internal state (counters, non-primary
-            networks, etc.). For vanilla Q-learning, there's nothing
-            to update.
+    # -----
+    # update
+    # -----
+    def update(self):
+        """
+        Updates the brain's internal state (counters, non-primary
+        networks, etc.). For vanilla Q-learning, there's nothing
+        to update.
 
-            Parameters:
-            -----------
-                pass
-
-            Raises:
-            -------
-                pass
-
-            Returns:
-            --------
-                pass
-            """
+        Parameters:
+        -----------
             pass
+
+        Raises:
+        -------
+            pass
+
+        Returns:
+        --------
+            pass
+        """
+        pass
