@@ -84,8 +84,10 @@ class Agent:
             self.ioManager.save_checkpoint(trainer)
         # If early stopping, exit
         if trainer.earlyStop:
+            print("Training stopped early.")
             return False
         else:
+            print("Training completed.")
             return True
 
     # -----
