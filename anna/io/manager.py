@@ -51,10 +51,7 @@ class IoManager:
         self.writer = Writer()
         self.fileBase = None
         self.outputDir = None
-        self.memoryDir = None
-        self.envDir = None
         self.brainDir = None
-        self.trainerDir = None
 
     # -----
     # load_params
@@ -150,28 +147,8 @@ class IoManager:
         --------
             pass
         """
-        pass
-
-    # -----
-    # load_brain
-    # -----
-    def load_brain(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
+        # Save the models
+        self.writer.save_models(trainer.brain, self.brainDir)
 
     # -----
     # set_io_params
@@ -195,17 +172,14 @@ class IoManager:
         # Set the names of the various output directories
         self.fileBase = ioParams.fileBase
         self.outputDir = os.path.abspath(os.path.expanduser(ioParams.outputDir))
-        self.memoryDir = os.path.join(self.outputDir, "memory")
-        self.envDir = os.path.join(self.outputDir, "environment")
         self.brainDir = os.path.join(self.outputDir, "brain")
-        self.trainerDir = os.path.join(self.outputDir, "trainer")
-        # Create the output directory tree, if needed
+        # Create the output directory tree, if needed. outputDir needs
+        # to be made last or else the FileExistsError will throw if the
+        # outputDir already exists, leading to none of the subdirs
+        # being created
         try:
-            os.makedirs(self.outputDir)
-            os.mkdir(self.memoryDir)
-            os.mkdir(self.envDir)
             os.mkdir(self.brainDir)
-            os.mkdir(self.trainerDir)
+            os.makedirs(self.outputDir)
         except FileExistsError:
             # If we're continuing training then this is fine
             if continueTraining:

@@ -26,27 +26,6 @@ class Reader:
     """
 
     # -----
-    # constructor
-    # -----
-    def __init__(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
     # parse_cl_args
     # -----
     def parse_args(self):
