@@ -72,6 +72,7 @@ def using_gpu():
         pass
     """
     usingGPU = False
-    if tf.test.is_built_with_gpu_support() and tf.test.is_gpu_available():
+    nGpu = len(tf.config.list_physical_devices("GPU"))
+    if tf.test.is_built_with_gpu_support() and nGpu > 0:
         usingGPU = True
     return usingGPU
