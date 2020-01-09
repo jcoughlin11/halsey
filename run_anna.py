@@ -13,19 +13,22 @@ import anna
 # ============================================
 def main():
     """
-    Doc string.
+    Driver function for using anna.
+
+    Instantiates an instance of the Agent class and then either
+    trains the agent, tests the agent, or both.
 
     Parameters:
     -----------
-        pass
+        None
 
     Raises:
     -------
-        pass
+        None
 
     Returns:
     --------
-        pass
+        None
     """
     # Set up the agent
     agent = anna.Agent()
