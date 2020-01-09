@@ -33,9 +33,6 @@ def main():
     if agent.trainingEnabled:
         if not agent.train():
             sys.exit()
-    # Test
-    if agent.testingEnabled:
-        agent.test()
 
 
 # ============================================

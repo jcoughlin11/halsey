@@ -91,27 +91,6 @@ class Agent:
             return True
 
     # -----
-    # test
-    # -----
-    def test(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
     # trainingEnabled
     # -----
     @property
@@ -132,25 +111,3 @@ class Agent:
             pass
         """
         return self.folio.run.train
-
-    # -----
-    # testingEnabled
-    # -----
-    @property
-    def testingEnabled(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        return self.folio.run.test
