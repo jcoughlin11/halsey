@@ -24,7 +24,7 @@ exclude = '''
 
 [tool.poetry]
 name = 'anna'
-version = '0.1.0'
+version = "1.0.0"
 description = ''
 authors = ['Jared Coughlin']
 
