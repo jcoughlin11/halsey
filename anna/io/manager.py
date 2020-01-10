@@ -108,27 +108,6 @@ class IoManager:
         self.writer.save_params(params, self.outputDir)
 
     # -----
-    # load_checkpoint
-    # -----
-    def load_checkpoint(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
     # save_checkpoint
     # -----
     def save_checkpoint(self, trainer):
