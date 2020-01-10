@@ -23,27 +23,6 @@ class BaseChooser:
     """
 
     # -----
-    # constructor
-    # -----
-    def __init__(self):
-        """
-        Doc string.
-
-        Parameters:
-        -----------
-            pass
-
-        Raises:
-        -------
-            pass
-
-        Returns:
-        --------
-            pass
-        """
-        pass
-
-    # -----
     # choose
     # -----
     def choose(self, state, env, brain, mode):

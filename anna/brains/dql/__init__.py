@@ -1,1 +1,1 @@
-from . import double, fixed, qbrain, vanilla
+from . import qbrain, vanilla

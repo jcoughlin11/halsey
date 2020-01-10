@@ -73,12 +73,8 @@ class Agent:
         --------
             pass
         """
-        # If continuing training, load the checkpoint files
-        if self.folio.clArgs.continueTraining:
-            trainer = self.ioManager.load_checkpoint()
-        # Otherwise, instantiate a new trainer
-        else:
-            trainer = anna.trainers.utils.get_new_trainer(self.folio)
+        # Instantiate a new trainer
+        trainer = anna.trainers.utils.get_new_trainer(self.folio)
         # Training loop
         for _ in trainer.train():
             self.ioManager.save_checkpoint(trainer)
