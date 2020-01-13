@@ -801,6 +801,17 @@ test = ["pytest", "pytest-cov", "html5lib", "flake8 (>=3.5.0)", "flake8-import-o
 
 [[package]]
 category = "main"
+description = "Read the Docs theme for Sphinx"
+name = "sphinx-rtd-theme"
+optional = false
+python-versions = "*"
+version = "0.4.3"
+
+[package.dependencies]
+sphinx = "*"
+
+[[package]]
+category = "main"
 description = ""
 name = "sphinxcontrib-applehelp"
 optional = false
@@ -1018,7 +1029,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "de0021a9c761177817b11df9c1c0d80706bf28ff6a7a9478c3686d061bc89ee2"
+content-hash = "6e3087ce89f31ceb12000e97614ee95b5245dbba5421a3effc0502ae3ea1d981"
 python-versions = '^3.6'
 
 [metadata.files]
@@ -1635,6 +1646,10 @@ snowballstemmer = [
 sphinx = [
     {file = "Sphinx-2.3.1-py3-none-any.whl", hash = "sha256:298537cb3234578b2d954ff18c5608468229e116a9757af3b831c2b2b4819159"},
     {file = "Sphinx-2.3.1.tar.gz", hash = "sha256:e6e766b74f85f37a5f3e0773a1e1be8db3fcb799deb58ca6d18b70b0b44542a5"},
+]
+sphinx-rtd-theme = [
+    {file = "sphinx_rtd_theme-0.4.3-py2.py3-none-any.whl", hash = "sha256:00cf895504a7895ee433807c62094cf1e95f065843bf3acd17037c3e9a2becd4"},
+    {file = "sphinx_rtd_theme-0.4.3.tar.gz", hash = "sha256:728607e34d60456d736cc7991fd236afb828b21b82f956c5ea75f94c8414040a"},
 ]
 sphinxcontrib-applehelp = [
     {file = "sphinxcontrib-applehelp-1.0.1.tar.gz", hash = "sha256:edaa0ab2b2bc74403149cb0209d6775c96de797dfd5b5e2a71981309efab3897"},
