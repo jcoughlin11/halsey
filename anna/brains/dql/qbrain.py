@@ -1,6 +1,6 @@
 """
 Title: qbrain.py
-Purpose:
+Purpose: Contains the base brain class.
 Notes:
 """
 import anna
@@ -11,15 +11,51 @@ import anna
 # ============================================
 class QBrain:
     """
-    Doc string.
+    The base brain class.
 
-    Attributes:
-    -----------
-        pass
+    This class holds all of the meta-data about the network(s) and
+    handles the construction of the primary network.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    arch : str
+        The name(s) of the architecture(s) used for the network(s).
+
+    channelsFirst : bool
+        If True, then the first element of inputShape is the number of
+        channels in the input. If False, then the last element of
+        inputShape is assumed to be the number of channels.
+
+    discountRate : float
+        Determines how much importance the agent gives to future
+        rewards.
+
+    inputShape : list
+        Contains the dimensions of the input to the network.
+
+    learningRate : float
+        Determines the step-size used during backpropogation.
+
+    loss : float
+        The value of the loss from the most recent network update.
+
+    lossName : str
+        The name of the loss function to use.
+
+    nActions : int
+        The size of the game's action space. Determines the network's
+        output shape.
+
+    optimizerName : str
+        The name of the method used to to optimize the loss
+        function.
+
+    qNet : tf.keras.Model
+        The primary neural network used by the brain.
+
+    Methods
+    -------
+    None
     """
 
     # -----
@@ -27,19 +63,33 @@ class QBrain:
     # -----
     def __init__(self, brainParams, nActions, inputShape, channelsFirst):
         """
-        Doc string.
+        Initializes the brain and builds the primary network.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        brainParams : anna.utils.folio.Folio
+            Contains the brain-related parameters read in from the
+            parameter file.
 
-        Raises:
+        nActions : int
+            The size of the game's action space. Determines the
+            network's output shape.
+
+        inputShape : list
+            Contains the dimensions of the input to the network.
+
+        channelsFirst : bool
+            If True, then the first element of inputShape is the number
+            of channels in the input. If False, then the last element of
+            inputShape is assumed to be the number of channels.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Initialize attributes
         self.arch = brainParams.architecture

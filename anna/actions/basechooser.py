@@ -1,6 +1,7 @@
 """
 Title: basechooser.py
-Purpose:
+Purpose: Provides choosers with access to methods that either randomly
+            choose an action or use the network to choose an action.
 Notes:
 """
 import numpy as np
@@ -11,15 +12,23 @@ import numpy as np
 # ============================================
 class BaseChooser:
     """
-    Doc string.
+    Provides choosers with access to methods that either randomly
+    choose an action or use the network to choose an action.
 
-    Attributes:
-    -----------
-        pass
+    There are three ways to choose an action: randomly, using the
+    network, or using a strategy (e.g., epsilon-greedy). The first two
+    options are common to all choosers, so rather than re-implement
+    those methods for each chooser, they can inherit from this class.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    choose(state, env, brain, mode)
+        Abstracts aways specific calls for choosing randomly, with a
+        network, or with a strategy.
     """
 
     # -----
@@ -27,47 +36,66 @@ class BaseChooser:
     # -----
     def choose(self, state, env, brain, mode):
         """
-        Doc string.
+        Abstracts away specific calls for choosing randomly, with a
+        network, or with a strategy.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        state : np.ndarray
+            The game state being used to inform any decision made with
+            the network.
 
-        Raises:
+        env : gym.Env
+            The interface between the game and the agent.
+
+        brain : anna.brains.QBrain
+            Contains the agent's network(s), learning method, and
+            network/learning meta-data.
+
+        mode : str
+            Determines how the action is chosen. If `'random'`, then
+            the action is chosen randomly. If `'train'`, then the user
+            specified action choosing strategy is employed (e.g.,
+            epsilon-greedy). If `'test'`, then the brain is used.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        action : int
+            The integer value corresponding to the chosen action.
         """
-        # Choose an action according to the desired strategy
         if mode == "train":
             action = self.train_choose(state, env, brain)
         elif mode == "random":
-            action = self.random_choose(env)
+            action = self._random_choose(env)
         elif mode == "test":
-            action = self.test_choose(state, brain)
+            action = self._test_choose(state, brain)
         return action
 
     # -----
     # random_choose
     # -----
-    def random_choose(self, env):
+    def _random_choose(self, env):
         """
-        Doc string.
+        Chooses a value from [0, nActions) with each value havin an
+        equal probability of being selected.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        env : gym.Env
+            The interface between the game and the agent.
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        action : int
+            The integer value corresponding to the chosen action.
         """
         action = env.action_space.sample()
         return action
@@ -75,21 +103,28 @@ class BaseChooser:
     # -----
     # test_choose
     # -----
-    def test_choose(self, state, brain):
+    def _test_choose(self, state, brain):
         """
-        Doc string.
+        Uses the brain's current knowledge to select an action.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        state : np.ndarray
+            The game state being used to inform any decision made with
+            the network.
 
-        Raises:
+        brain : anna.brains.QBrain
+            Contains the agent's network(s), learning method, and
+            network/learning meta-data.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        action : int
+            The integer value corresponding to the chosen action.
         """
         # Keras expects a group of samples of the specified shape,
         # even if there's just one sample, so we need to reshape

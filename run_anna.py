@@ -18,17 +18,17 @@ def main():
     Instantiates an instance of the Agent class and then either
     trains the agent, tests the agent, or both.
 
-    Parameters:
-    -----------
-        None
+    Parameters
+    ----------
+    None
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        None
-
-    Returns:
-    --------
-        None
+    None
     """
     # Set up the agent
     agent = anna.Agent()

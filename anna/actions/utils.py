@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Handles construction of a new action manager object.
 Notes:
     * The action manager handles action selection
 """
@@ -12,19 +12,22 @@ from .epsilongreedy import EpsilonGreedy
 # ============================================
 def get_new_action_manager(actionParams):
     """
-    Doc string.
+    Handles construction of a new action manager object.
 
     Parameters:
     -----------
-        pass
+    actionParams : anna.utils.folio.Folio
+        The relevant parameters as read in from the parameter file.
 
     Raises:
     -------
-        pass
+    None
 
     Returns:
     --------
-        pass
+    actionManager : anna.actions.BaseChooser
+        The object used for choosing actions while interacting with
+        the game.
     """
     if actionParams.mode == "epsilonGreedy":
         actionManager = EpsilonGreedy(actionParams)

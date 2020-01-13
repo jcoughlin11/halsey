@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Handles construction of a new brain object.
 Notes:
     * The brain class contains the neural network
     * The brain class contains the learn method
@@ -15,19 +15,33 @@ from .dql.vanilla import VanillaQBrain
 # ============================================
 def get_new_brain(brainParams, nActions, inputShape, channelsFirst):
     """
-    Doc string.
+    Handles construction of a new brain object.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    brainParams : anna.utils.folio.Folio
+        Contains the brain-related parameters read in from the
+        parameter file.
 
-    Raises:
+    nActions : int
+        The size of the game's action space. Determines the network's
+        output shape.
+
+    inputShape : list
+        Contains the dimensions of the input to the network.
+
+    channelsFirst : bool
+        If True, then the first element of inputShape is the number of
+        channels in the input. If False, then the last element of
+        inputShape is assumed to be the number of channels.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    brain : anna.brains.QBrain
     """
     if brainParams.mode == "vanillaQ":
         brain = VanillaQBrain(brainParams, nActions, inputShape, channelsFirst)

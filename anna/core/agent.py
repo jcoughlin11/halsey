@@ -1,6 +1,6 @@
 """
 Title: agent.py
-Purpose:
+Purpose: Contains the Agent class.
 Notes:
     * The Agent class oversees the ioManager, trainer, and tester
 """
@@ -12,15 +12,28 @@ import anna
 # ============================================
 class Agent:
     """
-    Doc string.
+    ANNA's primary manager class.
 
-    Attributes:
-    -----------
-        pass
+    The Agent class is ANNA's user-facing class and exposes the train
+    and test methods.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    folio : anna.utils.folio.Folio
+        A container class for all of the parameters specified in the
+        parameter file.
+
+    ioManager : anna.io.manager.IoManager
+        Object for reading in and saving files.
+
+    Methods
+    -------
+    train()
+        Contains the primary training loop for the agent.
+
+    trainingEnabled()
+        A class property that returns True if the training flag is set
+        in the parameter file and False otherwise.
     """
 
     # -----
@@ -28,19 +41,20 @@ class Agent:
     # -----
     def __init__(self):
         """
-        Doc string.
+        Reads in the parameter file, creates the folio, and determines
+        which device we're training on (CPU or GPU).
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Instantiate the io manager
         self.ioManager = anna.io.manager.IoManager()
@@ -59,19 +73,26 @@ class Agent:
     # -----
     def train(self):
         """
-        Doc string.
+        Manages the primary training loop.
 
-        Parameters:
-        -----------
-            pass
+        Training is actually handled by the trainer object. Here we
+        instantiate one and then loop over it's train generator, which
+        yields when it's time to save a checkpoint file and terminates
+        upon training finishing.
 
-        Raises:
+        Parameters
+        ----------
+        None
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        bool
+            Returns True if all training episodes finish, otherwise,
+            returns False if training had to end early for any reason.
         """
         # Instantiate a new trainer
         trainer = anna.trainers.utils.get_new_trainer(self.folio)
@@ -92,18 +113,20 @@ class Agent:
     @property
     def trainingEnabled(self):
         """
-        Doc string.
+        Exposes the folio.run.train attribute to the user.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        bool
+            Returns True if the train flag is set in the parameter file
+            and False otherwise.
         """
         return self.folio.run.train

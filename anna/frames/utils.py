@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Handles the creation of a new frame manager object.
 Notes:
     * The frame manager handles all image pre-processing and processing
 """
@@ -12,19 +12,23 @@ from .vanillafm import VanillaFrameManager
 # ============================================
 def get_new_frame_manager(frameParams):
     """
-    Doc string.
+    Handles the creation of a new frame manager object of the desired
+    type.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    frameParams : anna.utils.folio.Folio
+        Contains the relevant frame manager parameters from the
+        parameter file.
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    frameManager : anna.frames.FrameManager
+        The frame manager object.
     """
     if frameParams.mode == "vanilla":
         frameManager = VanillaFrameManager(frameParams)

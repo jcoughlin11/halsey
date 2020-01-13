@@ -1,6 +1,6 @@
 """
 Title: vanillafm.py
-Purpose:
+Purpose: Contains the VanillaFrameManager class.
 Notes:
 """
 import collections
@@ -15,15 +15,62 @@ from skimage import transform
 # ============================================
 class VanillaFrameManager:
     """
-    Doc string.
+    This frame manager processes 2D RGB images, preparing them for
+    input into the network.
 
-    Attributes:
-    -----------
-        pass
+    Attributes
+    ----------
+    channelsFirst : bool
+        If True, the number of channels (in this case, the trace
+        length) is the first element of the input shape. Otherwise,
+        the trace length will be the last element.
 
-    Methods:
-    --------
-        pass
+    cropBot : int
+        The number of rows to cut off from the bottom of the image.
+
+    cropLeft : int
+        The number of columns to cut off from the left of the image.
+
+    cropRight : int
+        The number of columns to cut off from the right of the image.
+
+    cropTop : int
+        The number of rows to cut off from the top of the image.
+
+    frameStack : collections.deque
+        Holds a trace of processed frames that is used for input into
+        the neural network.
+
+    inputShape : list
+        The dimensions of the input into the neural network. Is either
+        NCHW or NHWC, where N is the batch size, C is the number of
+        channels (the trace length), H is the height (number of rows),
+        and W is the width (number of columns).
+
+    shrinkCols : int
+        The number of columns to use in the shrunk-down image.
+
+    shrinkRows : int
+        The number of rows to use in the shrunk-down image.
+
+    traceLen : int
+        The number of frames to stack together to form one input.
+
+    Methods
+    -------
+    process_frame(frame, newEpisode=True)
+        Driver function for handling a frame and adding it to the
+        frame stack.
+
+    preprocess_frame(frame)
+        Driver function for greyscaling, re-sizing, and normalizing the
+        frame.
+
+    crop_frame(frame)
+        Handles re-sizing the frame.
+
+    norm_frame(frame)
+        Normalizes the pixel values in the frame.
     """
 
     # -----
@@ -31,19 +78,21 @@ class VanillaFrameManager:
     # -----
     def __init__(self, frameParams):
         """
-        Doc string.
+        Sets the state and creates the input shape.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        frameparams : anna.utils.folio.Folio
+            The frame-specific parameters as read-in from the parameter
+            file.
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         self.cropBot = frameParams.cropBot
         self.cropLeft = frameParams.cropLeft
@@ -64,19 +113,26 @@ class VanillaFrameManager:
     # -----
     def process_frame(self, frame, newEpisode=False):
         """
-        Doc string.
+        Driver function for processing a frame and adding it to the
+        stack of frames.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        frame : np.ndarray
+            The 2D image of the current game state.
 
-        Raises:
+        newEpisode : bool
+            If True, we need to instantiate a new frame stack,
+            otherwise we can add to the existing one.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        stackedFrame : np.ndarray
+            An array version of the deque frameStack.
         """
         # Preprocess the given state
         preprocessedFrame = self.preprocess_frame(frame)
@@ -103,19 +159,22 @@ class VanillaFrameManager:
     # -----
     def preprocess_frame(self, frame):
         """
-        Doc string.
+        Driver function for greyscaling, re-sizing, and normalizing the
+        frame.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        frame : np.ndarray
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        shrunkFrame : np.ndarray
+            The fully processed frame. It's been greyscaled, re-sized,
+            and normalized.
         """
         # Grayscale the image
         greyFrame = color.rgb2grey(frame)
@@ -135,19 +194,21 @@ class VanillaFrameManager:
     # -----
     def crop_frame(self, frame):
         """
-        Doc string.
+        Handles re-sizing the frame.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        frame : np.ndarray
+            The image of the current game state.
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        croppedFrame : np.ndarray
+            The re-sized frame.
         """
         # Crop the frame
         if self.cropBot != 0 and self.cropRight != 0:
@@ -171,19 +232,21 @@ class VanillaFrameManager:
     # -----
     def norm_frame(self, frame):
         """
-        Doc string.
+        Handles normalizing the frame.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        frame : np.ndarray
+            The current game image.
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        frame : np.ndarray
+            The normalized frame.
         """
         frame = frame / 255.0
         return frame
