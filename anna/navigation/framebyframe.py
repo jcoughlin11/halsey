@@ -13,15 +13,20 @@ from .basenavigator import BaseNavigator
 # ============================================
 class FrameByFrameNavigator(BaseNavigator):
     """
-    Doc string.
+    Represents a fully Markovian process whereby the agent takes in and
+    processes each and every frame of the game.
 
-    Attributes:
-    -----------
-        pass
+    Attributes
+    ----------
+    See anna.navigation.BaseNavigator
 
-    Methods:
-    --------
-        pass
+    Methods
+    -------
+    transition(brain=None, mode="train")
+        For a given state, chooses an action based on mode and then
+        observes the results of having taken that action. The current
+        state is then updated to the resulting next state (frame) of
+        the game.
     """
 
     # -----
@@ -29,19 +34,30 @@ class FrameByFrameNavigator(BaseNavigator):
     # -----
     def __init__(self, env, navParams, frameManager, actionManager):
         """
-        Doc string.
+        Sets up the navigator object.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        env : gym.Env
+            The interface between the game and the agent.
 
-        Raises:
+        navParams : anna.utils.folio.Folio
+            An object containing the navigation-specific data read in
+            from the parameter file.
+
+        frameManager : anna.frames.FrameManager
+            The image-processing pipeline used on incoming game states.
+
+        actionManager : anna.actions.ActionManager
+            Handles selecting an action for the current state.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         super().__init__(env, navParams, frameManager, actionManager)
 
@@ -50,19 +66,35 @@ class FrameByFrameNavigator(BaseNavigator):
     # -----
     def transition(self, brain=None, mode="train"):
         """
-        Doc string.
+        For the current state, this method handles selecting an action,
+        taking that action, observing the results of that action, and
+        then updating the current state to the resulting state.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        brain : anna.brains.QBrain
+            This is only used if mode=test or if mode=train (and in
+            that case, it's only used if the exploration-exploitation
+            strategy deems it necessary).
 
-        Raises:
+        mode : str
+            One of either train, test, or random. Determines how the
+            action is to be selected. If train is selected, then the
+            chosen exploration-exploitation strategy is employed. If
+            test is selected, then the agent's current knowledge
+            (network) is always used. If random is selected, then the
+            action is determined randomly, with each action having an
+            equal chance of being selected.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        experience : anna.utils.experience.Experience
+            The state, action, reward, next state, done information
+            packaged into a container object.
         """
         # Choose an action
         action = self.actionManager.choose(self.state, self.env, brain, mode)

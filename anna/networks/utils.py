@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Handles the construction of a new neural network.
 Notes:
 """
 import tensorflow as tf

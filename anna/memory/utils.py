@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Handles the creation of a new memory object
 Notes:
     * The memory class stores information (experience) about previously
         visited states
@@ -15,19 +15,21 @@ from .experience.experiencememory import ExperienceMemory
 # ============================================
 def get_new_memory(memoryParams):
     """
-    Doc string.
+    Handles the creation of a new memory object.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    memoryParams : anna.utils.folio.Folio
+        Object containing the memory-specific parameters from the
+        parameter file.
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    None
     """
     if memoryParams.mode == "experience":
         memory = ExperienceMemory(memoryParams)

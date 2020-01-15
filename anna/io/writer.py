@@ -1,6 +1,6 @@
 """
 Title: writer.py
-Purpose:
+Purpose: Handles the saving of all files.
 Notes:
 """
 import os
@@ -15,15 +15,20 @@ import yaml
 # ============================================
 class Writer:
     """
-    Doc string.
+    Handles the saving of all files.
 
-    Attributes:
-    -----------
-        pass
+    Attributes
+    ----------
+    None
 
-    Methods:
-    --------
-        pass
+    Methods
+    -------
+    save_models(brain, outputDir)
+        Saves the network(s). This includes the weights, architecture,
+        metrics, and optimizer state.
+
+    save_params(params, outputDir)
+        Creates a copy of the given parameter file.
     """
 
     # -----
@@ -31,19 +36,31 @@ class Writer:
     # -----
     def save_params(self, params, outputDir):
         """
-        Doc string.
+        Saves a copy of the given parameter file.
 
-        Parameters:
-        -----------
-            pass
+        The resulting file is read-only and has a lock extension to
+        indicate this. The purpose of this file is both to provide
+        reference about the run to the user in the future, as well as
+        to allow easier resuming of training without having to worry
+        about potential changes made to the parameter file in the
+        interim.
 
-        Raises:
+        Parameters
+        ----------
+        params : dict
+            The parameters read from the given parameter file.
+
+        outputDir : str
+            The name of the base output directory where the lock file
+            will be saved.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Set up the lock file
         paramLockFile = os.path.join(outputDir, "params.lock")
@@ -62,19 +79,27 @@ class Writer:
     # -----
     def save_models(self, brain, outputDir):
         """
-        Doc string.
+        Saves the brain's network(s).
 
-        Parameters:
-        -----------
-            pass
+        This includes the network architecture, weights, metrics, and
+        optimizer state.
 
-        Raises:
+        Parameters
+        ----------
+        brain : anna.brains.QBrain
+            The object containing the network(s) to be saved.
+
+        outputDir : str
+            The full path to the brain output directory where the files
+            will be saved.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         for attr, attrValue in brain.__dict__.items():
             # Save the networks

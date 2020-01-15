@@ -1,6 +1,7 @@
 """
 Title:   manager.py
-Purpose:
+Purpose: Contains the IoManager class for abstracting away reading and
+            writing files.
 Notes:
     * The IoManager class oversees the reader and writer objects
 """
@@ -17,15 +18,37 @@ from .writer import Writer
 # ============================================
 class IoManager:
     """
-    Doc string.
+    Convenience object for managing the reading and writing of files.
 
-    Attributes:
-    -----------
-        pass
+    Attributes
+    ----------
+    brainDir : str
+        The full path to where the brain object is saved.
 
-    Methods:
-    --------
-        pass
+    fileBase : str
+        The prefix used for the output file names.
+
+    outputDir : str
+        The name of the parent output directory.
+
+    reader : anna.io.Reader
+        The object responsible for reading in all files and parsing
+        command-line arguments.
+
+    writer : anna.io.Writer
+        The object responsible for saving all output files.
+
+    Methods
+    -------
+    load_params()
+        Reads in the parameter file and parses the command-line
+        arguments.
+
+    save_checkpoint(trainer)
+        Saves the current state of the trainer.
+
+    save_params(params)
+        Saves a copy of the parameters used during the run.
     """
 
     # -----
@@ -33,19 +56,19 @@ class IoManager:
     # -----
     def __init__(self):
         """
-        Doc string.
+        Instantiates paths and creates the reader and writer objects.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         self.reader = Reader()
         self.writer = Writer()
@@ -58,19 +81,23 @@ class IoManager:
     # -----
     def load_params(self):
         """
-        Doc string.
+        Reads in the parameter file and parses any optional
+        command-line arguments.
 
-        Parameters:
-        -----------
-            pass
+        This is a convenience method that abstracts all of the reading
+        away to the reader object.
 
-        Raises:
+        Parameters
+        ----------
+        None
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Parse the command-line args
         clArgs = self.reader.parse_args()
@@ -83,7 +110,7 @@ class IoManager:
         # Validate the parameters
         anna.utils.validation.validate_params(folio)
         # Set the io parameters
-        self.set_io_params(folio.io, folio.clArgs.continueTraining)
+        self._set_io_params(folio.io, folio.clArgs.continueTraining)
         return folio, params
 
     # -----
@@ -91,19 +118,25 @@ class IoManager:
     # -----
     def save_params(self, params):
         """
-        Doc string.
+        Saves a copy of the parameters used in the run.
 
-        Parameters:
-        -----------
-            pass
+        The purpose of this is so that the user has an easy reference
+        to which parameters were used. It also makes continuing the
+        training process later on much easier. The file is saved as a
+        read-only lock file.
 
-        Raises:
+        Parameters
+        ----------
+        params : dict
+            The parameters as read in from the given parameter file.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         self.writer.save_params(params, self.outputDir)
 
@@ -112,19 +145,21 @@ class IoManager:
     # -----
     def save_checkpoint(self, trainer):
         """
-        Doc string.
+        Saves the current state of the trainer object.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        trainer : anna.trainers.Trainer
+            The object that oversees the training process. It contains
+            the brain, memory, and navigator.
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Save the models
         self.writer.save_models(trainer.brain, self.brainDir)
@@ -132,21 +167,30 @@ class IoManager:
     # -----
     # set_io_params
     # -----
-    def set_io_params(self, ioParams, continueTraining):
+    def _set_io_params(self, ioParams, continueTraining):
         """
-        Doc string.
+        Sets up the file paths and creates the output file directory
+        tree.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        ioParams : anna.utils.folio.Folio
+            An object containing the relevant IO parameters from the
+            parameter file.
 
-        Raises:
+        continueTraining : bool
+            If True, we are using an existing checkpoint file as a
+            starting point and resuming the training process from
+            where it left off. If False, we're starting training from
+            the beginning.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Set the names of the various output directories
         self.fileBase = ioParams.fileBase

@@ -14,15 +14,20 @@ import yaml
 # ============================================
 class Reader:
     """
-    Doc string.
+    Handles the reading of all files and the parsing of all
+    command-line arguments.
 
-    Attributes:
-    -----------
-        pass
+    Attributes
+    ----------
+    None
 
-    Methods:
-    --------
-        pass
+    Methods
+    -------
+    parse_args()
+        Parses the command-line arguments.
+
+    read_param_file(paramFile, continueTraining)
+        Reads in the given parameter file.
     """
 
     # -----
@@ -30,19 +35,20 @@ class Reader:
     # -----
     def parse_args(self):
         """
-        Doc string.
+        Parses the given command-line arguments.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        args : argparse.Namespace
+            Object for holding the parsed command-line arguments.
         """
         # Set up the parser
         parser = argparse.ArgumentParser()
@@ -70,19 +76,28 @@ class Reader:
     # -----
     def read_param_file(self, paramFile, continueTraining):
         """
-        Doc string.
+        Reads the given parameter file.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        paramFile : str
+            The base name of the parameter file to read.
 
-        Raises:
+        continueTraining : bool
+            If True, we are continuing training from where a previous
+            run left off. If False, we are starting training over from
+            the beginning.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        params : dict
+            A nested dictionary containing the data read in from the
+            parameter file. Has the same structure as the parameter
+            file itself.
         """
         # Read the file
         paramFile = os.path.abspath(os.path.expanduser(paramFile))
