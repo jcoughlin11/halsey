@@ -1,6 +1,6 @@
 """
 Title: experience.py
-Purpose:
+Purpose: Contains the Experience object.
 Notes:
 """
 
@@ -10,15 +10,35 @@ Notes:
 # ============================================
 class Experience:
     """
-    Doc string.
+    This object stores and manages the information related to an
+    agent's interaction with the game.
 
-    Attributes:
-    -----------
-        pass
+    For a traditional Markovian interaction, this class simply
+    provides an object interface to the (state, action, reward,
+    next state, done) tuple.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    action : int
+        The action chosen for the interaction.
+
+    done : bool
+        Whether or not the chosen action led to a terminal state or
+        not.
+
+    nextState : np.ndarray
+        The state the chosen action results in.
+
+    reward : int
+        The feedback provided by the game for having chosen the
+        selected action.
+
+    state : np.ndarray
+        The state the agent interacted with.
+
+    Methods
+    -------
+    None
     """
 
     # -----
@@ -26,19 +46,32 @@ class Experience:
     # -----
     def __init__(self, state, action, reward, nextState, done):
         """
-        Doc string.
+        Parameters
+        ----------
+        state : np.ndarray
+            The state the agent interacted with.
 
-        Parameters:
-        -----------
-            pass
+        action : int
+            The action chosen for the interaction.
 
-        Raises:
+        reward : int
+            The feedback provided by the game for having chosen the
+            selected action.
+
+        nextState : np.ndarray
+            The state the chosen action results in.
+
+        done : bool
+            Whether or not the chosen action led to a terminal state or
+            not.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         self.state = state
         self.action = action

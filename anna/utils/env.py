@@ -1,6 +1,6 @@
 """
 Title: env.py
-Purpose:
+Purpose: Creates and manages the game environment.
 Notes:
     * The environment handles interaction between the game and the
         Agent
@@ -13,19 +13,21 @@ import gym
 # ============================================
 def build_env(envName):
     """
-    Doc string.
+    Creates a new game environment.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    envName : str
+        The name of the game environment to build.
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    env : gym.Env
+        The fully constructed game environment.
     """
     env = gym.make(envName)
     return env

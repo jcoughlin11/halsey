@@ -1,6 +1,7 @@
 """
 Title: folio.py
-Purpose:
+Purpose: Contains the Folio object as well as functions related to
+            managing it.
 Notes:
 """
 
@@ -10,15 +11,19 @@ Notes:
 # ============================================
 class Folio:
     """
-    Doc string.
+    An empty container object that provides an object interface to data
+    normally saved in a dictionary.
 
-    Attributes:
-    -----------
-        pass
+    This is a convenience object, since the object interface is cleaner
+    than the dictionary interface.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    None
+
+    Methods
+    -------
+    None
     """
 
     # -----
@@ -33,19 +38,31 @@ class Folio:
 # ============================================
 def get_mode_params(modeDict):
     """
-    Doc string.
+    Extracts only those parameters related to a chosen option in a
+    nested section of the parameter file.
 
-    Parameters:
-    -----------
-        pass
+    The parameter file is nested. That is, certain sections have
+    user-selectable options (such as the learning method to use
+    or the type of memory). The use of the mode keyword allows for
+    a swtich-like interface to select these options. Those parameters
+    listed under the option with `enabled=True` are the ones read in
+    here.
 
-    Raises:
+    Parameters
+    ----------
+    modeDict : dict
+        A dictionary of all the parameters listed under the `mode`
+        key for a section in the parameter file.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    modeParams : dict
+        The parameters under the selected option (i.e., the parameters
+        under the key with `enabled=True`.
     """
     # This holds the name of the chosen mode (e.g., the learning
     # technique to use) as well as any parameters specific to that
@@ -69,19 +86,26 @@ def get_mode_params(modeDict):
 # ============================================
 def get_new_folio(clArgs, params):
     """
-    Doc string.
+    Converts the dictionary version of the parameters read in from the
+    parameter file to a Folio.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    clArgs : argparse.Namespace
+        The object containing the parsed command-line arguments.
 
-    Raises:
+    params : dict
+        Contains the parameters read in from the parameter file.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    folio : anna.utils.folio.Folio
+        A container providing an object interface to the parameter file
+        parameters and command-line arguments.
     """
     # Create an empty folio
     folio = Folio()

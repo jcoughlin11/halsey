@@ -23,19 +23,41 @@ def build_network(
     learningRate,
 ):
     """
-    Doc string.
+    Handles construction of a new neural network.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    arch : str
+        The name of the neural network architecture to use.
 
-    Raises:
+    inputShape : list
+        The dimensions of the neural network's input. Must be either
+        NCHW (GPU or RNN) or NHWC (CPU).
+
+    channelsFirst : bool
+        If True, then the input shape is NCHW, otherwise it's NHWC.
+
+    nActions : int
+        The size of the game's action space. This is used in
+        determining the shape of the neural network's output.
+
+    optimizerName : str
+        The name of the optimizer to use.
+
+    lossName : str
+        The name of the loss function to minimize.
+
+    learningRate : float
+        The step size to use during back propagation.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    net : anna.networks.NeuralNetwork
+        The newly created neural network.
     """
     # Set up network architecture
     if arch in registers.convNetRegister:
@@ -53,19 +75,32 @@ def build_network(
 # ============================================
 def set_optimizer(optimizerName, learningRate):
     """
-    Doc string.
+    Assigns the actual optimizer function based on the given string
+    form.
 
-    Parameters:
-    -----------
-        pass
+    This way of doing it allows for not only native keras optimizers,
+    but also custom, user-defined optimizers, as well. Both
+    user-defined and native keras optimizers are handled in
+    the same manner, which makes life simpler, if potentially more
+    verbose than necessary in certain cases.
 
-    Raises:
+    Parameters
+    ----------
+    optimizerName : str
+        The name of the optimizer to use.
+
+    learningRate : float
+        The step size to use during back propagation.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    optimizer : tf.keras.optimizers.Optimizer
+        The actual optimizer object to perform minimization of the loss
+        function.
     """
     if optimizerName == "adam":
         optimizer = tf.keras.optimizers.Adam(lr=learningRate)
@@ -77,19 +112,28 @@ def set_optimizer(optimizerName, learningRate):
 # ============================================
 def set_loss(lossName):
     """
-    Doc string.
+    Sets the actual loss function to be minimized based on the given
+    string form.
 
-    Parameters:
-    -----------
-        pass
+    This way of doing it allows for not only native keras losses,
+    but also custom, user-defined losses, as well. Both
+    user-defined and native keras lossesare handled in
+    the same manner, which makes life simpler, if potentially more
+    verbose than necessary in certain cases.
 
-    Raises:
+    Parameters
+    ----------
+    lossName : str
+        The name of the loss function to use.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    loss : tf.keras.losses.Loss
+        The actual loss function to be minimized during training.
     """
     if lossName == "mse":
         loss = tf.keras.losses.MeanSquaredError()

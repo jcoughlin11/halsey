@@ -57,19 +57,24 @@ def validate_params(folio):
 # ============================================
 def is_empty_dir(directory):
     """
-    Doc string.
+    Checks to see if the output directory tree is empty.
 
-    Parameters:
-    -----------
-        pass
+    This is to prevent overwriting a directory already in use by
+    another run.
 
-    Raises:
+    Parameters
+    ----------
+    directory : str
+        The root of the output directory tree.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    isEmpty : bool
+        If True then the directory tree is empty and we can proceed.
     """
     isEmpty = True
     # Walk the directory tree

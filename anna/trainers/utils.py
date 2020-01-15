@@ -1,6 +1,6 @@
 """
 Title: utils.py
-Purpose:
+Purpose: Creates a new trainer object.
 Notes:
     * The trainer class oversees the navigator, brain, and memory
     * The trainer class contains the main training loop
@@ -15,19 +15,22 @@ from .qtrainer import QTrainer
 # ============================================
 def get_new_trainer(folio):
     """
-    Doc string.
+    Handles the creation of a new trainer object.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    folio : anna.utils.folio.Folio
+        The relevant data read in from the parameter file in object
+        form.
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    trainer : anna.trainers.Trainer
+        The manager of the training loop.
     """
     # Create a new navigator
     navigator = anna.navigation.utils.get_new_navigator(

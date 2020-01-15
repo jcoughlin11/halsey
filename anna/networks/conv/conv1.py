@@ -1,6 +1,6 @@
 """
 Title: conv1.py
-Purpose:
+Purpose: Contains the conv1 neural network architecture.
 Notes:
 """
 import tensorflow as tf
@@ -11,21 +11,38 @@ import tensorflow as tf
 # ============================================
 def build_conv1_net(inputShape, channelsFirst, nActions):
     """
-    Constructs the layers of the network. Uses two convolutional
-    layers followed by a FC and then output layer. See the last
-    paragraph of section 4.1 in Mnih13.
+    Constructs the original deep Q-learning neural network from [1]_.
+    It consists of two convolutional layers followed by a
+    fully-connected layer and then output layer. See the last
+    paragraph of section 4.1 in [1]_.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    inputShape : list
+        Contains the dimensions of the neural network's inputs. These
+        are either NCHW (for GPU or RNN) or NHWC (for CPU).
 
-    Raises:
+    channelsFirst : bool
+        If True, the input shape is NCHW. If False, the input shape is
+        NHWC.
+
+    nActions : int
+        The size of the game's action space. Used to determine the
+        shape of the neural network's output.
+
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
+    model : tf.keras.Model
+        The constructed (but uncompiled) neural network).
 
-    Returns:
-    --------
-        pass
+    References
+    ----------
+    .. [1] Minh, V., **et al**., "Playing Atari with Deep
+        Reinforcement Learning," CoRR, vol. 1312, 2013.
     """
     # Set the data format
     if channelsFirst:

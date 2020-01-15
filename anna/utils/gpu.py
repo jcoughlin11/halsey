@@ -1,6 +1,7 @@
 """
 Title: gpu.py
-Purpose:
+Purpose: Contains functions related to using and configuring a GPU to
+            run ANNA.
 Notes:
 """
 import tensorflow as tf
@@ -30,17 +31,20 @@ def set_channels(arch):
     an RNN? If not, then are we training on a GPU or not? If not, then
     the channels need to be last.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    arch : str
+        The name of the neural network architecture.
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    channelsFirst : bool
+        If True, the input shape is NCHW. If False, the input shape is
+        NHWC.
     """
     channelsFirst = True
     if arch not in rnnRegister and not using_gpu():
@@ -59,17 +63,18 @@ def using_gpu():
     A GPU can only be used if a.) a GPU is present and b.) tf was built
     with GPU support. In any other case, the CPU must be used.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    None
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    usingGPU : bool
+        If True, then a GPU device is being used.
     """
     usingGPU = False
     nGpu = len(tf.config.list_physical_devices("GPU"))

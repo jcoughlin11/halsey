@@ -1,6 +1,6 @@
 """
 Title: qtrainer.py
-Purpose:
+Purpose: Contains the QTrainer object.
 Notes:
 """
 import anna
@@ -11,15 +11,70 @@ import anna
 # ============================================
 class QTrainer:
     """
-    Doc string.
+    Contains the Deep Q-Learning training loop of [1]_.
 
-    Attributes:
-    -----------
-        pass
+    Trainers are used to manage the training loop and keep track of
+    the state of the training loop for potentially saving and resuming
+    training at a later time.
 
-    Methods:
-    --------
-        pass
+    Attributes
+    ----------
+    batchSize : int
+        The size of the sample to draw from the memory buffer. This
+        sample is used during learning.
+
+    brain : anna.brains.QBrain
+        Contains the neural network(s) and learning method.
+
+    earlyStop : bool
+        If True, stop the training loop.
+
+    episode : int
+        The current episode number.
+
+    episodeStep : int
+        The current step within the current episode.
+
+    maxEpisodeSteps : int
+        The maximum number of steps allowed per episode.
+
+    memory : int
+        Holds the agent's experiences that are used in learning.
+
+    navigator : anna.navigation.BaseNavigator
+        Manages the game environment, processing game states, choosing
+        actions, and performing actions in order to transition to the
+        next state.
+
+    nEpisodes : int
+        The number of episodes to train for.
+
+    savePeriod : int
+        Save the agent's state every savePeriod episodes.
+
+    startEpisode : int
+        The number of the starting episode. Really only matters when
+        resuming training from a previous run.
+
+    trainGen : generator
+        Contains the actual training loop. Having it as a generator
+        allows for straightforward transfer of control back to the
+        agent for tasks such as saving.
+
+    Methods
+    -------
+    train()
+        Abstracts away the calling of the training generator.
+
+    pre_populate()
+        Populates the memory buffer with experiences generated with
+        randomly chosen actions. This avoids the empty memory problem
+        at the start of training.
+
+    References
+    ----------
+    .. [1] Minh, V., **et al**., "Playing Atari with Deep
+        Reinforcement Learning," CoRR, vol. 1312, 2013.
     """
 
     # -----
@@ -27,19 +82,32 @@ class QTrainer:
     # -----
     def __init__(self, trainParams, navigator, brain, memory):
         """
-        Doc string.
+        Creates an instance of the training generator.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        trainParams : anna.utils.folio.Folio
+            Contains training-specific data read in from the parameter
+            file.
 
-        Raises:
+        navigator : anna.navigation.BaseNavigator
+            Handles the game environment, processing game frames,
+            choosing actions, and transitioning from one state to the
+            next.
+
+        brain : anna.brains.QBrain
+            Contains the neural network(s) and the learning method.
+
+        memory : anna.memory.Memory
+            Contains the buffer of experiences used during learning.
+
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         self.nEpisodes = trainParams.nEpisodes
         self.maxEpisodeSteps = trainParams.maxEpisodeSteps
@@ -59,19 +127,20 @@ class QTrainer:
     # -----
     def train(self):
         """
-        Doc string.
+        Abstracts away the use of the training generator.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        trainGen : generator
+            A generator that executes the main training loop.
         """
         return self.trainGen
 
@@ -80,19 +149,19 @@ class QTrainer:
     # -----
     def training_generator(self):
         """
-        Doc string.
+        The main deep Q-learning training loop.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
@@ -137,19 +206,20 @@ class QTrainer:
     # -----
     def pre_populate(self):
         """
-        Doc string.
+        Uses randomly chosen actions to generate experiences to fill
+        the memory buffer. This is to avoid the empty memory problem.
 
-        Parameters:
-        -----------
-            pass
+        Parameters
+        ----------
+        None
 
-        Raises:
+        Raises
+        ------
+        None
+
+        Returns
         -------
-            pass
-
-        Returns:
-        --------
-            pass
+        None
         """
         # Reset the environment
         self.navigator.reset()

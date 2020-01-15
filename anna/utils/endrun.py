@@ -1,6 +1,6 @@
 """
 Title: endrun.py
-Purpose:
+Purpose: Contains functions related stopping and cleanly exiting.
 Notes:
 """
 import os
@@ -11,19 +11,22 @@ import os
 # ============================================
 def check_early_stop():
     """
-    Doc string.
+    Checks the two conditions for user-instigated early stopping: the
+    presence of a file called 'stop' and whether or not the run time
+    has surpassed the given time limit.
 
-    Parameters:
-    -----------
-        pass
+    Parameters
+    ----------
+    None
 
-    Raises:
+    Raises
+    ------
+    None
+
+    Returns
     -------
-        pass
-
-    Returns:
-    --------
-        pass
+    earlyStop : bool
+        If True, the code should be terminated immediately.
     """
     earlyStop = False
     if os.path.isfile(os.path.join(os.getcwd(), "stop")):
