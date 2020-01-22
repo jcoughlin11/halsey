@@ -23,6 +23,7 @@ Hopefully these docs are helpful and informative. Have a wonderful day!
 
    Installation/index
    Quickstart/index
+   Parameter File <parameter_file/index>
 
 
 

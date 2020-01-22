@@ -38,7 +38,7 @@ makes keeping things organized much easier.
     must be empty of files.
 
 The last step in setting up a run is to properly set the values of the
-parameters in the parameter file.
+parameters in :ref:`parameterfile`.
 
 Usage
 =====
