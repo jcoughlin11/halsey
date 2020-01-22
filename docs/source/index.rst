@@ -21,6 +21,7 @@ Hopefully these docs are helpful and informative. Have a wonderful day!
    :caption: Contents:
 
    Installation/index
+   Quickstart/index
 
 
 
