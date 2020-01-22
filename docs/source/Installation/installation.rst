@@ -4,11 +4,11 @@
 Installation
 ============
 
-It is strongly recommended that you install ANNA in a `virtual environment <https://virtualenv.pypa.io/en/latest/>`_.
+It is strongly recommended that you install Halsey in a `virtual environment <https://virtualenv.pypa.io/en/latest/>`_.
 If you need to manage multiple python versions, then `pyenv <https://github.com/pyenv/pyenv>`_
 is an excellent tool for doing so.
 
-ANNA has several dependencies:
+Halsey has several dependencies:
 
     * `python <https://www.python.org/>`_ (3.6+)
     * `numpy <https://numpy.org/>`_ (1.17+)
@@ -25,35 +25,35 @@ ANNA has several dependencies:
     * `sphinx <http://www.sphinx-doc.org/en/master/index.html>`_ (2.3.1+). **Needed for building docs only.**
     * `sphinx_rtd_theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`_ (0.4.3+) **Needed for building docs only.**
 
-Don't worry, though, the standard installation of ANNA takes care of all of that for you!
+Don't worry, though, the standard installation of Halsey takes care of all of that for you!
 This project makes use of `poetry <https://python-poetry.org/docs/>`_ to manage dependencies.
 
 Install Using Pip
 =================
-The easiest way to install ANNA is via :program:`pip`.
+The easiest way to install Halsey is via :program:`pip`.
 
 .. code-block:: bash
 
-    pip install anna
+    pip install halsey
 
-This will install ANNA and all of its dependencies.
+This will install Halsey and all of its dependencies.
 
 
 Installing From Source
 ======================
-You can also install ANNA from source, like so:
+You can also install Halsey from source, like so:
 
 .. code-block:: bash
 
-    git clone https://github.com/jcoughlin11/anna
-    cd anna/
-    pip install anna
+    git clone https://github.com/jcoughlin11/halsey
+    cd halsey/
+    pip install .
 
 
 Building The Documentation
 ==========================
 If you'd like, you can build this documentation in `html` format. This is
-done, starting from the ANNA repository, via:
+done, starting from the Halsey repository, via:
 
 .. code-block:: bash
 
