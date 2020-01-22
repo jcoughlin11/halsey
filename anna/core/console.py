@@ -1,6 +1,6 @@
 """
-Title:   run_anna.py
-Purpose: Primary driver for using ANNA
+Title:   console.py
+Purpose: Primary driver for using ANNA from the command line
 Notes:
 """
 import sys
@@ -9,9 +9,9 @@ import anna
 
 
 # ============================================
-#                   main
+#                     run
 # ============================================
-def main():
+def run():
     """
     Driver function for using anna.
 
@@ -36,10 +36,3 @@ def main():
     if agent.trainingEnabled:
         if not agent.train():
             sys.exit()
-
-
-# ============================================
-#               main script
-# ============================================
-if __name__ == "__main__":
-    main()
