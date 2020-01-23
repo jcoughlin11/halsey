@@ -98,7 +98,7 @@ class VanillaQBrain(QBrain):
         different sample. This is why it takes so many training games to
         get a good Q-table (network).
 
-        See algorithm 1 in [1]_ for the calculation of qTarget.
+        See algorithm 1 in [Minh13]_ for the calculation of qTarget.
         See `this page <https://keon.io/deep-q-learning/>`_ for
         implementation logic.
 
@@ -119,11 +119,6 @@ class VanillaQBrain(QBrain):
         Returns
         -------
         None
-
-        References
-        ----------
-        .. [1] Minh, V., **et al**., "Playing Atari with Deep
-            Reinforcement Learning," CoRR, vol. 1312, 2013.
         """
         # Get sample of experiences
         states, actions, rewards, nextStates, dones = memory.sample(batchSize)
