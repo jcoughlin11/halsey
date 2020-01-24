@@ -1,95 +1,84 @@
 # Run-time parameters
 #--------------------
 run:
-    general:
-        envName   : SpaceInvaders-v4
-        train     : True
-        test      : False
-        timeLimit : 30
+    envName   : SpaceInvaders-v4
+    train     : True
+    test      : False
+    timeLimit : 30
 
 
 # I/O parameters
 #---------------
 io:
-    general:
-        outputDir : ~/Data/ai_data/test_run/output
-        fileBase  : si
+    outputDir : ~/Data/ai_data/test_run/output
+    fileBase  : si
 
 
 # Training hyperparameters
 #-------------------------
 training:
-    general:
-        nEpisodes       : 1
-        maxEpisodeSteps : 50000
-        batchSize       : 64
-        savePeriod      : 1
-    mode:
-        qtrainer:
-            enabled: True
+    nEpisodes       : 1
+    maxEpisodeSteps : 50000
+    batchSize       : 64
+    savePeriod      : 1
+    qtrainer:
+        enabled: True
 
 
 # Network parameters
 #-------------
 brain:
-    general:
-        architecture : conv1
-        discount     : 0.9
-        learningRate : 0.00025
-        loss         : mse
-        optimizer    : adam
-    mode:
-        vanillaQ:
-            enabled: True
-        doubleDqn:
-            enabled: False
-        fixedQ:
-            enabled     : False
-            fixedQSteps : 100
+    architecture : conv1
+    discount     : 0.9
+    learningRate : 0.00025
+    loss         : mse
+    optimizer    : adam
+    vanillaQ:
+        enabled: True
+    doubleDqn:
+        enabled: False
+    fixedQ:
+        enabled     : False
+        fixedQSteps : 100
 
 
 # Memory parameters
 #------------------
 memory:
-    general:
-        maxSize     : 100
-        pretrainLen : 64
-    mode:
-        experience:
-            enabled: True
-        episode:
-            enabled: False
+    maxSize     : 100
+    pretrainLen : 64
+    experience:
+        enabled: True
+    episode:
+        enabled: False
 
 
 # Action selection parameters
 #----------------------------
 action:
-    mode:
-        epsilonGreedy:
-            enabled      : True
-            epsDecayRate : 0.00001
-            epsilonStart : 1.0
-            epsilonStop  : 0.01
+    epsilonGreedy:
+        enabled      : True
+        epsDecayRate : 0.00001
+        epsilonStart : 1.0
+        epsilonStop  : 0.01
 
 
 # Navigation parameters
 #----------------------
 navigation:
-    mode:
-        frameByFrame:
-            enabled: True
+    frameByFrame:
+        enabled: True
 
 
 # Frame preprocessing parameters
 #-------------------------------
 frame:
-    mode:
-        vanilla:
-            enabled    : True
-            cropBot    : 12
-            cropLeft   : 4
-            cropRight  : 12
-            cropTop    : 8
-            shrinkCols : 84
-            shrinkRows : 110
-            traceLen   : 4
+    vanilla:
+        enabled    : True
+        cropBot    : 12
+        cropLeft   : 4
+        cropRight  : 12
+        cropTop    : 8
+        shrinkCols : 84
+        shrinkRows : 110
+        traceLen   : 4
