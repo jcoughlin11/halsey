@@ -30,9 +30,8 @@ def run():
     -------
     None
     """
-    # Set up the agent
     agent = halsey.Agent()
-    # Train
+    agent.setup()
     if agent.trainingEnabled:
         if not agent.train():
             sys.exit()
