@@ -74,7 +74,7 @@ class Reader:
     # -----
     # read_param_file
     # -----
-    def read_param_file(self, paramFile, continueTraining):
+    def read_param_file(self, paramFile):
         """
         Reads the given parameter file.
 
@@ -82,11 +82,6 @@ class Reader:
         ----------
         paramFile : str
             The base name of the parameter file to read.
-
-        continueTraining : bool
-            If True, we are continuing training from where a previous
-            run left off. If False, we are starting training over from
-            the beginning.
 
         Raises
         ------
@@ -103,14 +98,4 @@ class Reader:
         paramFile = os.path.abspath(os.path.expanduser(paramFile))
         with open(paramFile, "r") as f:
             params = yaml.safe_load(f)
-        # If continuing training, read the saved copy of the original
-        # parameter file. This guards against changes made to passed-in
-        # version since the original run
-        if continueTraining:
-            outDir = os.path.abspath(
-                os.path.expanduser(params["io"]["outputDir"])
-            )
-            paramFile = os.path.join(outDir, "params.lock")
-            with open(paramFile, "r") as f:
-                params = yaml.safe_load(f)
         return params

@@ -40,9 +40,13 @@ class IoManager:
 
     Methods
     -------
-    load_params()
-        Reads in the parameter file and parses the command-line
-        arguments.
+    parse_command_line()
+        Abstracts the reading of the passed command-line options to the
+        reader object.
+
+    load_parameter_file()
+        Abstracts the reading of the parameter file to the reader
+        object.
 
     save_checkpoint(trainer)
         Saves the current state of the trainer.
@@ -77,12 +81,11 @@ class IoManager:
         self.brainDir = None
 
     # -----
-    # load_params
+    # parse_command_line
     # -----
-    def load_params(self):
+    def parse_command_line(self):
         """
-        Reads in the parameter file and parses any optional
-        command-line arguments.
+        Parses any optional command-line arguments.
 
         This is a convenience method that abstracts all of the reading
         away to the reader object.
@@ -97,21 +100,39 @@ class IoManager:
 
         Returns
         -------
-        None
+        clArgs : argparse.Namespace
+            An object containing all of the available command-line
+            arguments and their values.
         """
-        # Parse the command-line args
         clArgs = self.reader.parse_args()
-        # Read the parameter file
-        params = self.reader.read_param_file(
-            clArgs.paramFile, clArgs.continueTraining
-        )
-        # Build the folio
-        folio = halsey.utils.folio.get_new_folio(clArgs, params)
-        # Validate the parameters
-        halsey.utils.validation.validate_params(folio)
-        # Set the io parameters
-        self._set_io_params(folio.io, folio.clArgs.continueTraining)
-        return folio, params
+        return clArgs
+
+    # -----
+    # load_parameter_file
+    # -----
+    def load_parameter_file(self, paramFile):
+        """
+        Abstracts away the reading of the parameter file to the reader
+        object.
+
+        Parameters
+        ----------
+        paramFile : str
+            The name of the parameter file to read. Includes the path
+            to the file. Must be in yaml format.
+
+
+        Raises
+        ------
+        None
+
+        Returns
+        -------
+        params : dict
+            The data read in from the parameter file.
+        """
+        params = self.reader.read_param_file(paramFile)
+        return params
 
     # -----
     # save_params
@@ -167,7 +188,7 @@ class IoManager:
     # -----
     # set_io_params
     # -----
-    def _set_io_params(self, ioParams, continueTraining):
+    def set_io_params(self, ioParams, continueTraining):
         """
         Sets up the file paths and creates the output file directory
         tree.
