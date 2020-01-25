@@ -73,6 +73,9 @@ class BaseChooser:
             action = self._random_choose(env)
         elif mode == "test":
             action = self._test_choose(state, brain)
+        else:
+            print("Error, unrecognized mode for action selection!")
+            raise ValueError
         return action
 
     # -----

@@ -107,6 +107,11 @@ def finalize_folio(inputShape, nActions, folio):
     are small, so the impact on memory usage and performance should be
     negligible.
 
+    .. note::
+
+        This is a very hack-y way of doing this. A more elegant
+        solution should be found.
+
     Parameters
     ----------
     inputShape : list
@@ -128,3 +133,10 @@ def finalize_folio(inputShape, nActions, folio):
         The version of the folio containing the fully self-contained
         sections.
     """
+    # Both the brain and the frame manager need access to inputShape
+    setattr(folio, "inputShape", folio.frame)
+    setattr(folio, "inputShape", folio.brain)
+    # Both the brain and the action manager need access to nActions
+    setattr(folio, "nActions", folio.brain)
+    setattr(folio, "nActions", folio.action)
+    return folio

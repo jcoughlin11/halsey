@@ -3,6 +3,8 @@ Title: framebyframe.py
 Purpose: Class for stepping through the game world one frame at a time.
 Notes:
 """
+import halsey
+
 from halsey.utils.experience import Experience
 
 from .basenavigator import BaseNavigator
@@ -11,6 +13,7 @@ from .basenavigator import BaseNavigator
 # ============================================
 #          FrameByFrameNavigator
 # ============================================
+@halsey.utils.validation.register_navigator
 class FrameByFrameNavigator(BaseNavigator):
     """
     Represents a fully Markovian process whereby the agent takes in and

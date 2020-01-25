@@ -5,11 +5,14 @@ Notes:
 """
 import tensorflow as tf
 
+import halsey
+
 
 # ============================================
 #              build_conv1_net
 # ============================================
-def build_conv1_net(inputShape, channelsFirst, nActions):
+@halsey.utils.validation.register_conv_net
+def conv1(inputShape, channelsFirst, nActions):
     """
     Constructs the original deep Q-learning neural network from [1]_.
     It consists of two convolutional layers followed by a

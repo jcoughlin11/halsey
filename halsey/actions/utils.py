@@ -31,4 +31,7 @@ def get_new_action_manager(actionParams):
     """
     if actionParams.mode == "epsilonGreedy":
         actionManager = EpsilonGreedy(actionParams)
+    else:
+        print("Unrecognized action manager type!")
+        raise ValueError
     return actionManager
