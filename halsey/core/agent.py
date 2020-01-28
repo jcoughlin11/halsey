@@ -107,11 +107,11 @@ class Agent:
         # This allows for each section of the folio to be stand-alone
         # at the expense of having two copies of each of these
         # variables, but they're small, and the convenience is worth it
-        inputShape, nActions = halsey.utils.env.get_shapes(
+        inputShape, nActions, channelsFirst = halsey.utils.env.get_shapes(
             folio.brain.architecture, folio.frame, folio.run.envName
         )
         self.folio = halsey.utils.folio.finalize_folio(
-            inputShape, nActions, folio
+            inputShape, nActions, channelsFirst, folio
         )
 
     # -----
@@ -143,7 +143,7 @@ class Agent:
         # Instantiate objects required for training. Doing it this way
         # is modular, as no code needs to be added here when adding new
         # networks, managers, and the like.
-        trainer = halsey.trainers.utils.get_new_trainer(self.folio)
+        trainer = halsey.utils.object_management.get_new_trainer(self.folio)
         # Training loop
         for _ in trainer.train():
             self.ioManager.save_checkpoint(trainer)

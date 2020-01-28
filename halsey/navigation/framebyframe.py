@@ -13,7 +13,7 @@ from .basenavigator import BaseNavigator
 # ============================================
 #          FrameByFrameNavigator
 # ============================================
-@halsey.utils.validation.register_navigator
+@halsey.utils.validation.register_option
 class FrameByFrameNavigator(BaseNavigator):
     """
     Represents a fully Markovian process whereby the agent takes in and
@@ -35,7 +35,7 @@ class FrameByFrameNavigator(BaseNavigator):
     # -----
     # constructor
     # -----
-    def __init__(self, env, navParams, frameManager, actionManager):
+    def __init__(self, env, frameManager, actionManager):
         """
         Sets up the navigator object.
 
@@ -62,7 +62,7 @@ class FrameByFrameNavigator(BaseNavigator):
         -------
         None
         """
-        super().__init__(env, navParams, frameManager, actionManager)
+        super().__init__(env, frameManager, actionManager)
 
     # -----
     # transition

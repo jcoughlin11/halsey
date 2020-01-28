@@ -11,7 +11,7 @@ from .basetrainer import BaseTrainer
 # ============================================
 #                 QTrainer
 # ============================================
-@halsey.utils.validation.register_trainer
+@halsey.utils.validation.register_option
 class QTrainer(BaseTrainer):
     """
     Contains the Deep Q-Learning training loop of [1]_.

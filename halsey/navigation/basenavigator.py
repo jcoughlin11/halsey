@@ -48,16 +48,12 @@ class BaseNavigator:
     # -----
     # constructor
     # -----
-    def __init__(self, navParams, env, frameManager, actionManager):
+    def __init__(self, env, frameManager, actionManager):
         """
         Initializes the object.
 
         Parameters
         ----------
-        navParams : halsey.utils.folio.Folio
-            Object containing the navigation-specific parameters from
-            the parameter file.
-
         env : gym.Env
             The interface between the game and the agnet.
 

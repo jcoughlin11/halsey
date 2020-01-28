@@ -14,7 +14,7 @@ from .basechooser import BaseChooser
 # ============================================
 #               EpsilonGreedy
 # ============================================
-@halsey.utils.validation.register_action_manager
+@halsey.utils.validation.register_option
 class EpsilonGreedy(BaseChooser):
     """
     Implements the epsilon-greedy exploration-exploitation strategy.

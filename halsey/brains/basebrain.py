@@ -61,7 +61,7 @@ class BaseBrain:
     # -----
     # constructor
     # -----
-    def __init__(self, brainParams, nActions, inputShape, channelsFirst):
+    def __init__(self, brainParams):
         """
         Initializes the brain and builds the primary network.
 
@@ -70,18 +70,6 @@ class BaseBrain:
         brainParams : halsey.utils.folio.Folio
             Contains the brain-related parameters read in from the
             parameter file.
-
-        nActions : int
-            The size of the game's action space. Determines the
-            network's output shape.
-
-        inputShape : list
-            Contains the dimensions of the input to the network.
-
-        channelsFirst : bool
-            If True, then the first element of inputShape is the number
-            of channels in the input. If False, then the last element of
-            inputShape is assumed to be the number of channels.
 
         Raises
         ------
@@ -93,9 +81,9 @@ class BaseBrain:
         """
         # Initialize attributes
         self.arch = brainParams.architecture
-        self.inputShape = inputShape
-        self.channelsFirst = channelsFirst
-        self.nActions = nActions
+        self.inputShape = brainParams.inputShape
+        self.channelsFirst = brainParams.channelsFirst
+        self.nActions = brainParams.nActions
         self.learningRate = brainParams.learningRate
         self.discountRate = brainParams.discount
         self.optimizerName = brainParams.optimizer

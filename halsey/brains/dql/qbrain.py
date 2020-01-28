@@ -14,7 +14,7 @@ from ..basebrain import BaseBrain
 # ============================================
 #               VanillaQBrain
 # ============================================
-@halsey.utils.validation.register_brain
+@halsey.utils.validation.register_option
 class VanillaQBrain(BaseBrain):
     """
     Implements the original deep-q learning method from DeepMind.
@@ -33,7 +33,7 @@ class VanillaQBrain(BaseBrain):
     # -----
     # constructor
     # -----
-    def __init__(self, brainParams, nActions, inputShape, channelsFirst):
+    def __init__(self, brainParams):
         """
         Sets up the brain.
 
@@ -42,18 +42,6 @@ class VanillaQBrain(BaseBrain):
         brainParams : halsey.utils.folio.Folio
             Contains the brain-related parameters read in from the
             parameter file.
-
-        nActions : int
-            The size of the game's action space. Determines the
-            network's output shape.
-
-        inputShape : list
-            Contains the dimensions of the input to the network.
-
-        channelsFirst : bool
-            If True, then the first element of inputShape is the number
-            of channels in the input. If False, then the last element of
-            inputShape is assumed to be the number of channels.
 
         Raises
         ------
@@ -64,7 +52,7 @@ class VanillaQBrain(BaseBrain):
         None
         """
         # Call parent's constructor
-        super().__init__(brainParams, nActions, inputShape, channelsFirst)
+        super().__init__(brainParams)
 
     # -----
     # learn
@@ -152,7 +140,7 @@ class VanillaQBrain(BaseBrain):
         # Get the absolute value of the TD error for use in PER. The
         # sum is so we only get 1 value per sample, since the priority
         # for each experience is just a float, not a sequence
-        absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
+        # absError = tf.reduce_sum(tf.abs(qTarget - qPred), axis=1)
         # Update the network weights
         self.loss = self.qNet.train_on_batch(
             states, qTarget, sample_weight=memory.isWeights

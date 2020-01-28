@@ -44,56 +44,31 @@ paramRegister = {
     "traceLen": int,
 }
 
-# -----
-# trainerRegister
-# -----
-trainerRegister = {}
 
 # -----
-# brainRegister
+# optionRegister
 # -----
-brainRegister = {}
+optionRegister = {}
+
 
 # -----
-# networkRegister
+# rnnRegister
 # -----
-networkRegister = {}
-convNetRegister = {}
-
-# -----
-# memoryRegister
-# -----
-memoryRegister = {}
-experienceMemoryRegister = {}
-
-# -----
-# actionManagerRegister
-# -----
-actionManagerRegister = {}
-
-# -----
-# navigationRegister
-# -----
-navigatorRegister = {}
-
-# -----
-# frameManagerRegister
-# -----
-frameManagerRegister = {}
+rnnRegister = []
 
 
 # ============================================
-#             register_trainer
+#              register_option
 # ============================================
-def register_trainer(cls):
+def register_option(cls):
     """
-    This wrapper takes in a trainer object and adds it to the training
-    register for ease of validation and object creation.
+    This wrapper takes in an object used to represent an option and
+    logs it for easier validation and object creation.
 
     Parameters
     ----------
-    cls : :py:class`~halsey.trainers.basetrainer.BaseTrainer`
-        An instance of the BaseTrainer class (or one of its children).
+    cls : Object
+        The option's class.
 
     Raises
     ------
@@ -101,25 +76,29 @@ def register_trainer(cls):
 
     Returns
     -------
-    cls : :py:class`~halsey.trainers.basetrainer.BaseTrainer`
+    cls : Object
         The unaltered passed-in object.
     """
-    trainerRegister[cls.__name__] = cls
+    optionRegister[cls.__name__] = cls
     return cls
 
 
 # ============================================
-#              register_brain
+#              register_network
 # ============================================
-def register_brain(cls):
+def register_network(networkName, networkType):
     """
-    This wrapper takes in a brain object and adds it to the brain
-    register for ease of validation and object creation.
+    This meta-wrapper takes in a network architecture name and type and
+    logs it for easier network creation.
 
     Parameters
     ----------
-    cls : :py:class`~halsey.brains.basebrain.BaseBrain`
-        An instance of the BaseBrain class (or one of its children).
+    networkName : str
+        The name of the network. Should match what's to be passed in as
+        the architecture parameter in the parameter file.
+
+    networkType : str
+        The family the network belongs to (e.g, 'cnn', 'rnn').
 
     Raises
     ------
@@ -127,165 +106,20 @@ def register_brain(cls):
 
     Returns
     -------
-    cls : :py:class`~halsey.brains.basebrain.BaseBrain`
-        The unaltered passed-in object.
+    network_builder : function
+        Function that constructs the specified network.
     """
-    brainRegister[cls.__name__] = cls
-    return cls
 
+    def network_builder(func):
+        optionRegister[networkName] = func
+        return func
 
-# ============================================
-#            register_conv_net
-# ============================================
-def register_conv_net(func):
-    """
-    This wrapper takes in a convolutional network construction function
-    and adds it to the network register for ease of validation and
-    network creation.
-
-    .. note::
-
-        The reason there are registers for each type of network is
-        because RNNs require special treatment. They **MUST** use some
-        kind of episodic memory and they MUST have the channels first in
-        their input shapes. It's possible that the only separate
-        register that's needed is one for RNNs, but since those aren't
-        implemented yet, this will serve as a reminder.
-
-    Parameters
-    ----------
-    func: function
-        A convolutional neural network construction function.
-
-    Raises
-    ------
-    None
-
-    Returns
-    -------
-    func : function
-        The unaltered passed-in network construction function.
-    """
-    networkRegister[func.__name__] = func
-    convNetRegister[func.__name__] = func
-    return func
-
-
-# ============================================
-#         register_experience_memory
-# ============================================
-def register_experience_memory(cls):
-    """
-    This wrapper takes in an experience memory object and adds it to
-    the memory register for ease of validation and object creation.
-
-    .. note::
-
-        The reason there are registers for each type of network is
-        because RNNs require special treatment. They **MUST** use some
-        kind of episodic memory and they MUST have the channels first in
-        their input shapes. It's possible that the only separate
-        register that's needed is one for episodic memory, but since
-        that isn't implemented yet, this will serve as a reminder.
-
-    Parameters
-    ----------
-    cls : :py:class`~halsey.memory.basememory.BaseMemory`
-        An instance of the BaseMemory class (or one of its children).
-
-    Raises
-    ------
-    None
-
-    Returns
-    -------
-    cls : :py:class`~halsey.memory.basememory.BaseMemory`
-        The unaltered passed-in object.
-    """
-    memoryRegister[cls.__name__] = cls
-    experienceMemoryRegister[cls.__name__] = cls
-    return cls
-
-
-# ============================================
-#           register_action_manager
-# ============================================
-def register_action_manager(cls):
-    """
-    This wrapper takes in an action manager object and adds it to the
-    action manager register for ease of validation and object creation.
-
-    Parameters
-    ----------
-    cls : :py:class`~halsey.actions.basechooser.BaseChooser`
-        An instance of the BaseChooser class (or one of its
-        children).
-
-    Raises
-    ------
-    None
-
-    Returns
-    -------
-    cls : :py:class`~halsey.actions.basechooser.BaseChooser`
-        The unaltered passed-in object.
-    """
-    actionManagerRegister[cls.__name__] = cls
-    return cls
-
-
-# ============================================
-#            register_navigator
-# ============================================
-def register_navigator(cls):
-    """
-    This wrapper takes in a navigator object and adds it to the
-    navigation register for ease of validation and object creation.
-
-    Parameters
-    ----------
-    cls : :py:class`~halsey.navigation.basenavigator.BaseNavigator`
-        An instance of the BaseNavigator class (or one of its
-        children).
-
-    Raises
-    ------
-    None
-
-    Returns
-    -------
-    cls : :py:class`~halsey.navigation.basenavigator.BaseNavigator`
-        The unaltered passed-in object.
-    """
-    navigatorRegister[cls.__name__] = cls
-    return cls
-
-
-# ============================================
-#           register_frame_manager
-# ============================================
-def register_frame_manager(cls):
-    """
-    This wrapper takes in a frame manager object and adds it to the
-    frame manager register for ease of validation and object creation.
-
-    Parameters
-    ----------
-    cls : :py:class`~halsey.frames.baseprocessor.BaseFrameManager`
-        An instance of the BaseFrameManager class (or one of its
-        children).
-
-    Raises
-    ------
-    None
-
-    Returns
-    -------
-    cls : :py:class`~halsey.frames.baseprocessor.BaseFrameManager`
-        The unaltered passed-in object.
-    """
-    frameManagerRegister[cls.__name__] = cls
-    return cls
+    # The rnn register is needed for setting the channelsFirst variable
+    # that ends up determining the format of the network's input as
+    # eitehr NCHW or NHWC
+    if networkType == "rnn":
+        rnnRegister.append(networkName)
+    return network_builder
 
 
 # ============================================
@@ -309,7 +143,16 @@ def validate_params(params):
     -------
     None
     """
-    pass
+    for section, sectionParams in params.items():
+        for paramName, paramVal in sectionParams.items():
+            # See if the parameter is in paramRegister
+            if paramName in paramRegister:
+                assert isinstance(paramVal, paramRegister[paramName])
+            # If it's not, it might be an option
+            elif paramName in optionRegister:
+                continue
+            else:
+                raise
 
 
 # ============================================

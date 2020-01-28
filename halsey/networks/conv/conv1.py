@@ -11,7 +11,7 @@ import halsey
 # ============================================
 #              build_conv1_net
 # ============================================
-@halsey.utils.validation.register_conv_net
+@halsey.utils.validation.register_network("conv1", "cnn")
 def conv1(inputShape, channelsFirst, nActions):
     """
     Constructs the original deep Q-learning neural network from [1]_.

@@ -14,7 +14,7 @@ from .baseprocessor import BaseFrameManager
 # ============================================
 #             VanillaFrameManager
 # ============================================
-@halsey.utils.validation.register_frame_manager
+@halsey.utils.validation.register_option
 class VanillaFrameManager(BaseFrameManager):
     """
     This frame manager processes 2D RGB images, preparing them for

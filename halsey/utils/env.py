@@ -94,4 +94,4 @@ def get_shapes(arch, frameParams, envName):
     nActions = env.reset()
     nActions = env.action_space.n
     env.close()
-    return inputShape, nActions
+    return inputShape, nActions, channelsFirst

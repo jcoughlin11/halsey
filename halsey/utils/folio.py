@@ -96,7 +96,7 @@ def get_new_folio(params):
 # ============================================
 #              finalize_folio
 # ============================================
-def finalize_folio(inputShape, nActions, folio):
+def finalize_folio(inputShape, nActions, channelsFirst, folio):
     """
     This function adds any parameters that are needed in multiple
     sections of the folio to those sections.
@@ -134,9 +134,11 @@ def finalize_folio(inputShape, nActions, folio):
         sections.
     """
     # Both the brain and the frame manager need access to inputShape
-    setattr(folio, "inputShape", folio.frame)
-    setattr(folio, "inputShape", folio.brain)
+    setattr(folio.frame, "inputShape", inputShape)
+    setattr(folio.brain, "inputShape", inputShape)
     # Both the brain and the action manager need access to nActions
-    setattr(folio, "nActions", folio.brain)
-    setattr(folio, "nActions", folio.action)
+    setattr(folio.brain, "nActions", nActions)
+    setattr(folio.action, "nActions", nActions)
+    # The brain needs access to channels first to tell keras
+    setattr(folio.brain, "channelsFirst", channelsFirst)
     return folio
