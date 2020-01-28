@@ -21,7 +21,7 @@ training:
     maxEpisodeSteps : 50000
     batchSize       : 64
     savePeriod      : 1
-    qtrainer:
+    QTrainer:
         enabled: True
 
 
@@ -33,13 +33,8 @@ brain:
     learningRate : 0.00025
     loss         : mse
     optimizer    : adam
-    vanillaQ:
+    VanillaQBrain:
         enabled: True
-    doubleDqn:
-        enabled: False
-    fixedQ:
-        enabled     : False
-        fixedQSteps : 100
 
 
 # Memory parameters
@@ -47,16 +42,14 @@ brain:
 memory:
     maxSize     : 100
     pretrainLen : 64
-    experience:
+    ExperienceMemory:
         enabled: True
-    episode:
-        enabled: False
 
 
 # Action selection parameters
 #----------------------------
 action:
-    epsilonGreedy:
+    EpsilonGreedy:
         enabled      : True
         epsDecayRate : 0.00001
         epsilonStart : 1.0
@@ -66,14 +59,14 @@ action:
 # Navigation parameters
 #----------------------
 navigation:
-    frameByFrame:
+    FrameByFrameNavigator:
         enabled: True
 
 
 # Frame preprocessing parameters
 #-------------------------------
 frame:
-    vanilla:
+    VanillaFrameManager:
         enabled    : True
         cropBot    : 12
         cropLeft   : 4
