@@ -7,14 +7,15 @@ import collections
 
 import numpy as np
 
-import halsey
+from halsey.utils.validation import register_option
+
 from .baseprocessor import BaseFrameManager
 
 
 # ============================================
 #             VanillaFrameManager
 # ============================================
-@halsey.utils.validation.register_option
+@register_option
 class VanillaFrameManager(BaseFrameManager):
     """
     This frame manager processes 2D RGB images, preparing them for

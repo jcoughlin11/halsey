@@ -6,7 +6,7 @@ Notes:
 import numpy as np
 import tensorflow as tf
 
-import halsey
+from halsey.utils.validation import register_option
 
 from ..basebrain import BaseBrain
 
@@ -14,7 +14,7 @@ from ..basebrain import BaseBrain
 # ============================================
 #               VanillaQBrain
 # ============================================
-@halsey.utils.validation.register_option
+@register_option
 class VanillaQBrain(BaseBrain):
     """
     Implements the original deep-q learning method from DeepMind.

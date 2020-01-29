@@ -7,7 +7,7 @@ Notes:
 """
 import gym
 
-import halsey
+from .gpu import set_channels
 
 
 # ============================================
@@ -74,7 +74,7 @@ def get_shapes(arch, frameParams, envName):
     None
     """
     # Determine whether or not the number of channels go first
-    channelsFirst = halsey.utils.gpu.set_channels(arch)
+    channelsFirst = set_channels(arch)
     # Set the input shape accordingly
     if channelsFirst:
         inputShape = [

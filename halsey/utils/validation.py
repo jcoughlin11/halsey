@@ -152,7 +152,7 @@ def validate_params(params):
             elif paramName in optionRegister:
                 continue
             else:
-                raise
+                raise ValueError
 
 
 # ============================================

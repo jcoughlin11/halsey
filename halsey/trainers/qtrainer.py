@@ -3,7 +3,9 @@ Title: qtrainer.py
 Purpose: Contains the QTrainer object.
 Notes:
 """
-import halsey
+from halsey.utils.endrun import check_early_stop
+
+from halsey.utils.validation import register_option
 
 from .basetrainer import BaseTrainer
 
@@ -11,7 +13,7 @@ from .basetrainer import BaseTrainer
 # ============================================
 #                 QTrainer
 # ============================================
-@halsey.utils.validation.register_option
+@register_option
 class QTrainer(BaseTrainer):
     """
     Contains the Deep Q-Learning training loop of [1]_.
@@ -109,7 +111,7 @@ class QTrainer(BaseTrainer):
                     end="\r",
                 )
                 # Check for early stopping
-                self.earlyStop = halsey.utils.endrun.check_early_stop()
+                self.earlyStop = check_early_stop()
                 if self.earlyStop:
                     break
                 # Transition to next state

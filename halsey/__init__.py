@@ -1,6 +1,7 @@
 from halsey.core.agent import Agent
 
 from . import (
+    utils,
     actions,
     brains,
     frames,
@@ -9,5 +10,4 @@ from . import (
     navigation,
     networks,
     trainers,
-    utils,
 )

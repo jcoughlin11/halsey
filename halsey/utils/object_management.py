@@ -34,8 +34,8 @@ def get_new_trainer(folio):
     trainer : halsey.trainers.Trainer
         The manager of the training loop.
     """
-    frameManager = optionRegister[folio.frame.mode](folio.frames)
-    actionManager = optionRegister[folio.actions.mode](folio.action)
+    frameManager = optionRegister[folio.frame.mode](folio.frame)
+    actionManager = optionRegister[folio.action.mode](folio.action)
     env = build_env(folio.run.envName)
     navigator = optionRegister[folio.navigation.mode](
         env, frameManager, actionManager

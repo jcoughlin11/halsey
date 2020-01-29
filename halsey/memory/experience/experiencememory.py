@@ -7,7 +7,7 @@ import collections
 
 import numpy as np
 
-import halsey
+from halsey.utils.validation import register_option
 
 from ..basememory import BaseMemory
 
@@ -15,7 +15,7 @@ from ..basememory import BaseMemory
 # ============================================
 #              ExperienceMemory
 # ============================================
-@halsey.utils.validation.register_experience_memory
+@register_option
 class ExperienceMemory(BaseMemory):
     """
     This is an object for storing and managing individual experiences.
@@ -58,6 +58,7 @@ class ExperienceMemory(BaseMemory):
         -------
         None
         """
+        super().__init__(memoryParams)
         self.buffer = collections.deque(maxlen=self.maxSize)
 
     # -----

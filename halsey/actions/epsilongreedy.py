@@ -6,7 +6,7 @@ Notes:
 """
 import numpy as np
 
-import halsey
+from halsey.utils.validation import register_option
 
 from .basechooser import BaseChooser
 
@@ -14,7 +14,7 @@ from .basechooser import BaseChooser
 # ============================================
 #               EpsilonGreedy
 # ============================================
-@halsey.utils.validation.register_option
+@register_option
 class EpsilonGreedy(BaseChooser):
     """
     Implements the epsilon-greedy exploration-exploitation strategy.

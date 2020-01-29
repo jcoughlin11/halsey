@@ -3,7 +3,79 @@ Title: basebrain.py
 Purpose: Contains the base brain class.
 Notes:
 """
-import halsey
+import tensorflow as tf
+
+from halsey.utils.validation import optionRegister
+
+
+# ============================================
+#             set_optimizer
+# ============================================
+def set_optimizer(optimizerName, learningRate):
+    """
+    Assigns the actual optimizer function based on the given string
+    form.
+
+    This way of doing it allows for not only native keras optimizers,
+    but also custom, user-defined optimizers, as well. Both
+    user-defined and native keras optimizers are handled in
+    the same manner, which makes life simpler, if potentially more
+    verbose than necessary in certain cases.
+
+    Parameters
+    ----------
+    optimizerName : str
+        The name of the optimizer to use.
+
+    learningRate : float
+        The step size to use during back propagation.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    optimizer : tf.keras.optimizers.Optimizer
+        The actual optimizer object to perform minimization of the loss
+        function.
+    """
+    if optimizerName == "adam":
+        optimizer = tf.keras.optimizers.Adam(lr=learningRate)
+    return optimizer
+
+
+# ============================================
+#                set_loss
+# ============================================
+def set_loss(lossName):
+    """
+    Sets the actual loss function to be minimized based on the given
+    string form.
+
+    This way of doing it allows for not only native keras losses,
+    but also custom, user-defined losses, as well. Both
+    user-defined and native keras lossesare handled in
+    the same manner, which makes life simpler, if potentially more
+    verbose than necessary in certain cases.
+
+    Parameters
+    ----------
+    lossName : str
+        The name of the loss function to use.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    loss : tf.keras.losses.Loss
+        The actual loss function to be minimized during training.
+    """
+    if lossName == "mse":
+        loss = tf.keras.losses.MeanSquaredError()
+    return loss
 
 
 # ============================================
@@ -88,18 +160,15 @@ class BaseBrain:
         self.discountRate = brainParams.discount
         self.optimizerName = brainParams.optimizer
         self.lossName = brainParams.loss
-        self.loss = 0.0
         self.qNet = None
+        # Set the loss function and optimizer
+        self.optimizer = set_optimizer(self.optimizerName, self.learningRate)
+        self.loss = set_loss(self.lossName)
         # Build primary network
-        self.qNet = halsey.networks.utils.build_network(
-            self.arch,
-            self.inputShape,
-            self.channelsFirst,
-            self.nActions,
-            self.optimizerName,
-            self.lossName,
-            self.learningRate,
+        self.qNet = optionRegister[self.arch](
+            self.inputShape, self.channelsFirst, self.nActions,
         )
+        self.qNet.compile(optimizer=self.optimizer, loss=self.loss)
 
     # -----
     # update
