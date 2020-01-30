@@ -42,6 +42,12 @@ class BaseFrameManager:
     traceLen : int
         The number of frames to stack together to form one input.
 
+    channelsFirst : bool
+        Determines input shape. If True, the shape has the form NCHW,
+        otherwise the shape is NHWC. This is used when stacking the
+        frames together in order to know which dimension to stack
+        along.
+
     Methods
     -------
     preprocess_frame(frame)
@@ -81,6 +87,7 @@ class BaseFrameManager:
         self.shrinkCols = frameParams.shrinkCols
         self.shrinkRows = frameParams.shrinkRows
         self.traceLen = frameParams.traceLen
+        self.channelsFirst = frameParams.channelsFirst
 
     # -----
     # preprocess_frame

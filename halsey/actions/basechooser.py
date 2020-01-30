@@ -68,7 +68,7 @@ class BaseChooser:
             The integer value corresponding to the chosen action.
         """
         if mode == "train":
-            action = self.train_choose(state, env, brain)
+            action = self._train_choose(state, env, brain)
         elif mode == "random":
             action = self._random_choose(env)
         elif mode == "test":

@@ -141,4 +141,6 @@ def finalize_folio(inputShape, nActions, channelsFirst, folio):
     setattr(folio.action, "nActions", nActions)
     # The brain needs access to channels first to tell keras
     setattr(folio.brain, "channelsFirst", channelsFirst)
+    # The frame manager needs access to channelsFirst for stacking
+    setattr(folio.frame, "channelsFirst", channelsFirst)
     return folio

@@ -129,8 +129,8 @@ class EpsilonGreedy(BaseChooser):
         # Explore
         if exploreProb >= exploitProb:
             # Choose randomly
-            action = self.random_choose(env)
+            action = self._random_choose(env)
         # Exploit
         else:
-            action = self.test_choose(state, brain)
+            action = self._test_choose(state, brain)
         return action
