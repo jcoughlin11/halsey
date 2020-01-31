@@ -5,6 +5,8 @@ Notes:
     * The environment handles interaction between the game and the
         Agent
 """
+import sys
+
 import gym
 
 from .gpu import set_channels
@@ -31,7 +33,18 @@ def build_env(envName):
     env : gym.Env
         The fully constructed game environment.
     """
-    env = gym.make(envName)
+    try:
+        env = gym.make(envName)
+    except gym.error.UnregisteredEnv:
+        msg = "Error: unrecognized environment `{}`.".format(envName)
+        print(msg)
+        sys.exit(1)
+    except gym.error.DeprecatedEnv:
+        msg = "Error: a newer version of the environment `{}` exists.".format(
+            envName
+        )
+        print(msg)
+        sys.exit(1)
     return env
 
 

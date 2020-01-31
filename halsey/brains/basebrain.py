@@ -3,6 +3,8 @@ Title: basebrain.py
 Purpose: Contains the base brain class.
 Notes:
 """
+import sys
+
 import tensorflow as tf
 
 from halsey.utils.validation import optionRegister
@@ -42,6 +44,9 @@ def set_optimizer(optimizerName, learningRate):
     """
     if optimizerName == "adam":
         optimizer = tf.keras.optimizers.Adam(lr=learningRate)
+    else:
+        print("Error: unrecognized optimizer!")
+        sys.exit(1)
     return optimizer
 
 
@@ -75,6 +80,9 @@ def set_loss(lossName):
     """
     if lossName == "mse":
         loss = tf.keras.losses.MeanSquaredError()
+    else:
+        print("Error: unrecognized loss function!")
+        sys.exit(1)
     return loss
 
 

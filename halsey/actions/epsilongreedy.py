@@ -4,6 +4,8 @@ Purpose: Implements the epsilon-greedy exploration-exploitation
             strategy.
 Notes:
 """
+import sys
+
 import numpy as np
 
 from halsey.utils.validation import register_option
@@ -126,6 +128,9 @@ class EpsilonGreedy(BaseChooser):
         exploreProb = self.epsilonStop + (
             self.epsilonStart - self.epsilonStop
         ) * np.exp(-self.epsDecayRate * self.decayStep)
+        if exploreProb < 0.0:
+            print("Error: probability of exploring is negative!")
+            sys.exit(1)
         # Explore
         if exploreProb >= exploitProb:
             # Choose randomly

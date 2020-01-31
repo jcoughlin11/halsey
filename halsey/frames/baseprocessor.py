@@ -88,6 +88,13 @@ class BaseFrameManager:
         self.shrinkRows = frameParams.shrinkRows
         self.traceLen = frameParams.traceLen
         self.channelsFirst = frameParams.channelsFirst
+        assert self.cropBot >= 0
+        assert self.cropLeft >= 0
+        assert self.cropRight >= 0
+        assert self.cropTop >= 0
+        assert self.shrinkCols >= 0
+        assert self.shrinkRows >= 0
+        assert self.traceLen >= 0
 
     # -----
     # preprocess_frame

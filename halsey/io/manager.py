@@ -6,6 +6,7 @@ Notes:
     * The IoManager class oversees the reader and writer objects
 """
 import os
+import sys
 
 import halsey
 
@@ -234,8 +235,10 @@ class IoManager:
                 if halsey.utils.validation.is_empty_dir(self.outputDir):
                     pass
                 else:
-                    raise FileExistsError(
-                        "Trying to peform fresh run on "
-                        "a non-empty output directory. Aborting so no "
-                        "overwriting occurs."
+                    print(
+                        "Trying to perform a fresh run on a non-empty "
+                        "output directory tree: `{}`. Aborting so no "
+                        "potentially unwanted overwriting "
+                        "occurs.".format(self.outputDir)
                     )
+                    sys.exit(1)

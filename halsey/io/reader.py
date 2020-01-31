@@ -5,6 +5,7 @@ Notes:
 """
 import argparse
 import os
+import sys
 
 import yaml
 
@@ -96,6 +97,13 @@ class Reader:
         """
         # Read the file
         paramFile = os.path.abspath(os.path.expanduser(paramFile))
-        with open(paramFile, "r") as f:
-            params = yaml.safe_load(f)
+        try:
+            with open(paramFile, "r") as f:
+                params = yaml.safe_load(f)
+        except IOError:
+            msg = "Error: Can't open parameter file: `{}` for reading.".format(
+                paramFile
+            )
+            print(msg)
+            sys.exit(1)
         return params

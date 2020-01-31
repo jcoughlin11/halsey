@@ -4,6 +4,7 @@ Purpose: Contains the experience memory class.
 Notes:
 """
 import collections
+import sys
 
 import numpy as np
 
@@ -114,9 +115,9 @@ class ExperienceMemory(BaseMemory):
                 np.arange(len(self.buffer)), size=batchSize, replace=False
             )
         except ValueError:
-            raise (
-                "Error, need batch size < buf size when sampling from memory!"
-            )
+            msg = "Error, need batch size < buf size when sampling from memory!"
+            print(msg)
+            sys.exit(1)
         # Select randomly chosen sample
         samples = np.array(self.buffer)[indices]
         # Set up arrays for holding parsed info. tf expects the batch

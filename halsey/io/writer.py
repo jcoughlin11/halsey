@@ -5,6 +5,7 @@ Notes:
 """
 import os
 import stat
+import sys
 
 import tensorflow as tf
 import yaml
@@ -70,7 +71,11 @@ class Writer:
             with open(paramLockFile, "w") as f:
                 yaml.dump(params, f)
         except PermissionError:
-            raise
+            msg = "Error: Lock file `{}.lock` already exists.".format(
+                paramLockFile
+            )
+            print(msg)
+            sys.exit(1)
         # Change permissions to read-only
         os.chmod(paramLockFile, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
@@ -105,4 +110,11 @@ class Writer:
             # Save the networks
             if isinstance(attrValue, tf.keras.Model):
                 fname = os.path.join(outputDir, attr + ".h5")
-                attrValue.save(fname)
+                try:
+                    attrValue.save(fname)
+                except (OSError, IOError):
+                    msg = "Error: Can't save model `{}` to file `{}`.".format(
+                        attr, fname
+                    )
+                    print(msg)
+                    sys.exit(1)

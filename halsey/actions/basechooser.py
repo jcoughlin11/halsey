@@ -4,6 +4,8 @@ Purpose: Provides choosers with access to methods that either randomly
             choose an action or use the network to choose an action.
 Notes:
 """
+import sys
+
 import numpy as np
 
 
@@ -75,7 +77,7 @@ class BaseChooser:
             action = self._test_choose(state, brain)
         else:
             print("Error, unrecognized mode for action selection!")
-            raise ValueError
+            sys.exit(1)
         return action
 
     # -----
