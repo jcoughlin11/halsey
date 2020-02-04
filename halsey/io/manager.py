@@ -6,6 +6,7 @@ Notes:
     * The IoManager class oversees the reader and writer objects
 """
 import os
+import logging
 import sys
 
 import halsey
@@ -77,7 +78,6 @@ class IoManager:
         """
         self.reader = Reader()
         self.writer = Writer()
-        self.fileBase = None
         self.outputDir = None
         self.brainDir = None
 
@@ -160,7 +160,7 @@ class IoManager:
         -------
         None
         """
-        self.writer.save_params(params, self.outputDir)
+        self.writer.save_params(params)
 
     # -----
     # save_checkpoint
@@ -189,17 +189,17 @@ class IoManager:
     # -----
     # set_io_params
     # -----
-    def set_io_params(self, ioParams, continueTraining):
+    def build_outputDir(self, continueTraining):
         """
         Sets up the file paths and creates the output file directory
         tree.
 
+        If any part of the output directory tree exists, this method
+        will check to see if the tree is empty of files. If it is, then
+        the run will proceed. If it is not, then the run will abort.
+
         Parameters
         ----------
-        ioParams : halsey.utils.folio.Folio
-            An object containing the relevant IO parameters from the
-            parameter file.
-
         continueTraining : bool
             If True, we are using an existing checkpoint file as a
             starting point and resuming the training process from
@@ -208,37 +208,37 @@ class IoManager:
 
         Raises
         ------
-        None
+        FileExistsError
+            Raised if the specified output directory tree already
+            exists and is not empty.
 
         Returns
         -------
         None
         """
         # Set the names of the various output directories
-        self.fileBase = ioParams.fileBase
-        self.outputDir = os.path.abspath(os.path.expanduser(ioParams.outputDir))
+        self.outputDir = os.path.join(os.getcwd(), "output")
         self.brainDir = os.path.join(self.outputDir, "brain")
         # Create the output directory tree, if needed. outputDir needs
         # to be made last or else the FileExistsError will throw if the
         # outputDir already exists, leading to none of the subdirs
         # being created
         try:
-            os.mkdir(self.brainDir)
-            os.makedirs(self.outputDir)
+            os.makedirs(self.brainDir)
         except FileExistsError:
             # If we're continuing training then this is fine
             if continueTraining:
                 pass
             # Otherwise, if the directories aren't all empty, then this
             # run may be a mistake and we don't want to overwrite
-            else:
-                if halsey.utils.validation.is_empty_dir(self.outputDir):
-                    pass
-                else:
-                    print(
-                        "Trying to perform a fresh run on a non-empty "
-                        "output directory tree: `{}`. Aborting so no "
-                        "potentially unwanted overwriting "
-                        "occurs.".format(self.outputDir)
-                    )
-                    sys.exit(1)
+            elif not halsey.utils.validation.is_empty_dir(self.outputDir):
+                infoLogger = logging.getLogger("infoLogger")
+                errorLogger = logging.getLogger("errorLogger")
+                msg = (
+                    f"Trying to perform a fresh run on a non-empty "
+                    + f"output directory tree: {self.outputDir}. Aborting so "
+                    + f"no potentially unwanted overwriting occurs."
+                )
+                infoLogger.info(msg)
+                errorLogger.exception(msg)
+                sys.exit(1)

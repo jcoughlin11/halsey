@@ -31,4 +31,5 @@ def check_early_stop():
     earlyStop = False
     if os.path.isfile(os.path.join(os.getcwd(), "stop")):
         earlyStop = True
+        os.remove(os.path.join(os.getcwd(), "stop"))
     return earlyStop

@@ -4,6 +4,7 @@ Purpose:
 Notes:
 """
 import argparse
+import logging
 import os
 import sys
 
@@ -69,6 +70,15 @@ class Reader:
             default=False,
             help="Continues training with parameter file in output directory.",
         )
+        # Verbose output
+        parser.add_argument(
+            "--verbose",
+            "-v",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="Logs detailed progress information. Useful for debugging.",
+        )
         args = parser.parse_args()
         return args
 
@@ -96,14 +106,15 @@ class Reader:
             file itself.
         """
         # Read the file
-        paramFile = os.path.abspath(os.path.expanduser(paramFile))
+        paramFile = os.path.join(os.getcwd(), paramFile)
         try:
             with open(paramFile, "r") as f:
                 params = yaml.safe_load(f)
         except IOError:
-            msg = "Error: Can't open parameter file: `{}` for reading.".format(
-                paramFile
-            )
-            print(msg)
+            msg = f"Error: Can't open parameter file: {paramFile} for reading."
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            infoLogger.info(msg)
+            errorLogger.exception(msg)
             sys.exit(1)
         return params

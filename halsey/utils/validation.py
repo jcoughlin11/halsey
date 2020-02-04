@@ -3,7 +3,9 @@ Title: validation.py
 Purpose:
 Notes:
 """
+import logging
 import os
+import sys
 
 
 # ============================================
@@ -147,12 +149,28 @@ def validate_params(params):
         for paramName, paramVal in sectionParams.items():
             # See if the parameter is in paramRegister
             if paramName in paramRegister:
-                assert isinstance(paramVal, paramRegister[paramName])
+                try:
+                    assert isinstance(paramVal, paramRegister[paramName])
+                except AssertionError:
+                    infoLogger = logging.getLogger("infoLogger")
+                    errorLogger = logging.getLogger("errorLogger")
+                    msg = (
+                        f"Error: parameter `{paramName}` is not instance "
+                        + f"of `{paramRegister[paramName]}`."
+                    )
+                    infoLogger.info(msg)
+                    errorLogger.exception(msg)
+                    sys.exit(1)
             # If it's not, it might be an option
             elif paramName in optionRegister:
                 continue
             else:
-                raise ValueError
+                infoLogger = logging.getLogger("infoLogger")
+                errorLogger = logging.getLogger("errorLogger")
+                msg = "Error: Unrecognized parameter `{paramName}`."
+                infoLogger.info(msg)
+                errorLogger.error(msg)
+                sys.exit(1)
 
 
 # ============================================

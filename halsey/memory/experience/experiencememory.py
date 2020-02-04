@@ -4,6 +4,7 @@ Purpose: Contains the experience memory class.
 Notes:
 """
 import collections
+import logging
 import sys
 
 import numpy as np
@@ -115,8 +116,11 @@ class ExperienceMemory(BaseMemory):
                 np.arange(len(self.buffer)), size=batchSize, replace=False
             )
         except ValueError:
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
             msg = "Error, need batch size < buf size when sampling from memory!"
-            print(msg)
+            infoLogger.info(msg)
+            errorLogger.exception(msg)
             sys.exit(1)
         # Select randomly chosen sample
         samples = np.array(self.buffer)[indices]

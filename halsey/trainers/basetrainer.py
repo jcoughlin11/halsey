@@ -70,7 +70,7 @@ class BaseTrainer:
     # -----
     # constructor
     # -----
-    def __init__(self, trainParams, navigator, brain, memory):
+    def __init__(self, trainParams, navigator, brain, memory, clArgs):
         """
         Creates an instance of the training generator.
 
@@ -106,6 +106,7 @@ class BaseTrainer:
         self.navigator = navigator
         self.brain = brain
         self.memory = memory
+        self.clArgs = clArgs
         self.episode = 0
         self.startEpisode = 0
         self.earlyStop = False

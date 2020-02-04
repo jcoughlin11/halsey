@@ -3,6 +3,9 @@ Title: baseprocessor.py
 Purpose: Contains the BaseFrameManager class.
 Notes:
 """
+import logging
+import sys
+
 from skimage import color
 from skimage import transform
 
@@ -88,13 +91,20 @@ class BaseFrameManager:
         self.shrinkRows = frameParams.shrinkRows
         self.traceLen = frameParams.traceLen
         self.channelsFirst = frameParams.channelsFirst
-        assert self.cropBot >= 0
-        assert self.cropLeft >= 0
-        assert self.cropRight >= 0
-        assert self.cropTop >= 0
-        assert self.shrinkCols >= 0
-        assert self.shrinkRows >= 0
-        assert self.traceLen >= 0
+        try:
+            assert self.cropBot >= 0
+            assert self.cropLeft >= 0
+            assert self.cropRight >= 0
+            assert self.cropTop >= 0
+            assert self.shrinkCols >= 0
+            assert self.shrinkRows >= 0
+            assert self.traceLen >= 0
+        except AssertionError:
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            infoLogger.info("Error: Negative frame resizing parameter(s).")
+            errorLogger.exception("Negative frame resizing parameter(s).")
+            sys.exit(1)
 
     # -----
     # preprocess_frame
@@ -165,8 +175,6 @@ class BaseFrameManager:
             croppedFrame = frame[self.cropTop :, self.cropLeft :]
         elif self.cropBot != 0 and self.cropRight == 0:
             croppedFrame = frame[self.cropTop : -self.cropBot, self.cropLeft :]
-        else:
-            raise ValueError
         return croppedFrame
 
     # -----

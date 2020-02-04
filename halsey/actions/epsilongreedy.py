@@ -4,6 +4,7 @@ Purpose: Implements the epsilon-greedy exploration-exploitation
             strategy.
 Notes:
 """
+import logging
 import sys
 
 import numpy as np
@@ -129,7 +130,10 @@ class EpsilonGreedy(BaseChooser):
             self.epsilonStart - self.epsilonStop
         ) * np.exp(-self.epsDecayRate * self.decayStep)
         if exploreProb < 0.0:
-            print("Error: probability of exploring is negative!")
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            infoLogger.info("Error: probability of exploring is negative!")
+            errorLogger.error("Probability of exploring is negative.")
             sys.exit(1)
         # Explore
         if exploreProb >= exploitProb:

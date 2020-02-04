@@ -5,6 +5,7 @@ Notes:
     * The environment handles interaction between the game and the
         Agent
 """
+import logging
 import sys
 
 import gym
@@ -36,14 +37,18 @@ def build_env(envName):
     try:
         env = gym.make(envName)
     except gym.error.UnregisteredEnv:
-        msg = "Error: unrecognized environment `{}`.".format(envName)
-        print(msg)
+        infoLogger = logging.getLogger("infoLogger")
+        errorLogger = logging.getLogger("errorLogger")
+        msg = f"Error: unrecognized environment `{envName}`."
+        infoLogger.info(msg)
+        errorLogger.exception(msg)
         sys.exit(1)
     except gym.error.DeprecatedEnv:
-        msg = "Error: a newer version of the environment `{}` exists.".format(
-            envName
-        )
-        print(msg)
+        infoLogger = logging.getLogger("infoLogger")
+        errorLogger = logging.getLogger("errorLogger")
+        msg = f"Error: a newer version of the environment `{envName}` exists."
+        infoLogger.info(msg)
+        errorLogger.exception(msg)
         sys.exit(1)
     return env
 

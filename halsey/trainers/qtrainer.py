@@ -3,6 +3,8 @@ Title: qtrainer.py
 Purpose: Contains the QTrainer object.
 Notes:
 """
+import logging
+
 from halsey.utils.endrun import check_early_stop
 
 from halsey.utils.validation import register_option
@@ -45,7 +47,7 @@ class QTrainer(BaseTrainer):
     # -----
     # constructor
     # -----
-    def __init__(self, trainParams, navigator, brain, memory):
+    def __init__(self, trainParams, navigator, brain, memory, clArgs):
         """
         Creates an instance of the training generator.
 
@@ -74,7 +76,7 @@ class QTrainer(BaseTrainer):
         -------
         None
         """
-        super().__init__(trainParams, navigator, brain, memory)
+        super().__init__(trainParams, navigator, brain, memory, clArgs)
         self.trainGen = self.training_generator()
 
     # -----
@@ -96,20 +98,18 @@ class QTrainer(BaseTrainer):
         -------
         None
         """
+        if self.clArgs.verbose:
+            infoLogger = logging.getLogger("infoLogger")
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
-            print(
-                "Episode: {} / {}".format(self.episode, self.nEpisodes),
-                end="\r",
-            )
+            if self.clArgs.verbose:
+                msg = f"Episode: {self.episode+1} / {self.nEpisodes}"
+                infoLogger.info(msg)
             # Loop over the max number of steps allowed per episode
             for self.episodeStep in range(self.maxEpisodeSteps):
-                print(
-                    "Step: {} / {}".format(
-                        self.episodeStep, self.maxEpisodeSteps
-                    ),
-                    end="\r",
-                )
+                if self.clArgs.verbose:
+                    msg = f"Step: {self.episodeStep+1} / {self.maxEpisodeSteps}"
+                    infoLogger.debug(msg)
                 # Check for early stopping
                 self.earlyStop = check_early_stop()
                 if self.earlyStop:

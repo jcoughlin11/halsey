@@ -3,6 +3,7 @@ Title: basebrain.py
 Purpose: Contains the base brain class.
 Notes:
 """
+import logging
 import sys
 
 import tensorflow as tf
@@ -45,7 +46,10 @@ def set_optimizer(optimizerName, learningRate):
     if optimizerName == "adam":
         optimizer = tf.keras.optimizers.Adam(lr=learningRate)
     else:
-        print("Error: unrecognized optimizer!")
+        infoLogger = logging.getLogger("infoLogger")
+        errorLogger = logging.getLogger("errorLogger")
+        infoLogger.info("Error: unrecognized optimizer!")
+        errorLogger.error("Unrecognized optimizer.")
         sys.exit(1)
     return optimizer
 
@@ -81,7 +85,10 @@ def set_loss(lossName):
     if lossName == "mse":
         loss = tf.keras.losses.MeanSquaredError()
     else:
-        print("Error: unrecognized loss function!")
+        infoLogger = logging.getLogger("infoLogger")
+        errorLogger = logging.getLogger("errorLogger")
+        infoLogger.info("Error: unrecognized loss function!")
+        errorLogger.error("Unrecognized loss function.")
         sys.exit(1)
     return loss
 

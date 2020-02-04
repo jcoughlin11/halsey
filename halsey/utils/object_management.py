@@ -15,7 +15,7 @@ from .validation import optionRegister
 # ============================================
 #              get_new_trainer
 # ============================================
-def get_new_trainer(folio):
+def get_new_trainer(folio, clArgs):
     """
     Handles the creation of a new trainer object.
 
@@ -43,7 +43,7 @@ def get_new_trainer(folio):
     brain = optionRegister[folio.brain.mode](folio.brain)
     memory = optionRegister[folio.memory.mode](folio.memory)
     trainer = optionRegister[folio.training.mode](
-        folio.training, navigator, brain, memory
+        folio.training, navigator, brain, memory, clArgs
     )
     # Pre-populate the memory buffer
     trainer.pre_populate()

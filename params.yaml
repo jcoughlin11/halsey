@@ -7,13 +7,6 @@ run:
     timeLimit : 30
 
 
-# I/O parameters
-#---------------
-io:
-    outputDir : ~/Data/ai_data/test_run/output
-    fileBase  : si
-
-
 # Training hyperparameters
 #-------------------------
 training:

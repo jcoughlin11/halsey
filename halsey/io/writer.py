@@ -4,6 +4,7 @@ Purpose: Handles the saving of all files.
 Notes:
 """
 import os
+import logging
 import stat
 import sys
 
@@ -35,7 +36,7 @@ class Writer:
     # -----
     # save_params
     # -----
-    def save_params(self, params, outputDir):
+    def save_params(self, params):
         """
         Saves a copy of the given parameter file.
 
@@ -51,10 +52,6 @@ class Writer:
         params : dict
             The parameters read from the given parameter file.
 
-        outputDir : str
-            The name of the base output directory where the lock file
-            will be saved.
-
         Raises
         ------
         None
@@ -64,17 +61,18 @@ class Writer:
         None
         """
         # Set up the lock file
-        paramLockFile = os.path.join(outputDir, "params.lock")
+        paramLockFile = os.path.join(os.getcwd(), "params.lock")
         # Save the params to a read-only file (writing will fail if a
         # lock file already exists because it will be read-only)
         try:
             with open(paramLockFile, "w") as f:
                 yaml.dump(params, f)
         except PermissionError:
-            msg = "Error: Lock file `{}.lock` already exists.".format(
-                paramLockFile
-            )
-            print(msg)
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            msg = f"Error: Lock file `{paramLockFile}.lock` already exists."
+            infoLogger.info(msg)
+            errorLogger.exception(msg)
             sys.exit(1)
         # Change permissions to read-only
         os.chmod(paramLockFile, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
@@ -113,8 +111,9 @@ class Writer:
                 try:
                     attrValue.save(fname)
                 except (OSError, IOError):
-                    msg = "Error: Can't save model `{}` to file `{}`.".format(
-                        attr, fname
-                    )
-                    print(msg)
+                    infoLogger = logging.getLogger("infoLogger")
+                    errorLogger = logging.getLogger("errorLogger")
+                    msg = f"Error: Can't save model `{attr}` to file `{fname}`."
+                    infoLogger.info(msg)
+                    errorLogger.exception(msg)
                     sys.exit(1)
