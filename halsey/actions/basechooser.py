@@ -79,7 +79,7 @@ class BaseChooser:
         else:
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            infoLogger.info("Error: unrecognized mode for action selection!")
+            infoLogger.error("Unrecognized mode for action selection!")
             errorLogger.error("Unrecognized mode for action selection.")
             sys.exit(1)
         return action

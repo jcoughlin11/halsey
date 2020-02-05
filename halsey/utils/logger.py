@@ -9,7 +9,58 @@ import logging.handlers
 import os
 
 
-def configure_loggers():
+# ============================================
+#            colorize_logging
+# ============================================
+def colorize_logging(emit_func):
+    """
+    Adds color to the logs emitted by the given handler's emit()
+    method.
+
+    .. note::
+
+        This function is from the
+        `yt project <https://github.com/yt-project/yt>`_ which, in
+        turn, is based on `this method <https://tinyurl.com/kd4gbxf>`_.
+
+    Parameters
+    ----------
+    emit_func : logging.Handler().emit()
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    None
+    """
+
+    def colorize(*args):
+        levelno = args[0].levelno
+        if levelno >= 50:
+            color = "\x1b[31m"  # red
+        elif levelno >= 40:
+            color = "\x1b[31m"  # red
+        elif levelno >= 30:
+            color = "\x1b[33m"  # yellow
+        elif levelno >= 20:
+            color = "\x1b[32m"  # green
+        elif levelno >= 10:
+            color = "\x1b[35m"  # pink
+        else:
+            color = "\x1b[0m"  # normal
+        ln = color + args[0].levelname + "\x1b[0m"
+        args[0].levelname = ln
+        return emit_func(*args)
+
+    return colorize
+
+
+# ============================================
+#            configure_loggers
+# ============================================
+def configure_loggers(clArgs):
     """
     Sets up the formatting, streams, and handlers for the loggers.
 
@@ -19,7 +70,9 @@ def configure_loggers():
 
     Parameters
     ----------
-    pass
+    clArgs : argparse.Namespace
+        The command-line arguments passed to Halsey. Used to determine
+        log behavior.
 
     Raises
     ------
@@ -42,7 +95,8 @@ def configure_loggers():
         + "%(funcName)s, %(lineno)d) - %(message)s"
     )
     # Handlers
-    sHandler = logging.StreamHandler()
+    if not clArgs.silent:
+        sHandler = logging.StreamHandler()
     fHandler = logging.handlers.RotatingFileHandler(
         infoFile, maxBytes=250000000, backupCount=5, delay=True
     )
@@ -55,14 +109,20 @@ def configure_loggers():
     # Set levels
     infoLogger.setLevel(logging.DEBUG)
     errorLogger.setLevel(logging.ERROR)
-    sHandler.setLevel(logging.DEBUG)
+    if not clArgs.silent:
+        sHandler.setLevel(logging.DEBUG)
     fHandler.setLevel(logging.INFO)
     efHandler.setLevel(logging.ERROR)
     # Add the formatters to the handlers
-    sHandler.setFormatter(sFormatter)
+    if not clArgs.silent:
+        sHandler.setFormatter(sFormatter)
     fHandler.setFormatter(fFormatter)
     efHandler.setFormatter(fFormatter)
+    # Colorize
+    if not clArgs.noColoredLogs and not clArgs.silent:
+        sHandler.emit = colorize_logging(sHandler.emit)
     # Add the handlers to the loggers
-    infoLogger.addHandler(sHandler)
+    if not clArgs.silent:
+        infoLogger.addHandler(sHandler)
     infoLogger.addHandler(fHandler)
     errorLogger.addHandler(efHandler)

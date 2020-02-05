@@ -48,7 +48,7 @@ def set_optimizer(optimizerName, learningRate):
     else:
         infoLogger = logging.getLogger("infoLogger")
         errorLogger = logging.getLogger("errorLogger")
-        infoLogger.info("Error: unrecognized optimizer!")
+        infoLogger.error("Unrecognized optimizer!")
         errorLogger.error("Unrecognized optimizer.")
         sys.exit(1)
     return optimizer
@@ -87,7 +87,7 @@ def set_loss(lossName):
     else:
         infoLogger = logging.getLogger("infoLogger")
         errorLogger = logging.getLogger("errorLogger")
-        infoLogger.info("Error: unrecognized loss function!")
+        infoLogger.error("Unrecognized loss function!")
         errorLogger.error("Unrecognized loss function.")
         sys.exit(1)
     return loss

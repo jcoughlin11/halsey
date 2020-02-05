@@ -155,10 +155,10 @@ def validate_params(params):
                     infoLogger = logging.getLogger("infoLogger")
                     errorLogger = logging.getLogger("errorLogger")
                     msg = (
-                        f"Error: parameter `{paramName}` is not instance "
+                        f"Parameter `{paramName}` is not instance "
                         + f"of `{paramRegister[paramName]}`."
                     )
-                    infoLogger.info(msg)
+                    infoLogger.error(msg)
                     errorLogger.exception(msg)
                     sys.exit(1)
             # If it's not, it might be an option
@@ -167,8 +167,8 @@ def validate_params(params):
             else:
                 infoLogger = logging.getLogger("infoLogger")
                 errorLogger = logging.getLogger("errorLogger")
-                msg = "Error: Unrecognized parameter `{paramName}`."
-                infoLogger.info(msg)
+                msg = "Unrecognized parameter `{paramName}`."
+                infoLogger.error(msg)
                 errorLogger.error(msg)
                 sys.exit(1)
 

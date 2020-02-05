@@ -72,12 +72,21 @@ class Reader:
         )
         # Verbose output
         parser.add_argument(
-            "--verbose",
-            "-v",
-            dest="verbose",
+            "--silent",
+            "-s",
+            dest="silent",
             action="store_true",
             default=False,
             help="Logs detailed progress information. Useful for debugging.",
+        )
+        # Colored log output
+        parser.add_argument(
+            "--no-color",
+            "-nc",
+            dest="noColoredLogs",
+            action="store_true",
+            default=False,
+            help="If set, then the logs sent to std out will not be colored",
         )
         args = parser.parse_args()
         return args
@@ -111,10 +120,10 @@ class Reader:
             with open(paramFile, "r") as f:
                 params = yaml.safe_load(f)
         except IOError:
-            msg = f"Error: Can't open parameter file: {paramFile} for reading."
+            msg = f"Can't open parameter file: {paramFile} for reading."
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            infoLogger.info(msg)
+            infoLogger.error(msg)
             errorLogger.exception(msg)
             sys.exit(1)
         return params

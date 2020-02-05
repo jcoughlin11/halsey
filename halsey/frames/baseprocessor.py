@@ -102,7 +102,7 @@ class BaseFrameManager:
         except AssertionError:
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            infoLogger.info("Error: Negative frame resizing parameter(s).")
+            infoLogger.error("Negative frame resizing parameter(s).")
             errorLogger.exception("Negative frame resizing parameter(s).")
             sys.exit(1)
 

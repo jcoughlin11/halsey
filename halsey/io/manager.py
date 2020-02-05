@@ -239,6 +239,6 @@ class IoManager:
                     + f"output directory tree: {self.outputDir}. Aborting so "
                     + f"no potentially unwanted overwriting occurs."
                 )
-                infoLogger.info(msg)
+                infoLogger.error(msg)
                 errorLogger.exception(msg)
                 sys.exit(1)

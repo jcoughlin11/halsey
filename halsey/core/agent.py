@@ -97,23 +97,19 @@ class Agent:
         # Parse the command-line arguments
         self.clArgs = self.ioManager.parse_command_line()
         # Configure the loggers
-        halsey.utils.logger.configure_loggers()
-        if self.clArgs.verbose:
-            infoLogger = logging.getLogger("infoLogger")
-            infoLogger.info("Reading parameter file...")
+        halsey.utils.logger.configure_loggers(self.clArgs)
+        infoLogger = logging.getLogger("infoLogger")
+        infoLogger.info("Reading parameter file...")
         # Read in the parameter file
         params = self.ioManager.load_parameter_file(self.clArgs.paramFile)
         # Validate the parameters
-        if self.clArgs.verbose:
-            infoLogger.info("Validating parameters...")
+        infoLogger.info("Validating parameters...")
         halsey.utils.validation.validate_params(params)
         # Create the folio object
-        if self.clArgs.verbose:
-            infoLogger.info("Creating folio...")
+        infoLogger.info("Creating folio...")
         folio = halsey.utils.folio.get_new_folio(params)
         # Set the relevant IO parameters
-        if self.clArgs.verbose:
-            infoLogger.info("Building output directory tree...")
+        infoLogger.info("Building output directory tree...")
         self.ioManager.build_outputDir(self.clArgs.continueTraining)
         # Get the input and output shapes for the network. This is done
         # here because the input shape is also needed by the frame
@@ -121,8 +117,7 @@ class Agent:
         # This allows for each section of the folio to be stand-alone
         # at the expense of having two copies of each of these
         # variables, but they're small, and the convenience is worth it
-        if self.clArgs.verbose:
-            infoLogger.info("Finalizing folio...")
+        infoLogger.info("Finalizing folio...")
         inputShape, nActions, channelsFirst = halsey.utils.env.get_shapes(
             folio.brain.architecture, folio.frame, folio.run.envName
         )
@@ -131,8 +126,7 @@ class Agent:
         )
         # Save a copy of the parameter file for posterity (and to guard
         # against changes made to the original)
-        if self.clArgs.verbose:
-            infoLogger.info("Saving parameter lock file...")
+        infoLogger.info("Saving parameter lock file...")
         self.ioManager.save_params(params)
 
     # -----
@@ -161,9 +155,8 @@ class Agent:
             Returns True if all training episodes finish, otherwise,
             returns False if training had to end early for any reason.
         """
-        if self.clArgs.verbose:
-            infoLogger = logging.getLogger("infoLogger")
-            infoLogger.info("Constructing trainer...")
+        infoLogger = logging.getLogger("infoLogger")
+        infoLogger.info("Constructing trainer...")
         # Instantiate objects required for training. Doing it this way
         # is modular, as no code needs to be added here when adding new
         # networks, managers, and the like.
@@ -171,18 +164,15 @@ class Agent:
             self.folio, self.clArgs
         )
         # Training loop
-        if self.clArgs.verbose:
-            infoLogger.info("Training...")
+        infoLogger.info("Training...")
         for _ in trainer.train():
             self.ioManager.save_checkpoint(trainer)
         # If early stopping, exit
         if trainer.earlyStop:
-            if self.clArgs.verbose:
-                infoLogger.info("Training stopped early.")
+            infoLogger.info("Training stopped early.")
             exitStatus = False
         else:
-            if self.clArgs.verbose:
-                infoLogger.info("Training completed.")
+            infoLogger.info("Training completed.")
             exitStatus = True
         self.ioManager.save_checkpoint(trainer)
         return exitStatus

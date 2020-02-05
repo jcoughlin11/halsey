@@ -98,18 +98,15 @@ class QTrainer(BaseTrainer):
         -------
         None
         """
-        if self.clArgs.verbose:
-            infoLogger = logging.getLogger("infoLogger")
+        infoLogger = logging.getLogger("infoLogger")
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
-            if self.clArgs.verbose:
-                msg = f"Episode: {self.episode+1} / {self.nEpisodes}"
-                infoLogger.info(msg)
+            msg = f"Episode: {self.episode+1} / {self.nEpisodes}"
+            infoLogger.info(msg)
             # Loop over the max number of steps allowed per episode
             for self.episodeStep in range(self.maxEpisodeSteps):
-                if self.clArgs.verbose:
-                    msg = f"Step: {self.episodeStep+1} / {self.maxEpisodeSteps}"
-                    infoLogger.debug(msg)
+                msg = f"Step: {self.episodeStep+1} / {self.maxEpisodeSteps}"
+                infoLogger.debug(msg)
                 # Check for early stopping
                 self.earlyStop = check_early_stop()
                 if self.earlyStop:

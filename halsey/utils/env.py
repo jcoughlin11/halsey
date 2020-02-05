@@ -39,15 +39,15 @@ def build_env(envName):
     except gym.error.UnregisteredEnv:
         infoLogger = logging.getLogger("infoLogger")
         errorLogger = logging.getLogger("errorLogger")
-        msg = f"Error: unrecognized environment `{envName}`."
-        infoLogger.info(msg)
+        msg = f"Unrecognized environment `{envName}`."
+        infoLogger.error(msg)
         errorLogger.exception(msg)
         sys.exit(1)
     except gym.error.DeprecatedEnv:
         infoLogger = logging.getLogger("infoLogger")
         errorLogger = logging.getLogger("errorLogger")
-        msg = f"Error: a newer version of the environment `{envName}` exists."
-        infoLogger.info(msg)
+        msg = f"A newer version of the environment `{envName}` exists."
+        infoLogger.error(msg)
         errorLogger.exception(msg)
         sys.exit(1)
     return env

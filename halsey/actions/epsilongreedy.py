@@ -132,7 +132,7 @@ class EpsilonGreedy(BaseChooser):
         if exploreProb < 0.0:
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            infoLogger.info("Error: probability of exploring is negative!")
+            infoLogger.error("Probability of exploring is negative!")
             errorLogger.error("Probability of exploring is negative.")
             sys.exit(1)
         # Explore

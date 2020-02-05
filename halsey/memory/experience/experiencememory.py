@@ -118,8 +118,8 @@ class ExperienceMemory(BaseMemory):
         except ValueError:
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            msg = "Error, need batch size < buf size when sampling from memory!"
-            infoLogger.info(msg)
+            msg = "Need batch size < buf size when sampling from memory!"
+            infoLogger.error(msg)
             errorLogger.exception(msg)
             sys.exit(1)
         # Select randomly chosen sample

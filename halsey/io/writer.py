@@ -70,8 +70,8 @@ class Writer:
         except PermissionError:
             infoLogger = logging.getLogger("infoLogger")
             errorLogger = logging.getLogger("errorLogger")
-            msg = f"Error: Lock file `{paramLockFile}.lock` already exists."
-            infoLogger.info(msg)
+            msg = f"Lock file `{paramLockFile}.lock` already exists."
+            infoLogger.error(msg)
             errorLogger.exception(msg)
             sys.exit(1)
         # Change permissions to read-only
@@ -113,7 +113,7 @@ class Writer:
                 except (OSError, IOError):
                     infoLogger = logging.getLogger("infoLogger")
                     errorLogger = logging.getLogger("errorLogger")
-                    msg = f"Error: Can't save model `{attr}` to file `{fname}`."
-                    infoLogger.info(msg)
+                    msg = f"Can't save model `{attr}` to file `{fname}`."
+                    infoLogger.error(msg)
                     errorLogger.exception(msg)
                     sys.exit(1)
