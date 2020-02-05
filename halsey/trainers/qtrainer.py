@@ -5,6 +5,8 @@ Notes:
 """
 import logging
 
+from progress.spinner import Spinner
+
 from halsey.utils.endrun import check_early_stop
 
 from halsey.utils.validation import register_option
@@ -98,6 +100,7 @@ class QTrainer(BaseTrainer):
         -------
         None
         """
+        spinner = Spinner()
         infoLogger = logging.getLogger("infoLogger")
         # Loop over the desired number of training episodes
         for self.episode in range(self.startEpisode, self.nEpisodes):
@@ -105,8 +108,8 @@ class QTrainer(BaseTrainer):
             infoLogger.info(msg)
             # Loop over the max number of steps allowed per episode
             for self.episodeStep in range(self.maxEpisodeSteps):
-                msg = f"Step: {self.episodeStep+1} / {self.maxEpisodeSteps}"
-                infoLogger.debug(msg)
+                if not self.clArgs.silent:
+                    spinner.next()
                 # Check for early stopping
                 self.earlyStop = check_early_stop()
                 if self.earlyStop:

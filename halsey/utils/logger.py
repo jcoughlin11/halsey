@@ -49,8 +49,11 @@ def colorize_logging(emit_func):
         elif levelno >= 10:
             color = "\x1b[35m"  # pink
         else:
-            color = "\x1b[0m"  # normal
-        ln = color + args[0].levelname + "\x1b[0m"
+            color = None
+        if color is not None:
+            ln = color + args[0].levelname + "\x1b[0m"
+        else:
+            ln = args[0].levelname
         args[0].levelname = ln
         return emit_func(*args)
 
@@ -118,11 +121,11 @@ def configure_loggers(clArgs):
         sHandler.setFormatter(sFormatter)
     fHandler.setFormatter(fFormatter)
     efHandler.setFormatter(fFormatter)
-    # Colorize
-    if not clArgs.noColoredLogs and not clArgs.silent:
-        sHandler.emit = colorize_logging(sHandler.emit)
     # Add the handlers to the loggers
-    if not clArgs.silent:
-        infoLogger.addHandler(sHandler)
     infoLogger.addHandler(fHandler)
     errorLogger.addHandler(efHandler)
+    if not clArgs.silent:
+        # Colorize, if desired
+        if not clArgs.noColoredLogs:
+            sHandler.emit = colorize_logging(sHandler.emit)
+        infoLogger.addHandler(sHandler)

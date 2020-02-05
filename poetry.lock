@@ -638,6 +638,14 @@ python-versions = ">=3.5"
 version = "7.0.0"
 
 [[package]]
+category = "main"
+description = "Easy to use progress bars"
+name = "progress"
+optional = false
+python-versions = "*"
+version = "1.5"
+
+[[package]]
 category = "dev"
 description = "Library for building powerful interactive command lines in Python"
 name = "prompt-toolkit"
@@ -1130,7 +1138,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "2ed287af43ad29193715c000b520fd4ef5c3d8f8d4df3038217310883b4038fc"
+content-hash = "b1b099d63839fad661c083426e52b5b6d8c57aa708f8cb4c037f8b1497c9df89"
 python-versions = '^3.6'
 
 [metadata.files]
@@ -1594,6 +1602,9 @@ pillow = [
     {file = "Pillow-7.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:5f7ae9126d16194f114435ebb79cc536b5682002a4fa57fa7bb2cbcde65f2f4d"},
     {file = "Pillow-7.0.0-pp373-pypy36_pp73-win32.whl", hash = "sha256:8453f914f4e5a3d828281a6628cf517832abfa13ff50679a4848926dac7c0358"},
     {file = "Pillow-7.0.0.tar.gz", hash = "sha256:4d9ed9a64095e031435af120d3c910148067087541131e82b3e8db302f4c8946"},
+]
+progress = [
+    {file = "progress-1.5.tar.gz", hash = "sha256:69ecedd1d1bbe71bf6313d88d1e6c4d2957b7f1d4f71312c211257f7dae64372"},
 ]
 prompt-toolkit = [
     {file = "prompt_toolkit-3.0.2-py3-none-any.whl", hash = "sha256:0278d2f51b5ceba6ea8da39f76d15684e84c996b325475f6e5720edc584326a7"},
