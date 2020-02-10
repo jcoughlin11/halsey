@@ -59,6 +59,18 @@ optionRegister = {}
 rnnRegister = []
 
 
+# -----
+# lossRegister
+# -----
+lossRegister = {}
+
+
+# -----
+# optimizerRegister
+# -----
+optimizerRegister = {}
+
+
 # ============================================
 #              register_option
 # ============================================
@@ -122,6 +134,70 @@ def register_network(networkName, networkType):
     if networkType == "rnn":
         rnnRegister.append(networkName)
     return network_builder
+
+
+# ============================================
+#               register_loss
+# ============================================
+def register_loss(func):
+    """
+    Adds the given loss function to halsey's list of known losses.
+
+    This list should only contain custom loss functions that are
+    not already known to keras.
+
+    The name of the loss function should match what's passed in for the
+    loss function in the parameter file.
+
+    Parameters
+    ----------
+    func : function
+        The custom loss function to be registered.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    func : function
+        The unaltered custom loss function.
+    """
+    lossRegister[func.__name__] = func
+    return func
+
+
+# ============================================
+#            register_optimizer
+# ============================================
+def register_optimizer(cls):
+    """
+    Adds the given optimizer class to halsey's list of known
+    optimizers.
+
+    This list should only contain custom optimizers that are not
+    already known to keras.
+
+    The name of the optimizer class should match what's passed in for
+    the optimizer in the parameter file.
+
+    Parameters
+    ----------
+    cls : tf.keras.optimizers.Optimizer
+        The custom optimizer class. Must be a subclass of
+        `tf.keras.optimizers.Optimizer`.
+
+    Raises
+    ------
+    None
+
+    Returns
+    -------
+    cls : tf.keras.optimizers.Optimizer
+        The now-registered custom optimizer class.
+    """
+    optimizerRegister[cls.__name__] = cls
+    return cls
 
 
 # ============================================

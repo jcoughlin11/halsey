@@ -8,11 +8,15 @@ import sys
 
 import tensorflow as tf
 
-from halsey.utils.validation import optionRegister
+from halsey.utils.validation import (
+    optionRegister,
+    lossRegister,
+    optimizerRegister,
+)
 
 
 # ============================================
-#             set_optimizer
+#                set_optimizer
 # ============================================
 def set_optimizer(optimizerName, learningRate):
     """
@@ -20,10 +24,7 @@ def set_optimizer(optimizerName, learningRate):
     form.
 
     This way of doing it allows for not only native keras optimizers,
-    but also custom, user-defined optimizers, as well. Both
-    user-defined and native keras optimizers are handled in
-    the same manner, which makes life simpler, if potentially more
-    verbose than necessary in certain cases.
+    but also custom, user-defined optimizers, as well.
 
     Parameters
     ----------
@@ -43,19 +44,25 @@ def set_optimizer(optimizerName, learningRate):
         The actual optimizer object to perform minimization of the loss
         function.
     """
-    if optimizerName == "adam":
-        optimizer = tf.keras.optimizers.Adam(lr=learningRate)
-    else:
-        infoLogger = logging.getLogger("infoLogger")
-        errorLogger = logging.getLogger("errorLogger")
-        infoLogger.error("Unrecognized optimizer!")
-        errorLogger.error("Unrecognized optimizer.")
-        sys.exit(1)
+    # Search keras' registry for the desired optimizer
+    try:
+        optimizer = tf.keras.optimizers.get(optimizerName)
+    # If the optimizer isn't known to keras, search halsey's register
+    except ValueError:
+        if optimizerName in optimizerRegister:
+            optimizer = optimizerRegister[optimizerName]
+        else:
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            infoLogger.error("Unrecognized optimizer!")
+            errorLogger.error("Unrecognized optimizer.")
+            sys.exit(1)
+    optimizer.learning_rate = learningRate
     return optimizer
 
 
 # ============================================
-#                set_loss
+#                   set_loss
 # ============================================
 def set_loss(lossName):
     """
@@ -63,10 +70,7 @@ def set_loss(lossName):
     string form.
 
     This way of doing it allows for not only native keras losses,
-    but also custom, user-defined losses, as well. Both
-    user-defined and native keras lossesare handled in
-    the same manner, which makes life simpler, if potentially more
-    verbose than necessary in certain cases.
+    but also custom, user-defined losses, as well.
 
     Parameters
     ----------
@@ -82,14 +86,19 @@ def set_loss(lossName):
     loss : tf.keras.losses.Loss
         The actual loss function to be minimized during training.
     """
-    if lossName == "mse":
-        loss = tf.keras.losses.MeanSquaredError()
-    else:
-        infoLogger = logging.getLogger("infoLogger")
-        errorLogger = logging.getLogger("errorLogger")
-        infoLogger.error("Unrecognized loss function!")
-        errorLogger.error("Unrecognized loss function.")
-        sys.exit(1)
+    # Search for loss function in keras' registry
+    try:
+        loss = tf.keras.losses.get(lossName)
+    # If the loss function isn't found, search halsey's loss registry
+    except ValueError:
+        if lossName in lossRegister:
+            loss = lossRegister[lossName]
+        else:
+            infoLogger = logging.getLogger("infoLogger")
+            errorLogger = logging.getLogger("errorLogger")
+            infoLogger.error("Unrecognized loss function!")
+            errorLogger.error("Unrecognized loss function.")
+            sys.exit(1)
     return loss
 
 
