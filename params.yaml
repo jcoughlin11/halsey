@@ -21,7 +21,7 @@ training:
 # Network parameters
 #-------------
 brain:
-    architecture : conv1
+    architecture : DQN
     discount     : 0.9
     learningRate : 0.00025
     loss         : mse
