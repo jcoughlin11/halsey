@@ -107,9 +107,9 @@ class Writer:
         for attr, attrValue in brain.__dict__.items():
             # Save the networks
             if isinstance(attrValue, tf.keras.Model):
-                fname = os.path.join(outputDir, attr + ".h5")
+                fname = os.path.join(outputDir, attr)
                 try:
-                    attrValue.save(fname)
+                    attrValue.save_weights(fname, save_format="tf")
                 except (OSError, IOError):
                     infoLogger = logging.getLogger("infoLogger")
                     errorLogger = logging.getLogger("errorLogger")
