@@ -7,6 +7,8 @@ import logging
 import os
 import sys
 
+import halsey
+
 
 # ============================================
 #                registers
@@ -100,19 +102,15 @@ def register_option(cls):
 # ============================================
 #              register_network
 # ============================================
-def register_network(networkName, networkType):
+def register_network(cls):
     """
-    This meta-wrapper takes in a network architecture name and type and
-    logs it for easier network creation.
+    This wrapper takes in a network name and logs it for easier
+    network creation.
 
     Parameters
     ----------
-    networkName : str
-        The name of the network. Should match what's to be passed in as
-        the architecture parameter in the parameter file.
-
-    networkType : str
-        The family the network belongs to (e.g, 'cnn', 'rnn').
+    cls : tf.keras.Model
+        The network's class.
 
     Raises
     ------
@@ -120,20 +118,30 @@ def register_network(networkName, networkType):
 
     Returns
     -------
-    network_builder : function
-        Function that constructs the specified network.
+    cls : tf.keras.Model
+        The unaltered passed-in object.
     """
-
-    def network_builder(func):
-        optionRegister[networkName] = func
-        return func
-
+    optionRegister[cls.__name__] = cls
     # The rnn register is needed for setting the channelsFirst variable
     # that ends up determining the format of the network's input as
     # eitehr NCHW or NHWC
-    if networkType == "rnn":
-        rnnRegister.append(networkName)
-    return network_builder
+    try:
+        if cls.networkType == "rnn":
+            rnnRegister.append(cls.__name__)
+    except AttributeError:
+        # At this point, the loggers haven't been configured yet, so we
+        # do it here
+        mockArgs = halsey.utils.folio.Folio()
+        setattr(mockArgs, "silent", False)
+        setattr(mockArgs, "noColoredLogs", False)
+        halsey.utils.logger.configure_loggers(mockArgs)
+        msg = f"Network `{cls.__name__}` does not have a networkType attribute."
+        infoLogger = logging.getLogger("infoLogger")
+        errorLogger = logging.getLogger("errorLogger")
+        infoLogger.error(msg)
+        errorLogger.exception(msg)
+        sys.exit(1)
+    return cls
 
 
 # ============================================
