@@ -137,9 +137,9 @@ class ExperienceMemory(BaseMemory):
         dones = np.empty(shape=[batchSize, 1], dtype=np.bool)
         # Parse the sample
         for i, sample in enumerate(samples):
-            states[i] = sample.state
-            actions[i] = sample.action
-            rewards[i] = sample.reward
-            nextStates[i] = sample.nextState
-            dones[i] = sample.done
+            states[i] = sample[0]
+            actions[i] = sample[1]
+            rewards[i] = sample[2]
+            nextStates[i] = sample[3]
+            dones[i] = sample[4]
         return states, actions, rewards, nextStates, dones

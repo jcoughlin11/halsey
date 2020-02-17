@@ -105,6 +105,4 @@ class FrameByFrameNavigator(BaseNavigator):
         nextState, reward, done, _ = self.env.step(action)
         # Process the next state
         nextState = self.frameManager.process_frame(nextState)
-        # Package up the experience
-        experience = Experience(self.state, action, reward, nextState, done)
-        return experience
+        return (self.state, action, reward, nextState, done)

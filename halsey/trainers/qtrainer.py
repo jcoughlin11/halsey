@@ -118,14 +118,20 @@ class QTrainer(BaseTrainer):
                 experience = self.navigator.transition(self.brain)
                 # Save the experience
                 self.memory.add(experience)
+                # Get sample of experiences. This is done here and not
+                # in the learn method because learn() is wrapped as a
+                # tf.function. The tf docs recommend creating all
+                # stateful variables outside the function and passing
+                # them as args
+                samples = self.memory.sample(self.batchSize)
                 # Update network weights
-                self.brain.learn(self.memory, self.batchSize)
+                self.brain.learn(*samples)
                 # Update brain's parameters (e.g., target q-network)
                 self.brain.update()
                 # Update memory (e.g., priority weights)
                 self.memory.update()
                 # Check for terminal state
-                if experience.done:
+                if experience[-1]:
                     break
             # Break out of the training loop if needed
             if self.earlyStop:
