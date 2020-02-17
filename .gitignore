@@ -3,17 +3,11 @@
 # Compiled python modules (leading slash anchors the path to root)
 /*.pyc
 
-# Checkpoints
-/checkpoints/
-
 # Cache
 __pycache__/
 
 # Egg
 *.egg-info/
-
-# Output directory
-/output
 
 # Doc build files
 /docs/build/

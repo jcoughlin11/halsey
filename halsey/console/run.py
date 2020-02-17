@@ -1,6 +1,6 @@
 """
-Title:   console.py
-Purpose: Primary driver for using Halsey from the command line
+Title:      run.py
+Purpose:    Primary driver for using Halsey from the command line
 Notes:
 """
 import sys
@@ -15,9 +15,6 @@ def run():
     """
     Driver function for using halsey.
 
-    Instantiates an instance of the Agent class and then either
-    trains the agent, tests the agent, or both.
-
     Parameters
     ----------
     None
@@ -30,8 +27,4 @@ def run():
     -------
     None
     """
-    agent = halsey.Agent()
-    agent.setup()
-    if agent.trainingEnabled:
-        if not agent.train():
-            sys.exit()
+    pass
