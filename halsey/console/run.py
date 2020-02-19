@@ -3,8 +3,6 @@ Title:      run.py
 Purpose:    Primary driver for using halsey from the command line
 Notes:
 """
-import sys
-
 from halsey.utils.setup import setup
 
 
@@ -33,5 +31,4 @@ def run():
     """
     agent = setup()
     if agent.trainingEnabled:
-        if not agent.train():
-            sys.exit()
+        agent.train()

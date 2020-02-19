@@ -45,5 +45,8 @@ def setup():
     except IOError as e:
         msg = f"Could not read config file: `{clArgs.paramFile}`"
         endrun(e, msg)
+    except ValueError as e:
+        msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
+        endrun(e, msg)
     agent = get_agent()
     return agent
