@@ -30,5 +30,5 @@ def run():
     Void
     """
     agent = setup()
-    if agent.trainingEnabled:
+    if agent.trainFlag:
         agent.train()
