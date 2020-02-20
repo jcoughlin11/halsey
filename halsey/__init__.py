@@ -3,4 +3,5 @@ from . import (
     agents,
     console,
     io,
+    policies,
 )
