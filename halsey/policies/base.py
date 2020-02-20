@@ -49,7 +49,7 @@ class BasePolicy:
         env : gym.Env
             The interface between the game and the agent.
 
-        model : halsey.models.BaseModel
+        model : :py:class:`halsey.models.base.BaseModel`
             Contains the agent's network(s), learning method, and
             network/learning meta-data.
 
@@ -117,7 +117,7 @@ class BasePolicy:
             The game state being used to inform any decision made with
             the network.
 
-        model : halsey.models.BaseModel
+        model : :py:class:`halsey.models.BaseModel`
             Contains the agent's network(s), learning method, and
             network/learning meta-data.
 

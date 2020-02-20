@@ -83,9 +83,9 @@ class EpsilonGreedy(BasePolicy):
         -------
         None
         """
-        self.epsDecayRate = policyParams.epsDecayRate
-        self.epsilonStart = policyParams.epsilonStart
-        self.epsilonStop = policyParams.epsilonStop
+        self.epsDecayRate = policyParams["epsDecayRate"]
+        self.epsilonStart = policyParams["epsilonStart"]
+        self.epsilonStop = policyParams["epsilonStop"]
         self.decayStep = 0
 
     # -----
@@ -105,7 +105,7 @@ class EpsilonGreedy(BasePolicy):
         env : gym.Env
             The interface between the game and the agent.
 
-        brain : halsey.models.BaseModel
+        brain : :py:class:`halsey.models.base.BaseModel`
             Contains the agent's network(s), learning method, and
             network/learning meta-data.
 

@@ -4,4 +4,5 @@ from . import (
     console,
     io,
     policies,
+    navigation,
 )

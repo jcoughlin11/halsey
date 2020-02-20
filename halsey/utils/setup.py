@@ -33,7 +33,7 @@ def setup():
 
     Returns
     -------
-    agent : halsey.agents.base.BaseAgent
+    agent : :py:class:`halsey.agents.base.BaseAgent`
         The object doing the learning, being tested, and/or being
         analyzed.
     """
