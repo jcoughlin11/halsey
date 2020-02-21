@@ -3,6 +3,7 @@ from . import (
     agents,
     console,
     io,
-    policies,
+    memory,
     navigation,
+    policies,
 )
