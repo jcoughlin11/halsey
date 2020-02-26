@@ -73,13 +73,4 @@ class BaseAgent:
         """
         for self.episode in range(self.startEpisode, self.nEpisodes):
             for self.episodeStep in range(self.maxEpisodeSteps):
-                experience = self.navigator.transition(self.model)
-                self.memory.add(experience)
-                trainData = self.memory.sample()
-                self.model.learn(trainData)
-                self.memory.update()
-                self.model.update()
-                # Check for terminal state
-                if experience[-1]:
-                    self.navigator.reset()
-                    break
+                pass
