@@ -79,9 +79,9 @@ class EpsilonGreedy(BasePolicy):
         -------
         pass
         """
-        self.epsDecayRate = actionParams.epsDecayRate
-        self.epsilonStart = actionParams.epsilonStart
-        self.epsilonStop = actionParams.epsilonStop
+        self.epsDecayRate = actionParams["epsDecayRate"]
+        self.epsilonStart = actionParams["epsilonStart"]
+        self.epsilonStop = actionParams["epsilonStop"]
         self.decayStep = 0
 
     # -----

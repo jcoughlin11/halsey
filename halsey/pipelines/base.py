@@ -12,7 +12,7 @@ import tensorflow as tf
 # ============================================
 #                BasePipelines
 # ============================================
-@gin.configurable(blacklist=["channelsFirst"])
+@gin.configurable("pipeline", blacklist=["channelsFirst"])
 class BasePipeline:
     """
     Doc string.

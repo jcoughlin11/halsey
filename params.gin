@@ -1,0 +1,49 @@
+import halsey
+
+
+training.envName       = "SpaceInvaders-v4"
+training.channelsFirst = False
+training.instructorCls = @halsey.instructors.base.BaseInstructor
+training.brainCls      = @halsey.instructors.brains.qbrain.QBrain
+training.policyCls     = @halsey.policies.epsilongreedy.EpsilonGreedy
+training.pipelineCls   = @halsey.pipelines.base.BasePipeline
+training.memoryCls     = @halsey.memory.experiencememory.ExperienceMemory
+training.navCls        = @halsey.navigation.framenavigator.FrameNavigator
+training.nets          = [
+                            @halsey.networks.dqn.DQN,
+                         ]
+
+
+EpsilonGreedy.actionParams = {
+                                "epsDecayRate" : 0.00001,
+                                "epsilonStart" : 1.0,
+                                "epsilonStop" : 0.01,
+                            }
+
+pipeline.frameParams = {
+                            "normValue" : 255.,
+                            "traceLen" : 4,
+                            "offsetHeight" : 8,
+                            "offsetWidth" : 4,
+                            "cropHeight" : 110,
+                            "cropWidth" : 84,
+                        }
+
+memory.memoryParams = {
+                        "maxSize" : 100,
+                        "pretrainLen" : 64",
+                    }
+
+brain.brainParams = {
+                        "discountRate" : 0.9,
+                        "learningRate" : 0.00025,
+                        "loss" : "mse",
+                        "optimizer" : "adam",
+                    }
+
+instructor.trainParams = {
+                            "nEpisodes" : 1,
+                            "maxEpisodeSteps" : 1000,
+                            "batchSize" : 32,
+                            "savePeriod" 1,
+                        }

@@ -2,7 +2,6 @@
 Title: experiencememory.py
 Notes:
 """
-import gin
 import numpy as np
 
 from halsey.utils.endrun import endrun
@@ -14,7 +13,6 @@ from .base import BaseMemory
 # ============================================
 #            ExperienceMemory
 # ============================================
-@gin.configurable(whitelist=["memoryParams"])
 class ExperienceMemory(BaseMemory):
     """
     Doc string.
@@ -23,11 +21,11 @@ class ExperienceMemory(BaseMemory):
     # -----
     # constructor
     # -----
-    def __init__(self, pipeline, memoryParams):
+    def __init__(self):
         """
         Doc string.
         """
-        super().__init__(pipeline, memoryParams)
+        super().__init__()
 
     # -----
     # sample

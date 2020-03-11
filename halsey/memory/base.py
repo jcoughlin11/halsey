@@ -4,10 +4,13 @@ Notes:
 """
 import queue
 
+import gin
+
 
 # ============================================
 #                BaseMemory
 # ============================================
+@gin.configurable("memory")
 class BaseMemory:
     """
     Doc string.

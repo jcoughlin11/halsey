@@ -8,7 +8,7 @@ import gin
 # ============================================
 #              BaseInstructor
 # ============================================
-@gin.configurable("baseTrainer", whitelist=["trainParams"])
+@gin.configurable("instructor", whitelist=["trainParams"])
 class BaseInstructor:
     """
     Doc string.
