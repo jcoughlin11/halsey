@@ -2,6 +2,7 @@
 Title: experiencememory.py
 Notes:
 """
+import gin
 import numpy as np
 
 from halsey.utils.endrun import endrun
@@ -13,6 +14,7 @@ from .base import BaseMemory
 # ============================================
 #            ExperienceMemory
 # ============================================
+@gin.configurable
 class ExperienceMemory(BaseMemory):
     """
     Doc string.

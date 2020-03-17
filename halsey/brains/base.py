@@ -11,7 +11,7 @@ from halsey.utils.setup import get_optimizer
 # ============================================
 #                 BaseBrain
 # ============================================
-@gin.configurable("brain", blacklist=["nets"])
+@gin.configurable(blacklist=["nets"])
 class BaseBrain:
     """
     Doc string.
@@ -28,7 +28,7 @@ class BaseBrain:
     # -----
     # constructor
     # -----
-    def __init__(self, brainParams, nets):
+    def __init__(self, brainParams, nets=None):
         """
         Doc string.
         """

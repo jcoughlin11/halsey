@@ -2,6 +2,7 @@
 Title: qbrain.py
 Notes:
 """
+import gin
 import numpy as np
 import tensorflow as tf
 
@@ -11,6 +12,7 @@ from .base import BaseBrain
 # ============================================
 #                  QBrain
 # ============================================
+@gin.configurable(blacklist=["nets"])
 class QBrain(BaseBrain):
     """
     Implements the original deep-q learning method from DeepMind [1]_.
@@ -28,11 +30,11 @@ class QBrain(BaseBrain):
     # -----
     # constructor
     # -----
-    def __init__(self, nets):
+    def __init__(self, nets=None):
         """
         Doc string.
         """
-        super().__init__(nets)
+        super().__init__(nets=nets)
 
     # -----
     # learn
@@ -134,7 +136,7 @@ class QBrain(BaseBrain):
                 * np.amax(tf.boolean_mask(nextVals, ~dones), axis=1)
             )
             loss = self.lossFunction(labels, predictions)
-        gradients = tape.gradients(loss, self.nets[0].trainable_variables)
+        gradients = tape.gradient(loss, self.nets[0].trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.nets[0].trainable_variables)
         )

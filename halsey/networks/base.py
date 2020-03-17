@@ -9,7 +9,7 @@ import tensorflow as tf
 # ============================================
 #                BaseNetwork
 # ============================================
-@gin.configurable("network")
+@gin.configurable
 class BaseNetwork(tf.keras.Model):
     """
     Doc string.
@@ -30,4 +30,4 @@ class BaseNetwork(tf.keras.Model):
         """
         Doc string.
         """
-        pass
+        super().__init__()

@@ -152,11 +152,11 @@ def prep_sample(sample):
         An experience tuple, except that every element is now a batched
         numpy array
     """
-    states = np.stack(sample[:, 0])
-    actions = sample[:, 1]
-    rewards = sample[:, 2]
-    nextStates = np.stack(sample[:, 3])
-    dones = sample[:, 4]
+    states = np.stack(sample[:, 0]).astype(np.float)
+    actions = sample[:, 1].astype(np.int)
+    rewards = sample[:, 2].astype(np.float)
+    nextStates = np.stack(sample[:, 3]).astype(np.float)
+    dones = sample[:, 4].astype(np.bool)
     return (states, actions, rewards, nextStates, dones)
 
 

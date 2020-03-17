@@ -1,6 +1,9 @@
 import halsey
 
 
+#============================================
+#                  General
+#============================================
 training.envName       = "SpaceInvaders-v4"
 training.channelsFirst = False
 training.instructorCls = @halsey.instructors.base.BaseInstructor
@@ -14,36 +17,55 @@ training.nets          = [
                          ]
 
 
+#============================================
+#              Action Selection
+#============================================
 EpsilonGreedy.actionParams = {
                                 "epsDecayRate" : 0.00001,
                                 "epsilonStart" : 1.0,
-                                "epsilonStop" : 0.01,
-                            }
+                                "epsilonStop"  : 0.01,
+                             }
 
-pipeline.frameParams = {
-                            "normValue" : 255.,
-                            "traceLen" : 4,
+
+#============================================
+#             Image Processing
+#============================================
+pipeline.frameParams =  {
+                            "normValue"    : 255.,
+                            "traceLen"     : 4,
                             "offsetHeight" : 8,
-                            "offsetWidth" : 4,
-                            "cropHeight" : 110,
-                            "cropWidth" : 84,
+                            "offsetWidth"  : 4,
+                            "cropHeight"   : 110,
+                            "cropWidth"    : 84,
                         }
 
-memory.memoryParams = {
-                        "maxSize" : 100,
-                        "pretrainLen" : 64",
-                    }
 
+#============================================
+#                   Memory
+#============================================
+memory.memoryParams = {
+                        "maxSize"     : 100,
+                        "pretrainLen" : 64",
+                      }
+
+
+#============================================
+#              Learning Method
+#============================================
 brain.brainParams = {
                         "discountRate" : 0.9,
                         "learningRate" : 0.00025,
-                        "loss" : "mse",
-                        "optimizer" : "adam",
+                        "loss"         : "mse",
+                        "optimizer"    : "adam",
                     }
 
+
+#============================================
+#                  Training
+#============================================
 instructor.trainParams = {
-                            "nEpisodes" : 1,
+                            "nEpisodes"       : 1,
                             "maxEpisodeSteps" : 1000,
-                            "batchSize" : 32,
-                            "savePeriod" 1,
-                        }
+                            "batchSize"       : 32,
+                            "savePeriod"      : 1,
+                         }

@@ -12,7 +12,7 @@ import tensorflow as tf
 # ============================================
 #                BasePipelines
 # ============================================
-@gin.configurable("pipeline", blacklist=["channelsFirst"])
+@gin.configurable(blacklist=["channelsFirst"])
 class BasePipeline:
     """
     Doc string.
@@ -89,5 +89,5 @@ class BasePipeline:
         if self.channelsFirst:
             state = np.stack(self.frameStack, axis=0)
         else:
-            state = np.stack(self.frameStack, axis=1)
+            state = np.stack(self.frameStack, axis=2)
         return state

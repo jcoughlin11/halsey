@@ -2,12 +2,15 @@
 Title: framenavigator.py
 Notes:
 """
+import gin
+
 from .base import BaseNavigator
 
 
 # ============================================
 #              FrameNavigator
 # ============================================
+@gin.configurable
 class FrameNavigator(BaseNavigator):
     """
     Represents a fully Markovian process whereby the agent takes in and
@@ -54,5 +57,5 @@ class FrameNavigator(BaseNavigator):
         nextFrame, reward, done, _ = self.env.step(action)
         nextState = self.pipeline.process(nextFrame, False)
         experience = (self.state, action, reward, nextState, done)
-        self.state = self.nextState
+        self.state = nextState
         return experience

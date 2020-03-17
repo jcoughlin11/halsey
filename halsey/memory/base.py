@@ -10,7 +10,7 @@ import gin
 # ============================================
 #                BaseMemory
 # ============================================
-@gin.configurable("memory")
+@gin.configurable
 class BaseMemory:
     """
     Doc string.

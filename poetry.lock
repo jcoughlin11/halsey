@@ -209,11 +209,20 @@ version = "0.2.2"
 
 [[package]]
 category = "main"
-description = "Git index file parser"
-name = "gin"
+description = "Gin-Config: A lightweight configuration library for Python"
+name = "gin-config"
 optional = false
 python-versions = "*"
-version = "0.1.006"
+version = "0.3.0"
+
+[package.dependencies]
+six = ">=1.10.0"
+
+[package.extras]
+tensorflow = ["tensorflow (>=1.13.0)"]
+tensorflow-gpu = ["tensorflow-gpu (>=1.13.0)"]
+testing = ["absl-py (>=0.1.6)", "mock (>=3.0.5)", "nose", "six (>=1.10.0)"]
+tf-nightly = ["tf-nightly"]
 
 [[package]]
 category = "main"
@@ -965,7 +974,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "9b3e2cc2499a0d86c1baefe7f0c141af3a5d450a35bf739a014ac5409d87b0dd"
+content-hash = "eb9b4a0da64ab6041eb0810fa6cbdb6eb737f9ed31960e8f406a4da5abee6e35"
 python-versions = '^3.6'
 
 [metadata.files]
@@ -1061,8 +1070,9 @@ future = [
 gast = [
     {file = "gast-0.2.2.tar.gz", hash = "sha256:fe939df4583692f0512161ec1c880e0a10e71e6a232da045ab8edd3756fbadf0"},
 ]
-gin = [
-    {file = "gin-0.1.006.tar.bz2", hash = "sha256:0747da840881792f1726f9145094953b0a1499e9b41324a14ca6a10c03baa1ef"},
+gin-config = [
+    {file = "gin-config-0.3.0.tar.gz", hash = "sha256:6a83b7639ae76c276c0380d71d583f151b327a7c37978add314180ec1280a6cc"},
+    {file = "gin_config-0.3.0-py3-none-any.whl", hash = "sha256:e2141da0525c9275bf08f11ef7d25cdd65e415f74f77fab54227af9f5d2d8c93"},
 ]
 google-auth = [
     {file = "google-auth-1.11.2.tar.gz", hash = "sha256:1ee22e22f35d6e00f068d7b3999b2ce24ecb5d0dcbd485aa6896d2b83c8907d6"},
