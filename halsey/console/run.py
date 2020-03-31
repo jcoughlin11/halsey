@@ -4,6 +4,7 @@ Notes:
     * call tester judge (judge.evaluate) and analyzer analyst (analyst.analyze)
 """
 import gin
+from rich.traceback import install as install_rich_traceback
 
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
@@ -36,6 +37,7 @@ def run():
     -------
     Void
     """
+    install_rich_traceback()
     clArgs = parse_cl_args()
     setup_loggers(clArgs)
     try:
