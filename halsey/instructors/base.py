@@ -3,6 +3,7 @@ Title: base.py
 Notes:
 """
 import gin
+from rich.progress import track
 
 
 # ============================================
@@ -37,7 +38,7 @@ class BaseInstructor:
         Doc string.
         """
         self.memory.pre_populate(self.navigator)
-        for episode in range(self.nEpisodes):
+        for episode in track(range(self.nEpisodes), description="Training..."):
             self.navigator.reset()
             for episodeStep in range(self.maxEpisodeSteps):
                 experience = self.navigator.transition(self.brain, "train")
