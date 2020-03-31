@@ -40,12 +40,12 @@ def run():
     setup_loggers(clArgs)
     try:
         gin.parse_config_file(clArgs.paramFile)
-    except IOError as e:
+    except IOError:
         msg = f"Could not read config file: `{clArgs.paramFile}`"
-        endrun(e, msg)
-    except ValueError as e:
+        endrun(msg)
+    except ValueError:
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
-        endrun(e, msg)
+        endrun(msg)
     if clArgs.train:
         instructor = setup_instructor()
         instructor.train()

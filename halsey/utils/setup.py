@@ -120,12 +120,12 @@ def build_env(envName):
     """
     try:
         env = gym.make(envName)
-    except gym.error.UnregisteredEnv as e:
+    except gym.error.UnregisteredEnv:
         msg = f"Unknown environment `{envName}`."
-        endrun(e, msg)
-    except gym.error.DeprecatedEnv as e:
+        endrun(msg)
+    except gym.error.DeprecatedEnv:
         msg = f"Using deprecated version of environment `{envName}`."
-        endrun(e, msg)
+        endrun(msg)
     return env
 
 
@@ -199,12 +199,12 @@ def get_loss_func(lossName):
     """
     try:
         loss = tf.keras.losses.get(lossName)
-    except ValueError as e:
+    except ValueError:
         if lossName in lossRegister:
             loss = lossRegister[lossName]
         else:
             msg = f"Unrecognized loss function `{lossName}`."
-            endrun(e, msg)
+            endrun(msg)
     return loss
 
 
@@ -235,11 +235,11 @@ def get_optimizer(optimizerName, learningRate):
     """
     try:
         optimizer = tf.keras.optimizers.get(optimizerName)
-    except ValueError as e:
+    except ValueError:
         if optimizerName in optimizerRegister:
             optimizer = optimizerRegister[optimizerName]
         else:
             msg = f"Unrecognized optimizer `{optimizerName}`."
-            endrun(e, msg)
+            endrun(msg)
     optimizer.learning_rate = learningRate
     return optimizer

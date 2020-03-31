@@ -41,10 +41,10 @@ class ExperienceMemory(BaseMemory):
             indices = np.random.choice(
                 np.arange(len(self.replayBuffer)), size=batchSize, replace=False
             )
-        except ValueError as e:
+        except ValueError:
             msg = f"Batch size `{batchSize}` > buffer size "
             msg += f"`{len(self.replayBuffer)}`. Cannot sample."
-            endrun(e, msg)
+            endrun(msg)
         sample = np.array(self.replayBuffer)[indices]
         sample = prep_sample(sample)
         return sample

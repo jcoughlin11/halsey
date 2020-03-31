@@ -110,7 +110,7 @@ class EpsilonGreedy(BasePolicy):
         ) * np.exp(-self.epsDecayRate * self.decayStep)
         if exploreProb < 0.0:
             msg = f"Probability of exploring is negative: `{exploreProb}`"
-            endrun(None, msg)
+            endrun(msg)
         if exploreProb >= exploitProb:
             action = self.random_choose(env)
         else:

@@ -9,16 +9,13 @@ import sys
 # ============================================
 #                   endrun
 # ============================================
-def endrun(exception, msg):
+def endrun(msg):
     """
     Boilerplate for logging an exception's traceback as well as the
     code's error message for why the exception occurred.
 
     Paremters
     ---------
-    exception : python.Exception
-        The error being raised.
-
     msg : str
         The error message.
 

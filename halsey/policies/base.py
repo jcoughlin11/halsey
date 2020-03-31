@@ -39,7 +39,7 @@ class BasePolicy:
             action = self.test_choose(state, brain)
         else:
             msg = f"Invalid value of mode: `{mode}` in choose()."
-            endrun(None, msg)
+            endrun(msg)
         return action
 
     # -----
