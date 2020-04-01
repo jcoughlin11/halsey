@@ -1,5 +1,6 @@
 """
 Title: read.py
+
 Notes:
 """
 import argparse
@@ -34,13 +35,6 @@ def parse_cl_args():
     parser.add_argument(
         "paramFile",
         help="The name of the .gin file containing parameters for the run.",
-    )
-    parser.add_argument(
-        "--silent",
-        "-s",
-        dest="silent",
-        action="store_true",
-        help="Suppress writing to stdout. Log files are still written.",
     )
     parser.add_argument(
         "--no-color",
