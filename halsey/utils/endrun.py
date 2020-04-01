@@ -2,8 +2,9 @@
 Title: endrun.py
 Notes:
 """
-import logging
 import sys
+
+from halsey.io.logging import log
 
 
 # ============================================
@@ -27,8 +28,5 @@ def endrun(msg):
     -------
     Void
     """
-    infoLogger = logging.getLogger("infoLogger")
-    errorLogger = logging.getLogger("errorLogger")
-    infoLogger.error(msg)
-    errorLogger.exception(msg)
+    log(msg)
     sys.exit()
