@@ -1,6 +1,9 @@
 """
 Title: logging.py
-Notes:
+
+Notes: * The work done in setup_loggers is not done at the module
+         level because it depends on the command-line arguments that
+         are passed.
 """
 import logging
 import logging.handlers
@@ -112,13 +115,13 @@ def setup_loggers(clArgs):
     errorFile = os.path.join(os.getcwd(), "errors.log")
     # Output formats
     sFmt = "Halsey - %(levelname)s - %(message)s"
-    fFmt = (
+    fFmt = "%(levelname)s - %(asctime)s - %(process)d - %(message)s"
+    efFmt = (
         "%(levelname)s - %(asctime)s - %(process)d - (%(filename)s, "
         + "%(funcName)s, %(lineno)d) - %(message)s"
     )
     # Handlers
-    if not clArgs.silent:
-        sHandler = logging.StreamHandler()
+    sHandler = logging.StreamHandler()
     fHandler = logging.handlers.RotatingFileHandler(
         infoFile, maxBytes=250000000, backupCount=5, delay=True
     )
@@ -128,23 +131,58 @@ def setup_loggers(clArgs):
     # Formatters
     sFormatter = logging.Formatter(sFmt)
     fFormatter = logging.Formatter(fFmt, datefmt="%d-%b-%y %H:%M:%S")
+    efFormatter = logging.Formatter(efFmt, datefmt="%d-%b-%y %H:%M:%S")
     # Set levels
     infoLogger.setLevel(logging.DEBUG)
     errorLogger.setLevel(logging.ERROR)
-    if not clArgs.silent:
-        sHandler.setLevel(logging.DEBUG)
+    sHandler.setLevel(logging.DEBUG)
     fHandler.setLevel(logging.INFO)
     efHandler.setLevel(logging.ERROR)
     # Add the formatters to the handlers
-    if not clArgs.silent:
-        sHandler.setFormatter(sFormatter)
+    sHandler.setFormatter(sFormatter)
     fHandler.setFormatter(fFormatter)
-    efHandler.setFormatter(fFormatter)
+    efHandler.setFormatter(efFormatter)
     # Add the handlers to the loggers
     infoLogger.addHandler(fHandler)
     errorLogger.addHandler(efHandler)
-    if not clArgs.silent:
-        # Colorize, if desired
-        if not clArgs.noColor:
-            sHandler.emit = colorize_logging(sHandler.emit)
-        infoLogger.addHandler(sHandler)
+    # Colorize, if desired
+    if not clArgs.noColor:
+        sHandler.emit = colorize_logging(sHandler.emit)
+    infoLogger.addHandler(sHandler)
+
+
+# ============================================
+#                   log
+# ============================================
+def log(msg, level="info"):
+    """
+    Abstracts away the boilerplate code for logging a message.
+
+    Parameters
+    ----------
+    msg : str
+        The message to log.
+
+    level : str
+        The logging level (debug, info, warning, or error).
+
+    Raises
+    ------
+    ValueError
+        Raised when either no message or an invalid level is passed.
+
+    Returns
+    -------
+    Void
+    """
+    infoLogger = logging.getLogger("infoLogger")
+    if level == "info":
+        infoLogger.info(msg)
+    elif level == "warning":
+        infoLogger.warning(msg)
+    elif level == "debug":
+        infoLogger.debug(msg)
+    elif level == "error":
+        errorLogger = logging.getLogger("errorLogger")
+        infoLogger.error(msg)
+        errorLogger.exception(msg)
