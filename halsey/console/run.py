@@ -6,6 +6,7 @@ Notes:
 import gin
 from rich.traceback import install as install_rich_traceback
 
+from halsey.io.logging import log
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
 from halsey.utils.endrun import endrun
@@ -40,6 +41,7 @@ def run():
     install_rich_traceback()
     clArgs = parse_cl_args()
     setup_loggers(clArgs)
+    log("Reading parameter file...")
     try:
         gin.parse_config_file(clArgs.paramFile)
     except IOError:
@@ -49,5 +51,7 @@ def run():
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
         endrun(msg)
     if clArgs.train:
+        log("Setting up instructor...")
         instructor = setup_instructor()
+        log("Training...")
         instructor.train()
