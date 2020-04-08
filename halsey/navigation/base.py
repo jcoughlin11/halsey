@@ -44,6 +44,7 @@ class BaseNavigator:
         self.policy = policy
         self.pipeline = pipeline
         self.state = None
+        self.navParams = None
 
     # -----
     # reset
