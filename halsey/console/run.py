@@ -9,6 +9,7 @@ from rich.traceback import install as install_rich_traceback
 from halsey.io.logging import log
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
+from halsey.io.write import save_checkpoint
 from halsey.utils.endrun import endrun
 from halsey.utils.setup import setup_instructor
 
@@ -55,3 +56,5 @@ def run():
         instructor = setup_instructor()
         log("Training...")
         instructor.train()
+        log("Saving...")
+        save_checkpoint(instructor)
