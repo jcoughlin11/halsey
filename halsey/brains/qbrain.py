@@ -127,6 +127,7 @@ class QBrain(BaseBrain):
             labels = predictions.numpy().copy()
             # For those state-action pairs that resulted in a terminal
             # state, set its output to just the reward
+            # NOTE: Do I need stop_gradient here?
             labels[doneInds, actions[doneInds]] = rewards[doneInds]
             # For those state-action pairs that did not result in a
             # terminal state, use the Bellman equation to update
