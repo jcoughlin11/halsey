@@ -39,6 +39,7 @@ class BaseInstructor:
         """
         self.memory.pre_populate(self.navigator)
         for episode in track(range(self.nEpisodes), description="Training..."):
+            # for episode in range(self.nEpisodes):
             self.navigator.reset()
             for episodeStep in range(self.maxEpisodeSteps):
                 experience = self.navigator.transition(self.brain, "train")

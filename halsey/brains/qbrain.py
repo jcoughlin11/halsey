@@ -108,12 +108,20 @@ class QBrain(BaseBrain):
         -------
         Void
         """
+        import pdb
+
+        pdb.set_trace()
         states, actions, rewards, nextStates, dones = sample
         doneInds = np.where(dones)[0]
         nDoneInds = np.where(~dones)[0]
+        # Get nextVals outside of tape so that this operation isn't
+        # tracked by tape
+        nextVals = self.nets[0](nextStates, training=True)
         with tf.GradientTape() as tape:
+            # Getting predictions inside of tape causes this operation
+            # to be tracked by tape because it involved watched variables
+            # (the trainable variables of the network)
             predictions = self.nets[0](states, training=True)
-            nextVals = self.nets[0](nextStates, training=True)
             # Use the numpy data because it makes indexing SO much
             # easier
             # NOTE: If using the numpy data doesn't work when
@@ -123,19 +131,34 @@ class QBrain(BaseBrain):
             # indices in a tensor, but actually updating multiple
             # values at once like you can in numpy is just a pain and
             # requires masking and more convoluted code that just makes
-            # things harder to read
-            labels = predictions.numpy().copy()
+            # things harder to read. or try tf.convert_to_tensor
+            # Just to be safe, explicitly don't track this
+            labels = tf.stop_gradient(predictions.numpy().copy())
             # For those state-action pairs that resulted in a terminal
             # state, set its output to just the reward
-            # NOTE: Do I need stop_gradient here?
+            # NOTE: Do I need stop_gradient here? I don't think so,
+            # since this line doesn't involve anything trainable, so
+            # it shouldn't affect the gradients. See next statement
+            # This operation isn't tracked because it doesn't involve
+            # any watched variables or variables made from watched operations
             labels[doneInds, actions[doneInds]] = rewards[doneInds]
             # For those state-action pairs that did not result in a
             # terminal state, use the Bellman equation to update
-            labels[nDoneInds, actions[nDoneInds]] = tf.stop_gradient(
-                rewards[nDoneInds]
-                + self.discountRate
-                * np.amax(tf.boolean_mask(nextVals, ~dones), axis=1)
+            # NOTE: Here, I think I need stop_gradient because this
+            # line involves nextVals, which is related to trainable
+            # variables. By that logic, shouldn't labels = preds.copy()
+            # above use stop_gradient?
+            # no longer need stop_gradient because this operation doesn't
+            # involve any watched variables or any variables created from
+            # tracked operations
+            labels[nDoneInds, actions[nDoneInds]] = rewards[
+                nDoneInds
+            ] + self.discountRate * np.amax(
+                tf.boolean_mask(nextVals, ~dones), axis=1
             )
+            # The loss operation will be tracked because it involves
+            # predictions, which is a variable created from a tracked
+            # operation
             loss = self.lossFunction(labels, predictions)
         gradients = tape.gradient(loss, self.nets[0].trainable_variables)
         self.optimizer.apply_gradients(
