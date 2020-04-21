@@ -139,8 +139,8 @@ def prep_sample(sample):
     Parameters
     ----------
     sample : np.ndarray
-        Array of shape (batchSize, 5). Each row is an experience tuple
-        (state, action, reward, next state, done).
+        Array of shape (batchSize, 5). Each row is an experience:
+        state, action, reward, next state, done.
 
     Raises
     ------

@@ -3,7 +3,6 @@ Title: qbrain.py
 Notes:
 """
 import gin
-import numpy as np
 import tensorflow as tf
 
 from .base import BaseBrain
@@ -90,6 +89,9 @@ class QBrain(BaseBrain):
         weight update. These labels are usually referred to as
         'targets' in the RL literature.
 
+        NOTE: This is heavily based on deepq_learner.py from OpenAI's
+        baselines package.
+
         Parameters
         ----------
         sample : tuple
@@ -108,58 +110,54 @@ class QBrain(BaseBrain):
         -------
         Void
         """
-        import pdb
-
-        pdb.set_trace()
         states, actions, rewards, nextStates, dones = sample
-        doneInds = np.where(dones)[0]
-        nDoneInds = np.where(~dones)[0]
-        # Get nextVals outside of tape so that this operation isn't
-        # tracked by tape
-        nextVals = self.nets[0](nextStates, training=True)
         with tf.GradientTape() as tape:
-            # Getting predictions inside of tape causes this operation
-            # to be tracked by tape because it involved watched variables
-            # (the trainable variables of the network)
-            predictions = self.nets[0](states, training=True)
-            # Use the numpy data because it makes indexing SO much
-            # easier
-            # NOTE: If using the numpy data doesn't work when
-            # decorating this function with @tf.function, then just use
-            # a loop to update individual elements. tf.gather_nd and
-            # tf.where can be used to get certain elements and their
-            # indices in a tensor, but actually updating multiple
-            # values at once like you can in numpy is just a pain and
-            # requires masking and more convoluted code that just makes
-            # things harder to read. or try tf.convert_to_tensor
-            # Just to be safe, explicitly don't track this
-            labels = tf.stop_gradient(predictions.numpy().copy())
-            # For those state-action pairs that resulted in a terminal
-            # state, set its output to just the reward
-            # NOTE: Do I need stop_gradient here? I don't think so,
-            # since this line doesn't involve anything trainable, so
-            # it shouldn't affect the gradients. See next statement
-            # This operation isn't tracked because it doesn't involve
-            # any watched variables or variables made from watched operations
-            labels[doneInds, actions[doneInds]] = rewards[doneInds]
-            # For those state-action pairs that did not result in a
-            # terminal state, use the Bellman equation to update
-            # NOTE: Here, I think I need stop_gradient because this
-            # line involves nextVals, which is related to trainable
-            # variables. By that logic, shouldn't labels = preds.copy()
-            # above use stop_gradient?
-            # no longer need stop_gradient because this operation doesn't
-            # involve any watched variables or any variables created from
-            # tracked operations
-            labels[nDoneInds, actions[nDoneInds]] = rewards[
-                nDoneInds
-            ] + self.discountRate * np.amax(
-                tf.boolean_mask(nextVals, ~dones), axis=1
-            )
-            # The loss operation will be tracked because it involves
-            # predictions, which is a variable created from a tracked
-            # operation
-            loss = self.lossFunction(labels, predictions)
+            # Get network's predictions for the quality of each action
+            # in the current state
+            qVals = self.nets[0](states, training=True)
+            # qVals has shape (batchSize, nActions). However, the only
+            # Q-values we need to update are those corresponding to the
+            # chosen action. tf's graph helps us here because it keeps
+            # track of each of these operations via tape. We use
+            # tf.one_hot to make actions into a (batchSize, nActions)
+            # sparse tensor, which, when multiplied by qVals, has only
+            # non-zero values at the indices corresponding to the
+            # chosen action
+            nActions = qVals.shape[1]
+            oneHot = qVals * tf.one_hot(actions, nActions, dtype=tf.float32)
+            # We sum along axis 1 to get a (batchSize, 1) tensor whose
+            # values are equal to the Q-values for the chosen action,
+            # since all other values are zero
+            qChosen = tf.reduce_sum(oneHot, 1)
+            # Now we need to calculate the target Q-values. Start by
+            # getting the network's guess for how well we can do by
+            # playing optimally from the state our chosen action brings
+            # us to. This is used in the Bellman equation
+            qNext = self.nets[0](nextStates, training=True)
+            qNextMax = tf.reduce_max(qNext, 1)
+            # For those actions that resulted in a terminal state,
+            # we need to assign just the reward given by the env
+            # If the action did not result in a terminal state, we use
+            # the Bellman equation. This can be done simultaneously via
+            # a mask. dones has shape (batchSize, 1) and consists of
+            # integer values, so we need to cast
+            dones = tf.cast(dones, qNextMax.dtype)
+            # This multiplication is element-by-element. Therefore, if
+            # the next state is terminal, then done = 1, 1 - 1 = 0, and
+            # therefore that entry of qNextMax is 0. If the next state
+            # is not terminal, then done = 0, and qNextMax is untouched
+            maskedVals = (1.0 - dones) * qNextMax
+            # Now, if maskedVals is 0, those entries of targets is just
+            # the given reward, and, if not, then it's the Bellman eq
+            targets = rewards + self.learningRate * maskedVals
+            # We don't want the derivative to depend on the targets,
+            # and, since they come from variables watched by tape
+            # (the network weights, via calling the network), we tell
+            # tf to ignore them. These variables have to be watched
+            # or else we can't take derivatives with respect to them
+            loss = self.lossFunction(tf.stop_gradient(targets), qChosen)
+        # Update the network weights by calculating the gradients and
+        # applying them
         gradients = tape.gradient(loss, self.nets[0].trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.nets[0].trainable_variables)
