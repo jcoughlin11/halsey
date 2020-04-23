@@ -149,7 +149,7 @@ class QBrain(BaseBrain):
             maskedVals = (1.0 - dones) * qNextMax
             # Now, if maskedVals is 0, those entries of targets is just
             # the given reward, and, if not, then it's the Bellman eq
-            targets = rewards + self.learningRate * maskedVals
+            targets = rewards + self.discountRate * maskedVals
             # We don't want the derivative to depend on the targets,
             # and, since they come from variables watched by tape
             # (the network weights, via calling the network), we tell

@@ -31,10 +31,16 @@ class BaseBrain:
     def __init__(self, brainParams, nets=None):
         """
         Doc string.
+
+        NOTE: Should allow for each network in nets to have it's own
+        optimizer and loss function (i.e., those should be lists, too)
+        When this is done, make sure to update the creation of the
+        instructor's checkpoint object
         """
         self.discountRate = brainParams["discountRate"]
-        self.lossFunction = get_loss_func(brainParams["loss"])
-        self.optimizer = get_optimizer(
-            brainParams["optimizer"], brainParams["learningRate"]
-        )
+        self.learningRate = brainParams["learningRate"]
+        self.optimizerName = brainParams["optimizer"]
+        self.lossName = brainParams["loss"]
+        self.lossFunction = get_loss_func(self.lossName)
+        self.optimizer = get_optimizer(self.optimizerName, self.learningRate)
         self.nets = nets
