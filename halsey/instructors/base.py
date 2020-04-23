@@ -72,5 +72,5 @@ class BaseInstructor:
                 if experience[-1]:
                     break
             if (episode + 1) % self.savePeriod == 0:
-                log("Saving episode: {}...".format(episode + 1))
+                log("Saving episode: {}...".format(episode + 1), silent=True)
                 save_checkpoint(self)

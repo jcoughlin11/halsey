@@ -56,5 +56,5 @@ def run():
         instructor = setup_instructor()
         log("Training...")
         instructor.train()
-        log("Saving...")
+        log("Saving final model...")
         save_checkpoint(instructor)

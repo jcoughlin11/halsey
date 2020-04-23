@@ -108,7 +108,8 @@ def setup_loggers(clArgs):
     Void
     """
     # Create loggers
-    infoLogger = logging.getLogger("infoLogger")
+    infoFileLogger = logging.getLogger("infoFileLogger")
+    infoStreamLogger = logging.getLogger("infoStreamLogger")
     errorLogger = logging.getLogger("errorLogger")
     # Logging files
     infoFile = os.path.join(os.getcwd(), "info.log")
@@ -133,7 +134,8 @@ def setup_loggers(clArgs):
     fFormatter = logging.Formatter(fFmt, datefmt="%d-%b-%y %H:%M:%S")
     efFormatter = logging.Formatter(efFmt, datefmt="%d-%b-%y %H:%M:%S")
     # Set levels
-    infoLogger.setLevel(logging.DEBUG)
+    infoFileLogger.setLevel(logging.DEBUG)
+    infoStreamLogger.setLevel(logging.DEBUG)
     errorLogger.setLevel(logging.ERROR)
     sHandler.setLevel(logging.DEBUG)
     fHandler.setLevel(logging.INFO)
@@ -143,20 +145,25 @@ def setup_loggers(clArgs):
     fHandler.setFormatter(fFormatter)
     efHandler.setFormatter(efFormatter)
     # Add the handlers to the loggers
-    infoLogger.addHandler(fHandler)
+    infoFileLogger.addHandler(fHandler)
     errorLogger.addHandler(efHandler)
     # Colorize, if desired
     if not clArgs.noColor:
         sHandler.emit = colorize_logging(sHandler.emit)
-    infoLogger.addHandler(sHandler)
+    infoStreamLogger.addHandler(sHandler)
 
 
 # ============================================
 #                   log
 # ============================================
-def log(msg, level="info"):
+def log(msg, level="info", silent=False):
     """
     Abstracts away the boilerplate code for logging a message.
+
+    infoFileLogger and infoStreamLogger are kept as separate loggers
+    (rather than one logger with two handlers) because this makes it
+    easier to still log to a file when the user wants silence between
+    halsey and stdout.
 
     Parameters
     ----------
@@ -175,14 +182,24 @@ def log(msg, level="info"):
     -------
     Void
     """
-    infoLogger = logging.getLogger("infoLogger")
+    infoFileLogger = logging.getLogger("infoFileLogger")
+    if not silent:
+        infoStreamLogger = logging.getLogger("infoStreamLogger")
     if level == "info":
-        infoLogger.info(msg)
+        infoFileLogger.info(msg)
+        if not silent:
+            infoStreamLogger.info(msg)
     elif level == "warning":
-        infoLogger.warning(msg)
+        infoFileLogger.warning(msg)
+        if not silent:
+            infoStreamLogger.warning(msg)
     elif level == "debug":
-        infoLogger.debug(msg)
+        infoFileLogger.debug(msg)
+        if not silent:
+            infoStreamLogger.debug(msg)
     elif level == "error":
         errorLogger = logging.getLogger("errorLogger")
-        infoLogger.error(msg)
+        infoFileLogger.error(msg)
         errorLogger.exception(msg)
+        if not silent:
+            infoStreamLogger.error(msg)
