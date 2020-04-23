@@ -4,6 +4,7 @@ Notes:
 """
 import gin
 from rich.progress import track
+import tensorflow as tf
 
 
 # ============================================
@@ -29,6 +30,25 @@ class BaseInstructor:
         self.maxEpisodeSteps = trainParams["maxEpisodeSteps"]
         self.batchSize = trainParams["batchSize"]
         self.savePeriod = trainParams["savePeriod"]
+        self.checkpoint, self.checkpointManager = self.setup_checkpoint()
+
+    # -----
+    # setup_checkpoint
+    # -----
+    def setup_checkpoint(self):
+        """
+        Doc string.
+
+        See: https://www.tensorflow.org/guide/checkpoint
+        """
+        # Add optimizer
+        checkpoint = tf.train.Checkpoint(optimizer=self.brain.optimizer)
+        # Add network(s). This is how attributes are added to the
+        # checkpoint object in the tf source
+        for i, net in enumerate(self.brain.nets):
+            checkpoint.__setattr__("net" + str(i), net)
+        manager = tf.train.CheckpointManager(checkpoint, ".", max_to_keep=3)
+        return checkpoint, manager
 
     # -----
     # train
