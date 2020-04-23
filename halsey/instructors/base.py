@@ -6,6 +6,9 @@ import gin
 from rich.progress import track
 import tensorflow as tf
 
+from halsey.io.logging import log
+from halsey.io.write import save_checkpoint
+
 
 # ============================================
 #              BaseInstructor
@@ -59,7 +62,6 @@ class BaseInstructor:
         """
         self.memory.pre_populate(self.navigator)
         for episode in track(range(self.nEpisodes), description="Training..."):
-            # for episode in range(self.nEpisodes):
             self.navigator.reset()
             for episodeStep in range(self.maxEpisodeSteps):
                 experience = self.navigator.transition(self.brain, "train")
@@ -69,3 +71,6 @@ class BaseInstructor:
                 # Check for terminal state
                 if experience[-1]:
                     break
+            if (episode + 1) % self.savePeriod == 0:
+                log("Saving episode: {}...".format(episode + 1))
+                save_checkpoint(self)
