@@ -243,3 +243,22 @@ def get_optimizer(optimizerName, learningRate):
             endrun(msg)
     optimizer.learning_rate = learningRate
     return optimizer
+
+
+# ============================================
+#              setup_checkpoint
+# ============================================
+def setup_checkpoint(brain):
+    """
+    Doc string.
+
+    See: https://www.tensorflow.org/guide/checkpoint
+    """
+    # Add optimizer
+    checkpoint = tf.train.Checkpoint(optimizer=brain.optimizer)
+    # Add network(s). This is how attributes are added to the
+    # checkpoint object in the tf source
+    for i, net in enumerate(brain.nets):
+        checkpoint.__setattr__("net" + str(i), net)
+    manager = tf.train.CheckpointManager(checkpoint, ".", max_to_keep=3)
+    return checkpoint, manager

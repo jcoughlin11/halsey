@@ -4,10 +4,10 @@ Notes:
 """
 import gin
 from rich.progress import track
-import tensorflow as tf
 
 from halsey.io.logging import log
 from halsey.io.write import save_checkpoint
+from halsey.utils.setup import setup_checkpoint
 
 
 # ============================================
@@ -33,25 +33,9 @@ class BaseInstructor:
         self.maxEpisodeSteps = trainParams["maxEpisodeSteps"]
         self.batchSize = trainParams["batchSize"]
         self.savePeriod = trainParams["savePeriod"]
-        self.checkpoint, self.checkpointManager = self.setup_checkpoint()
-
-    # -----
-    # setup_checkpoint
-    # -----
-    def setup_checkpoint(self):
-        """
-        Doc string.
-
-        See: https://www.tensorflow.org/guide/checkpoint
-        """
-        # Add optimizer
-        checkpoint = tf.train.Checkpoint(optimizer=self.brain.optimizer)
-        # Add network(s). This is how attributes are added to the
-        # checkpoint object in the tf source
-        for i, net in enumerate(self.brain.nets):
-            checkpoint.__setattr__("net" + str(i), net)
-        manager = tf.train.CheckpointManager(checkpoint, ".", max_to_keep=3)
-        return checkpoint, manager
+        self.episode = 0
+        self.episodeStep = 0
+        self.checkpoint, self.checkpointManager = setup_checkpoint(self.brain)
 
     # -----
     # train
@@ -61,9 +45,10 @@ class BaseInstructor:
         Doc string.
         """
         self.memory.pre_populate(self.navigator)
-        for episode in track(range(self.nEpisodes), description="Training..."):
+        episodes = track(range(self.nEpisodes), description="Training...")
+        for self.episode in episodes:
             self.navigator.reset()
-            for episodeStep in range(self.maxEpisodeSteps):
+            for self.episodeStep in range(self.maxEpisodeSteps):
                 experience = self.navigator.transition(self.brain, "train")
                 self.memory.add(experience)
                 sample = self.memory.sample(self.batchSize)
@@ -71,6 +56,24 @@ class BaseInstructor:
                 # Check for terminal state
                 if experience[-1]:
                     break
-            if (episode + 1) % self.savePeriod == 0:
-                log("Saving episode: {}...".format(episode + 1), silent=True)
+            if (self.episode + 1) % self.savePeriod == 0:
+                log(
+                    "Saving episode: {}...".format(self.episode + 1),
+                    silent=True,
+                )
                 save_checkpoint(self)
+
+    # -----
+    # get_instructor_state
+    # -----
+    def get_instructor_state(self):
+        """
+        Each new instructor child class should implement this if they
+        introduce new stateful variables. This provides all of the
+        stateful variables for saving.
+        """
+        statefulVars = {
+            "episode": self.episode,
+            "episodeStep": self.episodeStep,
+        }
+        return statefulVars
