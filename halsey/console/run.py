@@ -10,6 +10,7 @@ from halsey.io.logging import log
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
 from halsey.io.write import save_checkpoint
+from halsey.io.write import lock_parameter_file
 from halsey.utils.endrun import endrun
 from halsey.utils.setup import setup_instructor
 
@@ -51,6 +52,7 @@ def run():
     except ValueError:
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
         endrun(msg)
+    lock_parameter_file(clArgs.paramFile)
     if clArgs.train:
         log("Setting up instructor...")
         instructor = setup_instructor()
