@@ -116,3 +116,15 @@ class EpsilonGreedy(BasePolicy):
         else:
             action = self.test_choose(state, brain)
         return action
+
+    # -----
+    # get_policy_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+
+        Returns any policy-specific parameters not in the parameter file
+        for saving and loading.
+        """
+        return {"decayStep": self.decayStep}

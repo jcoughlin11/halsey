@@ -48,3 +48,12 @@ class ExperienceMemory(BaseMemory):
         sample = np.array(self.replayBuffer)[indices]
         sample = prep_sample(sample)
         return sample
+
+    # -----
+    # get_memory_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        return {}

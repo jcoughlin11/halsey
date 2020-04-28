@@ -66,7 +66,7 @@ class BaseInstructor:
     # -----
     # get_instructor_state
     # -----
-    def get_instructor_state(self):
+    def get_state(self):
         """
         Each new instructor child class should implement this if they
         introduce new stateful variables. This provides all of the
