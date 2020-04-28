@@ -53,18 +53,30 @@ class BasePipeline:
         self.frameStack = queue.deque(maxlen=self.traceLen)
 
     # -----
-    # process
+    # normalize_frame
     # -----
-    def process(self, frame, newEpisode):
+    def normalize_frame(self, frame):
         """
         Doc string.
         """
-        # Normalize the frame. Shape should be (nRows, nCols, 3)
-        frame = frame / self.normValue
-        # Grayscale. Shape after grayscaling should be (nRows, nCols, 1)
-        # frame is now a tensor after grayscaling
-        frame = tf.image.rgb_to_grayscale(frame)
-        # Cut out unncessary parts of the frame
+        return frame / self.normValue
+
+    # -----
+    # grayscale
+    # -----
+    def grayscale(self, frame):
+        """
+        Doc string.
+        """
+        return tf.image.rgb_to_grayscale(frame)
+
+    # -----
+    # crop
+    # -----
+    def crop(self, frame):
+        """
+        Doc string.
+        """
         frame = tf.image.crop_to_bounding_box(
             frame,
             self.offsetHeight,
@@ -72,6 +84,15 @@ class BasePipeline:
             self.cropHeight,
             self.cropWidth,
         )
+        return frame
+
+    # -----
+    # stack
+    # -----
+    def stack(self, frame, newEpisode):
+        """
+        Doc string.
+        """
         # Remove the channels dimension to make stacking to the proper
         # shape easier. Gives a shape of (self.cropHeight, self.cropWidth)
         frame = tf.squeeze(frame)
@@ -91,3 +112,32 @@ class BasePipeline:
         else:
             state = np.stack(self.frameStack, axis=2)
         return state
+
+    # -----
+    # process
+    # -----
+    def process(self, frame, newEpisode):
+        """
+        Doc string.
+        """
+        # Normalize the frame. Shape should be (nRows, nCols, 3)
+        frame = self.normalize_frame(frame)
+        # Grayscale. Shape after grayscaling should be (nRows, nCols, 1)
+        # frame is now a tensor after grayscaling
+        frame = self.grayscale(frame)
+        # Cut out unncessary parts of the frame
+        frame = self.crop(frame)
+        state = self.stack(frame, newEpisode)
+        return state
+
+    # -----
+    # get_pipeline_state
+    # -----
+    def get_pipeline_state(self):
+        """
+        Doc string.
+
+        Returns any pipeline-specific parameters not in the parameter file
+        for saving (and reloading)
+        """
+        return {}
