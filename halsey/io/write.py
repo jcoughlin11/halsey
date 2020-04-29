@@ -8,7 +8,11 @@ import shutil
 import stat
 
 import numpy as np
+from scipy.sparse import csr_matrix
+from scipy.sparse import save_npz
 import yaml
+
+from halsey.utils.setup import prep_sample
 
 
 # ============================================
@@ -113,4 +117,24 @@ def save_replay_buffer(replayBuffer):
     then you don't have access to the nextState. Could always just take
     the saved action, in that case.
     """
-    raise NotImplementedError
+    replayBuffer = prep_sample(np.array(replayBuffer))
+    states, actions, rewards, nextStates, dones = replayBuffer
+    save_array(rewards, "rewards", sparse=True)
+    save_array(dones, "dones", sparse=True)
+    save_array(actions, "actions")
+    save_array(states, "states")
+
+
+# ============================================
+#                 save_array
+# ============================================
+def save_array(array, name, sparse=False):
+    """
+    Doc string.
+    """
+    fname = os.path.join(os.getcwd(), name)
+    if sparse:
+        array = csr_matrix(array)
+        save_npz(fname, array)
+    else:
+        np.save(fname, array)
