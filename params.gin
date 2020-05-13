@@ -1,0 +1,82 @@
+import halsey
+
+
+# ============================================
+#             General Parameters
+# ============================================
+general.params = {
+    game          = "SpaceInvaders-v4"
+    outputDir     = "./output"
+    train         = True
+    test          = False
+    analyze       = False
+    channelsFirst = False
+    pipelineCls   = @VanillaPipeline
+    transitioner  = @FrameMDPTransitioner
+    networks      = [
+                        @DQN,
+                    ]
+}
+
+
+# ============================================
+#              Training Objects
+# ============================================
+training.trainerCls = @QTrainer
+training.brainCls   = @QBrain
+training.exploreCls = @EpsilonGreedy
+training.memoryCls  = @ExperienceMDPMemory
+
+
+# ============================================
+#          Training Loop Parameters
+# ============================================
+instructor.params = {
+    "nEpisodes"       : 1,
+    "maxEpisodeSteps" : 1000,
+    "batchSize"       : 32,
+    "savePeriod"      : 1,
+}
+
+
+# ============================================
+#           Exploration Parameters
+# ============================================
+explore.params = {
+    "epsDecayRate" : 0.00001,
+    "epsilonStart" : 1.0,
+    "epsilonStop"  : 0.01,
+}
+
+
+# ============================================
+#             Memory Parameters
+# ============================================
+memory.params = {
+    "maxSize"     : 100,
+    "pretrainLen" : 64,
+}
+
+
+# ============================================
+#             Learning Parameters
+# ============================================
+learning.params = {
+    "discountRate" : 0.9,
+    "learningRate" : 0.00025,
+    "loss"         : "mse",
+    "optimizer"    : "adam",
+}
+
+
+# ============================================
+#        Image Processing Parameters
+# ============================================
+pipeline.params =  {
+    "normValue"    : 255.,
+    "traceLen"     : 4,
+    "offsetHeight" : 8,
+    "offsetWidth"  : 4,
+    "cropHeight"   : 110,
+    "cropWidth"    : 84,
+}
