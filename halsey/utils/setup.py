@@ -48,15 +48,14 @@ def get_trainer(trainerCls, params):
     """
     Doc string.
     """
-    channelsFirst = get_data_format()
-    env = get_env()
+    game = get_game()
     memory = get_memory_object()
-    explorer = get_explorer()
-    pipeline = get_pipeline(channelsFirst)
-    inShape = pipeline.inputShape
-    nActions = env.action_space.n
-    brain = get_brain(inShape, nActions, channelsFirst)
-    return trainerCls(env, pipeline, explorer, memory, brain, params)
+    inputShape = game.pipeline.inputShape
+    nActions = game.env.action_space.n
+    channelsFirst = game.pipeline.channelsFirst
+    nets = get_networks(inputShape, nActions, channelsFirst)
+    brain = get_brain(nets)
+    return trainerCls(game, memory, brain, params)
 
 
 # ============================================
@@ -80,9 +79,22 @@ def get_analyst():
 
 
 # ============================================
-#                   get_env
+#                  get_game
 # ============================================
 @gin.configurable("game")
+def get_game(gameCls, gameName, params):
+    """
+    Doc string.
+    """
+    env = get_env(gameName)
+    explorer = get_explorer()
+    pipeline = get_pipeline()
+    return gameCls(env, explorer, pipeline, params) 
+
+
+# ============================================
+#                   get_env
+# ============================================
 def get_env(gameName):
     """
     Doc string.
@@ -99,13 +111,25 @@ def get_env(gameName):
 
 
 # ============================================
-#                get_pipeline
+#                get_explorer
 # ============================================
-@gin.configurable("pipeline")
-def get_pipeline(channelsFirst, pipelineCls, params):
+@gin.configurable("explorer")
+def get_explorer(explorerCls, params):
     """
     Doc string.
     """
+    return explorerCls(params)
+
+
+# ============================================
+#                get_pipeline
+# ============================================
+@gin.configurable("pipeline")
+def get_pipeline(pipelineCls, params):
+    """
+    Doc string.
+    """
+    channelsFirst = get_data_format()
     return pipelineCls(channelsFirst, params)
 
 
@@ -121,37 +145,56 @@ def get_memory_object(memoryCls, params):
 
 
 # ============================================
-#                 get_brain
-# ============================================
-@gin.configurable("learning")
-def get_brain(inShape, nActions, channelsFirst, brainCls, params):
-    """
-    Doc string.
-    """
-    nets = get_networks(inShape, nActions, channelsFirst)
-    return brainCls(nets, params)
-
-
-# ============================================
 #                get_networks
 # ============================================
 @gin.configurable("networks")
-def get_networks(inShape, nActions, channelsFirst, nets, params):
+def get_networks(inputShape, nActions, channelsFirst, nets, params):
     """
     Doc string.
     """
-    s = inShape
+    s = inputShape
     n = nActions
     c = channelsFirst
     return [nn(s, n, c, p) for (nn, p) in zip(nets, params)]
 
 
 # ============================================
-#                get_explorer
+#                 get_brain
 # ============================================
-@gin.configurable("explorer")
-def get_explorer(explorerCls, params):
+@gin.configurable("learning")
+def get_brain(nets, brainCls, params):
     """
     Doc string.
     """
-    return explorerCls(params)
+    return brainCls(nets, params)
+
+
+# ============================================
+#             get_loss_function
+# ============================================
+def get_loss_function(lossName):
+    """
+    Doc string.
+    """
+    try:
+        loss = tf.keras.losses.get(lossName)
+    except ValueError:
+        msg = f"Unrecognized loss function `{lossName}`."
+        endrun(msg)
+    return loss
+
+
+# ============================================
+#                get_optimizer
+# ============================================
+def get_optimizer(optimizerName, learningRate):
+    """
+    Doc string.
+    """
+    try:
+        optimizer = tf.keras.optimizers.get(optimizerName)
+    except ValueError:
+        msg = f"Unrecognized optimizer `{optimizerName}`."
+        endrun(msg)
+    optimizer.learning_rate = learningRate
+    return optimizer

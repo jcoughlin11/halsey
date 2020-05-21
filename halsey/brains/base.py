@@ -10,14 +10,6 @@ Notes:
 class BaseBrain:
     """
     Doc string.
-
-    Attributes
-    ----------
-    pass
-
-    Methods
-    -------
-    pass
     """
 
     # -----

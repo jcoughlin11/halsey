@@ -33,6 +33,20 @@ class BasePipeline:
         self.frameStack = queue.deque(maxlen=self.traceLen)
 
     # -----
+    # inputShape
+    # -----
+    @property
+    def inputShape(self):
+        """
+        Doc string.
+        """
+        if self.channelsFirst:
+            shape = [self.traceLen, self.cropHeight, self.cropWidth]
+        else:
+            shape = [self.cropHeight, self.cropWidth, self.traceLen]
+        return shape
+
+    # -----
     # normalize_frame
     # -----
     def normalize_frame(self, frame):

@@ -20,14 +20,15 @@ training.params = {
     "nEpisodes"       : 1,
     "maxEpisodeSteps" : 1000,
     "batchSize"       : 32,
-    "savePeriod"      : 1,
 }
 
 
 # ============================================
 #               Game Parameters
 # ============================================
+game.gameCls = @BaseGame
 game.gameName = "SpaceInvaders-v4"
+game.params = {}
 
 
 # ============================================

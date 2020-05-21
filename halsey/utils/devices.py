@@ -2,6 +2,7 @@
 Title: devices.py
 Notes:
 """
+import tensorflow as tf
 
 
 # ============================================

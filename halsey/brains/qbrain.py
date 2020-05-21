@@ -34,6 +34,8 @@ class QBrain(BaseBrain):
         super().__init__(nets, params)
         self.discountRate = params["discountRate"]
         self.learningRate = params["learningRate"]
+        self.optimizer = get_optimizer(self.optimizerName, self.learningRate)
+        self.lossFunction = get_loss_function(self.lossName)
 
     # -----
     # learn
@@ -162,12 +164,3 @@ class QBrain(BaseBrain):
         self.optimizer.apply_gradients(
             zip(gradients, self.nets[0].trainable_variables)
         )
-
-    # -----
-    # get_state
-    # -----
-    def get_state(self):
-        """
-        Doc string.
-        """
-        return {}
