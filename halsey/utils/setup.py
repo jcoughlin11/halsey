@@ -31,7 +31,7 @@ def setup():
     except ValueError:
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
         endrun(msg)
-    return clArgs 
+    return clArgs
 
 
 # ============================================
@@ -63,7 +63,7 @@ def get_game(gameCls, gameName, params):
     env = get_env(gameName)
     explorer = get_explorer()
     pipeline = get_pipeline()
-    return gameCls(env, explorer, pipeline, params) 
+    return gameCls(env, explorer, pipeline, params)
 
 
 # ============================================

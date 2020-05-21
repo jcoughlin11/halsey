@@ -13,7 +13,7 @@ general.params = {
 
 
 # ============================================
-#            Training Parameters 
+#            Training Parameters
 # ============================================
 training.trainerCls = @BaseTrainer
 training.params = {

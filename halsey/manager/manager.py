@@ -17,6 +17,7 @@ class Manager:
     """
     Doc string.
     """
+
     # -----
     # constructor
     # -----
@@ -24,9 +25,9 @@ class Manager:
         """
         Doc string.
         """
-        self.outputDir  = sanitize_path(params["outputDir"])
+        self.outputDir = sanitize_path(params["outputDir"])
         self.doTraining = params["train"]
-        self.doTesting  = params["test"]
+        self.doTesting = params["test"]
         self.doAnalysis = params["analyze"]
         self.clArgs = clArgs
 
