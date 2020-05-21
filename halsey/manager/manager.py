@@ -4,9 +4,8 @@ Notes:
 """
 import gin
 
+from halsey.utils.misc import create_output_directory
 from halsey.utils.misc import sanitize_path
-from halsey.utils.setup import get_analyst
-from halsey.utils.setup import get_tester
 from halsey.utils.setup import get_trainer
 
 
@@ -21,7 +20,7 @@ class Manager:
     # -----
     # constructor
     # -----
-    def __init__(self, params):
+    def __init__(self, clArgs, params):
         """
         Doc string.
         """
@@ -29,6 +28,7 @@ class Manager:
         self.doTraining = params["train"]
         self.doTesting  = params["test"]
         self.doAnalysis = params["analyze"]
+        self.clArgs = clArgs
 
     # -----
     # train
@@ -41,21 +41,15 @@ class Manager:
         trainer.train()
 
     # -----
-    # test
+    # io_check
     # -----
-    def test(self):
+    def io_check(self):
         """
-        Doc string.
+        Makes sure output dir can be made if starting from scratch
+        or that output dir exists and has all the right files in it
+        if continuing training or testing or analyzing. That kind of
+        stuff. This prevents lots of time being spent on something only
+        to find out that none of the work can be saved for some reason.
+        Better to find that out before doing all the work.
         """
-        tester = get_tester()
-        tester.test()
-
-    # -----
-    # analyze
-    # -----
-    def analyze(self):
-        """
-        Doc string.
-        """
-        analyst = get_analyst()
-        analyst.analyze()
+        create_output_directory(self.outputDir)

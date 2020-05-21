@@ -4,13 +4,11 @@ Notes:
 """
 import tensorflow as tf
 
-from .base import BaseBrain
-
 
 # ============================================
 #                  QBrain
 # ============================================
-class QBrain(BaseBrain):
+class QBrain:
     """
     Implements the original deep-q learning method from DeepMind [1]_.
 
@@ -31,11 +29,8 @@ class QBrain(BaseBrain):
         """
         Doc string.
         """
-        super().__init__(nets, params)
+        self.nets = nets
         self.discountRate = params["discountRate"]
-        self.learningRate = params["learningRate"]
-        self.optimizer = get_optimizer(self.optimizerName, self.learningRate)
-        self.lossFunction = get_loss_function(self.lossName)
 
     # -----
     # learn
@@ -157,10 +152,10 @@ class QBrain(BaseBrain):
             # (the network weights, via calling the network), we tell
             # tf to ignore them. These variables have to be watched
             # or else we can't take derivatives with respect to them
-            loss = self.lossFunction(tf.stop_gradient(targets), qChosen)
+            loss = self.nets[0].lossFunction(tf.stop_gradient(targets), qChosen)
         # Update the network weights by calculating the gradients and
         # applying them
         gradients = tape.gradient(loss, self.nets[0].trainable_variables)
-        self.optimizer.apply_gradients(
+        self.nets[0].optimizer.apply_gradients(
             zip(gradients, self.nets[0].trainable_variables)
         )

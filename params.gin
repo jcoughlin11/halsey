@@ -58,9 +58,6 @@ memory.params = {
 learning.brainCls  = @QBrain
 learning.params = {
     "discountRate" : 0.9,
-    "learningRate" : 0.00025,
-    "loss"         : "mse",
-    "optimizer"    : "adam",
 }
 
 
@@ -70,7 +67,13 @@ learning.params = {
 network.nets = [
                     @DQN,
                ]
-network.params = [{}] 
+network.params = [
+                    {
+                        "learningRate" : 0.9,
+                        "loss"         : "mse",
+                        "optimizer"    : "adam",
+                    }
+                 ]
 
 
 # ============================================

@@ -8,12 +8,9 @@ from rich.traceback import install as install_rich_traceback
 
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
-from halsey.manager.manager import Manager
 
 from .endrun import endrun
-from .misc import create_output_directory
 from .misc import get_data_format
-from .misc import lock_file
 
 
 # ============================================
@@ -34,10 +31,7 @@ def setup():
     except ValueError:
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
         endrun(msg)
-    manager = Manager()
-    create_output_directory(manager.outputDir)
-    lock_file(clArgs.paramFile, manager.outputDir)
-    return manager
+    return clArgs 
 
 
 # ============================================
@@ -56,26 +50,6 @@ def get_trainer(trainerCls, params):
     nets = get_networks(inputShape, nActions, channelsFirst)
     brain = get_brain(nets)
     return trainerCls(game, memory, brain, params)
-
-
-# ============================================
-#                  get_tester
-# ============================================
-def get_tester():
-    """
-    Doc string.
-    """
-    raise NotImplementedError
-
-
-# ============================================
-#                 get_analyst
-# ============================================
-def get_analyst():
-    """
-    Doc string.
-    """
-    raise NotImplementedError
 
 
 # ============================================
@@ -167,34 +141,3 @@ def get_brain(nets, brainCls, params):
     Doc string.
     """
     return brainCls(nets, params)
-
-
-# ============================================
-#             get_loss_function
-# ============================================
-def get_loss_function(lossName):
-    """
-    Doc string.
-    """
-    try:
-        loss = tf.keras.losses.get(lossName)
-    except ValueError:
-        msg = f"Unrecognized loss function `{lossName}`."
-        endrun(msg)
-    return loss
-
-
-# ============================================
-#                get_optimizer
-# ============================================
-def get_optimizer(optimizerName, learningRate):
-    """
-    Doc string.
-    """
-    try:
-        optimizer = tf.keras.optimizers.get(optimizerName)
-    except ValueError:
-        msg = f"Unrecognized optimizer `{optimizerName}`."
-        endrun(msg)
-    optimizer.learning_rate = learningRate
-    return optimizer

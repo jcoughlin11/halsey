@@ -2,13 +2,12 @@
 Title: epsilongreedy.py
 Notes:
 """
-from .base import BaseExplorer
 
 
 # ============================================
 #           EpsilonGreedyExplorer
 # ============================================
-class EpsilonGreedyExplorer(BaseExplorer):
+class EpsilonGreedyExplorer:
     """
     Doc string.
     """
@@ -19,4 +18,6 @@ class EpsilonGreedyExplorer(BaseExplorer):
         """
         Doc string.
         """
-        super().__init__(params)
+        self.epsDecayRate = params["epsDecayRate"]
+        self.epsilonStart = params["epsilonStart"]
+        self.epsilonStop = params["epsilonStop"]
