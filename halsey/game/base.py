@@ -2,6 +2,9 @@
 Title: base.py
 Notes:
 """
+import numpy as np
+
+from halsey.utils.endrun import endrun
 
 
 # ============================================
@@ -11,6 +14,7 @@ class BaseGame:
     """
     Doc string.
     """
+
     # -----
     # constructor
     # -----
@@ -56,7 +60,7 @@ class BaseGame:
         Doc string.
         """
         if mode == "train":
-            action = self.explorer.choose(brain)
+            action = self.explorer.choose(brain, self.env, self.frameStack)
         elif mode == "test":
             action = np.argmax(brain.predict(self.frameStack).numpy())
         elif mode == "random":
