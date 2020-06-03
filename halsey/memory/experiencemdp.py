@@ -2,13 +2,17 @@
 Title: experiencemdp.py
 Notes:
 """
-from .base import BaseMemory
+import queue
+
+import numpy as np
+
+from halsey.utils.endrun import endrun
 
 
 # ============================================
 #              ExperienceMDP
 # ============================================
-class ExperienceMDPMemory(BaseMemory):
+class ExperienceMDPMemory:
     """
     Doc string.
     """
@@ -20,7 +24,18 @@ class ExperienceMDPMemory(BaseMemory):
         """
         Doc string.
         """
-        super().__init__(params)
+        self.maxSize = params["maxSize"]
+        self.pretrainLen = params["pretrainLen"]
+        self.replayBuffer = queue.deque(maxlen=self.maxSize)
+
+    # -----
+    # add
+    # -----
+    def add(self, experience):
+        """
+        Doc string.
+        """
+        self.replayBuffer.append(experience)
 
     # -----
     # sample
@@ -57,9 +72,9 @@ class ExperienceMDPMemory(BaseMemory):
             if experience[-1]:
                 game.reset()
 
-    # ----- 
+    # -----
     # prep_sample
-    # ----- 
+    # -----
     def prep_sample(self, sample):
         """
         Doc string.
