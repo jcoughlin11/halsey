@@ -5,10 +5,10 @@ import halsey
 #             General Parameters
 # ============================================
 general.params = {
-    outputDir : "./output"
-    train     : True
-    test      : False
-    analyze   : False
+    "outputDir" : "./output",
+    "train"     : True,
+    "test"      : False,
+    "analyze"   : False,
 }
 
 
@@ -64,10 +64,10 @@ learning.params = {
 # ============================================
 #             Network Parameters
 # ============================================
-network.nets = [
+networks.nets = [
                     @DQN,
                ]
-network.params = [
+networks.params = [
                     {
                         "learningRate" : 0.9,
                         "loss"         : "mse",

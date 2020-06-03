@@ -2,6 +2,7 @@
 Title: base.py
 Notes:
 """
+import gin
 import numpy as np
 
 from halsey.utils.endrun import endrun
@@ -10,6 +11,7 @@ from halsey.utils.endrun import endrun
 # ============================================
 #                  BaseGame
 # ============================================
+@gin.configurable
 class BaseGame:
     """
     Doc string.

@@ -1,0 +1,2 @@
+Change way optimizers and losses are set. That is, right now they are not configurable
+beyond setting the learning rate.

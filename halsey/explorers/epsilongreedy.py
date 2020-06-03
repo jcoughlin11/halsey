@@ -2,6 +2,7 @@
 Title: epsilongreedy.py
 Notes:
 """
+import gin
 import numpy as np
 
 from halsey.utils.endrun import endrun
@@ -10,6 +11,7 @@ from halsey.utils.endrun import endrun
 # ============================================
 #           EpsilonGreedyExplorer
 # ============================================
+@gin.configurable
 class EpsilonGreedyExplorer:
     """
     Doc string.
@@ -25,6 +27,7 @@ class EpsilonGreedyExplorer:
         self.epsDecayRate = params["epsDecayRate"]
         self.epsilonStart = params["epsilonStart"]
         self.epsilonStop = params["epsilonStop"]
+        self.decayStep = 0
 
     # -----
     # choose
@@ -37,6 +40,7 @@ class EpsilonGreedyExplorer:
         exploreProb = self.epsilonStop + (
             self.epsilonStart - self.epsilonStop
         ) * np.exp(-self.epsDecayRate * self.decayStep)
+        self.decayStep += 1
         if exploreProb < 0.0:
             msg = f"Probability of exploring is negative: `{exploreProb}`"
             endrun(msg)

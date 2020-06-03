@@ -2,12 +2,14 @@
 Title: base.py
 Notes:
 """
+import gin
 from rich.progress import track
 
 
 # ============================================
 #                 BaseTrainer
 # ============================================
+@gin.configurable
 class BaseTrainer:
     """
     Doc string.

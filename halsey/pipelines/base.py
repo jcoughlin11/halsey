@@ -4,6 +4,7 @@ Notes:
 """
 import queue
 
+import gin
 import numpy as np
 import tensorflow as tf
 
@@ -11,6 +12,7 @@ import tensorflow as tf
 # ============================================
 #                BasePipelines
 # ============================================
+@gin.configurable
 class BasePipeline:
     """
     Doc string.
@@ -89,6 +91,8 @@ class BasePipeline:
         """
         # Remove the channels dimension to make stacking to the proper
         # shape easier. Gives a shape of (self.cropHeight, self.cropWidth)
+        # Assumes frame has already been greyscaled (so that channels
+        # isn't 3, since squeeze removes dimensions of size 1)
         frame = tf.squeeze(frame)
         # If this is a new episode, there's no motion, so fill
         # deque with the frame. Otherwise, put the frame on top of the
@@ -121,5 +125,6 @@ class BasePipeline:
         frame = self.grayscale(frame)
         # Cut out unncessary parts of the frame
         frame = self.crop(frame)
+        # Stack for motion detection
         state = self.stack(frame, newEpisode)
         return state

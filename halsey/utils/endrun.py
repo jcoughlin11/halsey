@@ -10,7 +10,7 @@ from halsey.io.logging import log
 # ============================================
 #                   endrun
 # ============================================
-def endrun(msg):
+def endrun(msg, level="info"):
     """
     Boilerplate for logging an exception's traceback as well as the
     code's error message for why the exception occurred.
@@ -28,5 +28,5 @@ def endrun(msg):
     -------
     Void
     """
-    log(msg)
+    log(msg, level)
     sys.exit()

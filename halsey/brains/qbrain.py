@@ -2,12 +2,14 @@
 Title: qbrain.py
 Notes:
 """
+import gin
 import tensorflow as tf
 
 
 # ============================================
 #                  QBrain
 # ============================================
+@gin.configurable
 class QBrain:
     """
     Implements the original deep-q learning method from DeepMind [1]_.
@@ -31,6 +33,22 @@ class QBrain:
         """
         self.nets = nets
         self.discountRate = params["discountRate"]
+
+    # -----
+    # predict
+    # -----
+    def predict(self, frameStack):
+        """
+        Doc string.
+        """
+        # If the shape has 4 elements, we assume that the first is
+        # batchSize and the other three are nrows, ncols, and
+        # nChannels. If the shape does not have four elements, we
+        # assume we were passed a single sample, and so make the
+        # batchSize 1
+        if len(frameStack.shape) != 4:
+            frameStack = tf.expand_dims(frameStack, axis=0)
+        return self.nets[0](frameStack)
 
     # -----
     # learn

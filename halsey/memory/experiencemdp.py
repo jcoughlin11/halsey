@@ -4,6 +4,7 @@ Notes:
 """
 import queue
 
+import gin
 import numpy as np
 
 from halsey.utils.endrun import endrun
@@ -12,6 +13,7 @@ from halsey.utils.endrun import endrun
 # ============================================
 #              ExperienceMDP
 # ============================================
+@gin.configurable
 class ExperienceMDPMemory:
     """
     Doc string.

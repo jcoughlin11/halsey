@@ -4,6 +4,7 @@ Notes:
 """
 import os
 import shutil
+import stat
 
 from .devices import using_gpu
 from .endrun import endrun
@@ -22,14 +23,14 @@ def lock_file(fileName, path):
 
 
 # ============================================
-#           create_output_directory 
+#           create_output_directory
 # ============================================
 def create_output_directory(path):
     """
     Doc string.
     """
     try:
-        os.path.makedirs(path)
+        os.makedirs(path)
     # Directory already exists
     except OSError:
         # If it's not empty we don't want to overwrite
@@ -45,7 +46,7 @@ def sanitize_path(path):
     """
     Doc string.
     """
-    return os.abspath(os.expanduser(os.expandvars(path)))
+    return os.path.abspath(os.path.expanduser(os.path.expandvars(path)))
 
 
 # ============================================

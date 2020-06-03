@@ -4,7 +4,7 @@ Notes:
 """
 import tensorflow as tf
 
-from .endrun import endrun
+from halsey.utils.endrun import endrun
 
 
 # ============================================

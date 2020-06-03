@@ -30,7 +30,7 @@ def setup():
         endrun(msg)
     except ValueError:
         msg = f"Unknown configurable or parameter in `{clArgs.paramFile}`."
-        endrun(msg)
+        endrun(msg, level="error")
     return clArgs
 
 
@@ -76,10 +76,10 @@ def get_env(gameName):
     try:
         env = gym.make(gameName)
     except gym.error.UnregisteredEnv:
-        msg = f"Unknown environment `{envName}`."
+        msg = f"Unknown environment `{gameName}`."
         endrun(msg)
     except gym.error.DeprecatedEnv:
-        msg = f"Using deprecated version of environment `{envName}`."
+        msg = f"Using deprecated version of environment `{gameName}`."
         endrun(msg)
     return env
 

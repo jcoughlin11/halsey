@@ -1,6 +1,6 @@
 """
 Title: logging.py
-Notes: 
+Notes:
 """
 import logging
 import logging.handlers
@@ -46,9 +46,9 @@ def setup_loggers():
     # Output formaters
     formats = get_logging_formaters()
     # Handlers
-    handlers = get_logging_handlers()
+    handlers = get_logging_handlers(*files)
     # Add the formatters to the handlers
-    for (handler, formatter) in zip(handlers, formatters):
+    for (handler, formatter) in zip(handlers, formats):
         handler.setFormatter(formatter)
     # Add the handlers to the loggers
     for (logger, handler) in zip(loggers, handlers):
@@ -72,7 +72,7 @@ def initialize_loggers():
 
 
 # ============================================
-#              get_logging_files 
+#              get_logging_files
 # ============================================
 def get_logging_files():
     """
@@ -84,7 +84,7 @@ def get_logging_files():
 
 
 # ============================================
-#             get_logging_formaters 
+#             get_logging_formaters
 # ============================================
 def get_logging_formaters():
     """
@@ -105,7 +105,7 @@ def get_logging_formaters():
 # ============================================
 #            get_logging_handlers
 # ============================================
-def get_logging_handlers():
+def get_logging_handlers(infoFile, errorFile):
     """
     Doc string.
     """
@@ -121,7 +121,7 @@ def get_logging_handlers():
     efHandler.setLevel(logging.ERROR)
     # Colorize, if desired
     sHandler.emit = colorize_logging(sHandler.emit)
-    return [sHandler, fHandler, eHandler]
+    return [sHandler, fHandler, efHandler]
 
 
 # ============================================

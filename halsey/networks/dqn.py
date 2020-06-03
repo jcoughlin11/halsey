@@ -2,6 +2,7 @@
 Title: dqn.py
 Notes:
 """
+import gin
 import tensorflow as tf
 
 from .base import BaseNetwork
@@ -10,6 +11,7 @@ from .base import BaseNetwork
 # ============================================
 #                    DQN
 # ============================================
+@gin.configurable
 class DQN(BaseNetwork):
     """
     Constructs the original deep Q-learning neural network from [1]_.

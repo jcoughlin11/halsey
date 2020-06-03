@@ -1,4 +1,1 @@
-from . import (
-    base,
-    dqn,
-)
+from . import base, dqn
