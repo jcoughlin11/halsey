@@ -18,11 +18,15 @@ class BaseNetwork(tf.keras.Model):
     # -----
     # constructor
     # -----
-    def __init__(self, params):
+    def __init__(self, channelsFirst, params):
         """
         Doc string.
         """
         super().__init__()
+        if channelsFirst:
+            self.dataFormat = "channels_first"
+        else:
+            self.dataFormat = "channels_last"
         self.optimizerName = params["optimizer"]
         self.lossName = params["loss"]
         self.learningRate = params["learningRate"]

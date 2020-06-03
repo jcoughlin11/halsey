@@ -50,15 +50,11 @@ class DQN(BaseNetwork):
         -------
         pass
         """
-        super().__init__(params)
-        if channelsFirst:
-            dataFormat = "channels_first"
-        else:
-            dataFormat = "channels_last"
+        super().__init__(channelsFirst, params)
         # First convolutional layer
         self.conv1 = tf.keras.layers.Conv2D(
             input_shape=inputShape,
-            data_format=dataFormat,
+            data_format=self.dataFormat,
             filters=16,
             kernel_size=[8, 8],
             strides=[4, 4],
@@ -67,7 +63,7 @@ class DQN(BaseNetwork):
         )
         # Second convolutional layer
         self.conv2 = tf.keras.layers.Conv2D(
-            data_format=dataFormat,
+            data_format=self.dataFormat,
             filters=32,
             kernel_size=[4, 4],
             strides=[2, 2],
@@ -75,7 +71,7 @@ class DQN(BaseNetwork):
             name="conv2",
         )
         # Flatten layer
-        self.flatten = tf.keras.layers.Flatten(data_format=dataFormat)
+        self.flatten = tf.keras.layers.Flatten(data_format=self.dataFormat)
         # Fully connected layer
         self.d1 = tf.keras.layers.Dense(
             units=256, activation="relu", name="fc1"
