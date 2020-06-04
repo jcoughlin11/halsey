@@ -60,3 +60,18 @@ def get_data_format():
     if using_gpu():
         channelsFirst = True
     return channelsFirst
+
+
+# ============================================
+#                   io_check
+# ============================================
+def io_check(outputDir):
+    """
+    Makes sure output dir can be made if starting from scratch
+    or that output dir exists and has all the right files in it
+    if continuing training or testing or analyzing. That kind of
+    stuff. This prevents lots of time being spent on something only
+    to find out that none of the work can be saved for some reason.
+    Better to find that out before doing all the work.
+    """
+    create_output_directory(outputDir)
