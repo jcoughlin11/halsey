@@ -18,4 +18,3 @@ def run():
     manager.pre_flight_check()
     if manager.doTraining:
         manager.train()
-        manager.save()

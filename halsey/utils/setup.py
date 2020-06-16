@@ -2,9 +2,12 @@
 Title: setup.py
 Notes:
 """
+import os
+
 import gin
 import gym
 from rich.traceback import install as install_rich_traceback
+import tensorflow as tf
 
 from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
@@ -49,7 +52,8 @@ def get_trainer(trainerCls, params):
     channelsFirst = game.pipeline.channelsFirst
     nets = get_networks(inputShape, nActions, channelsFirst)
     brain = get_brain(nets)
-    return trainerCls(game, memory, brain, params)
+    chkpt, chkptMgr = setup_checkpoint(brain)
+    return trainerCls(game, memory, brain, chkpt, chkptMgr, params)
 
 
 # ============================================
@@ -141,3 +145,34 @@ def get_brain(nets, brainCls, params):
     Doc string.
     """
     return brainCls(nets, params)
+
+
+# ============================================
+#              setup_checkpoint
+# ============================================
+def setup_checkpoint(brain, chkptN=0):
+    """
+    Doc string.
+
+    See: https://www.tensorflow.org/guide/checkpoint
+
+    chkptmgr.save takes an optional arg checkpoint_number. If given, tf
+    will number the checkpoint file according to it. However, this number
+    does not get incremented and tracked like the internal
+    chkptmgr.checkpoint.save_counter that is used when checkpoint_number
+    is not given. However, this internal counter gets reset across
+    training runs. So, when continuing training, if using save_counter, the
+    counter will get reset every time, which is annoying. So, the checkpoint
+    number is saved to the training state file and used to update the
+    save_counter on a training continuation.
+    """
+    # Add optimizer
+    checkpoint = tf.train.Checkpoint(optimizer=brain.optimizer)
+    # Add network(s). This is how attributes are added to the
+    # checkpoint object in the tf source
+    for i, net in enumerate(brain.nets):
+        checkpoint.__setattr__("net" + str(i), net)
+    manager = tf.train.CheckpointManager(checkpoint, os.getcwd(), max_to_keep=3)
+    # Allows for continuous checkpoint numbering across training runs
+    manager.checkpoint.save_counter = chkptN
+    return checkpoint, manager

@@ -41,6 +41,7 @@ class Manager:
         """
         trainer = get_trainer()
         trainer.train()
+        save_model(self, trainer)
 
     # -----
     # pre_flight_check
@@ -50,12 +51,3 @@ class Manager:
         Doc string.
         """
         io_check(self.outputDir)
-
-    # -----
-    # save
-    # -----
-    def save(self):
-        """
-        Doc string.
-        """
-        save_model(self)

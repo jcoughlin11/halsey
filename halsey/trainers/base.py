@@ -18,7 +18,7 @@ class BaseTrainer:
     # -----
     # constructor
     # -----
-    def __init__(self, game, memory, brain, params):
+    def __init__(self, game, memory, brain, chkpt, chkptMgr, params):
         """
         Doc string.
         """
@@ -28,6 +28,8 @@ class BaseTrainer:
         self.nEpisodes = params["nEpisodes"]
         self.maxEpisodeSteps = params["maxEpisodeSteps"]
         self.batchSize = params["batchSize"]
+        self.checkpoint = chkpt
+        self.checkpointManager = chkptMgr
 
     # -----
     # train
