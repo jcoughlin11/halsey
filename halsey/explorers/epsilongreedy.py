@@ -49,3 +49,14 @@ class EpsilonGreedyExplorer:
         else:
             action = np.argmax(brain.predict(frameStack).numpy())
         return action
+
+    # -----
+    # get_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        internalState = {}
+        internalState["decayStep"] = self.decayStep
+        return internalState

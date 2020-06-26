@@ -128,3 +128,14 @@ class BasePipeline:
         # Stack for motion detection
         state = self.stack(frame, newEpisode)
         return state
+
+    # -----
+    # get_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        internalState = {}
+        internalState["channelsFirst"] = self.channelsFirst
+        return internalState

@@ -71,3 +71,25 @@ class BaseGame:
             msg = f"Unrecognized mode: `{mode}` for choosing action."
             endrun(msg)
         return action
+
+    # -----
+    # get_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        gameState = {}
+        gameState["explorerState"] = self.explorer.get_state()
+        gameState["pipelineState"] = self.pipeline.get_state()
+        gameState["gameState"] = self._get_state()
+        return gameState
+
+    # -----
+    # _get_state
+    # -----
+    def _get_state(self):
+        """
+        Doc string.
+        """
+        return {}

@@ -3,6 +3,7 @@ Title: write.py
 Notes:
 """
 import numpy as np
+import yaml
 
 from halsey.utils.misc import lock_file
 
@@ -32,7 +33,7 @@ def save_model(manager, trainer):
     """
     lock_file(manager.clArgs.paramFile)
     save_emulator(trainer.game.env)
-    save_training_state()
+    save_training_state(trainer)
     trainer.checkpointManager.save()
     save_replay_buffer()
 
@@ -53,13 +54,15 @@ def save_emulator(env):
 # ============================================
 #             save_training_state
 # ============================================
-def save_training_state():
+def save_training_state(trainer):
     """
     Doc string.
 
     This is the counters and other misc params (current episode, etc.)
     """
-    raise NotImplementedError
+    trainingState = trainer.get_state()
+    with open("trainingState.yaml", "w") as f:
+        yaml.safe_dump(f, trainingState)
 
 
 # ============================================

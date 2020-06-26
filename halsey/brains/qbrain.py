@@ -177,3 +177,12 @@ class QBrain:
         self.nets[0].optimizer.apply_gradients(
             zip(gradients, self.nets[0].trainable_variables)
         )
+
+    # -----
+    # get_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        raise NotImplementedError

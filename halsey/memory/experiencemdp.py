@@ -87,3 +87,12 @@ class ExperienceMDPMemory:
         nextStates = np.stack(sample[:, 3]).astype(np.float)
         dones = sample[:, 4].astype(np.bool)
         return (states, actions, rewards, nextStates, dones)
+
+    # -----
+    # get_state
+    # -----
+    def get_state(self):
+        """
+        Doc string.
+        """
+        return {}
