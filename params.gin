@@ -1,0 +1,84 @@
+import halsey
+
+
+# ============================================
+#                  Training
+# ============================================
+training.instructorCls = @InstructorClassName
+training.trainParams = {
+    "nEpisodes"       : 1,
+    "maxEpisodeSteps" : 1000,
+    "batchSize"       : 32,
+    "savePeriod"      : 1,
+}
+
+
+# ============================================
+#                  Learning
+# ============================================
+learning.brainCls = @BrainClassName
+learning.learningParams = {
+    "discountRate" : 0.9,
+    "learningRate" : 0.00025,
+    "loss"         : "mse",
+    "optimizer"    : "adam",
+}
+
+
+# ============================================
+#                   Memory
+# ============================================
+memory.memoryCls = @MemoryClassName
+memory.memoryParams = {
+    "maxSize"     : 100,
+    "pretrainLen" : 64,
+}
+
+
+# ============================================
+#                  Networks
+# ============================================
+networks.nets = [
+    @DQN,
+]
+networks.netParams = [
+    {},
+]
+
+
+# ============================================
+#                 Navigation
+# ============================================
+navigation.navigatorCls = @NavigatorClassName
+navigation.navigatorParams = {}
+
+
+# ============================================
+#                 Environment
+# ============================================
+environment.envName = "SpaceInvaders-v4"
+
+
+# ============================================
+#                 Exploration
+# ============================================
+exploration.explorerCls = @ExplorerClassName
+exploration.explorerParams = {
+    "epsDecayRate" : 0.00001,
+    "epsilonStart" : 1.0,
+    "epsilonStop"  : 0.01,
+}
+
+
+# ============================================
+#                   Images
+# ============================================
+images.imagePipelineCls = @ImagePipelineClassName
+images.imagePipelineParams = {
+    "normValue"    : 255.,
+    "traceLen"     : 4,
+    "offsetHeight" : 8,
+    "offsetWidth"  : 4,
+    "cropHeight"   : 110,
+    "cropWidth"    : 84,
+}
