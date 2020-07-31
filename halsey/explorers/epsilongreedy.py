@@ -63,6 +63,7 @@ class EpsilonGreedyExplorer(BaseExplorer):
         exploreProb = self.params["epsilonStop"] + (
             self.params["epsilonStart"] - self.params["epsilonStop"]
         ) * np.exp(-self.params["epsDecayRate"] * self.params["decayStep"])
+        self.params["decayStep"] += 1
         if exploreProb >= exploitProb:
             action = self.random_choice(env)
         else:
