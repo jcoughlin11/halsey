@@ -18,7 +18,7 @@ def run():
     and analyzing a model. This function oversees the initialization
     of a run as well as each of the three operations.
     """
-    params, clArgs = initialize()
+    clArgs = initialize()
     if clArgs.train:
         instructor = setup_instructor()
         instructor.train()

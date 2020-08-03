@@ -22,48 +22,6 @@ class BaseImagePipeline(ABC):
         self.params = params
 
     # -----
-    # normalize_frame
-    # -----
-    @abstractmethod
-    def normalize_frame(self, frame):
-        """
-        Normalizes the pixel values in the frame to a given value.
-        """
-        pass
-
-    # -----
-    # grayscale
-    # -----
-    @abstractmethod
-    def grayscale(self, frame):
-        """
-        Formats the image so that the number of color channels is one.
-        """
-        pass
-
-    # -----
-    # crop
-    # -----
-    @abstractmethod
-    def crop(self, frame):
-        """
-        Cuts off unnecessary parts of the frame and then resizes the
-        frame.
-        """
-        pass
-
-    # -----
-    # stack
-    # -----
-    @abstractmethod
-    def stack(self, frame, newEpisode):
-        """
-        Puts multiple frames on top of one another to form a state.
-        This is done to deal with the problem of time.
-        """
-        pass
-
-    # -----
     # process
     # -----
     @abstractmethod
