@@ -22,6 +22,3 @@ def run():
     if clArgs.train:
         instructor = setup_instructor()
         instructor.train()
-    if clArgs.evaluate:
-        proctor = setup_proctor()
-        proctor.evaluate()

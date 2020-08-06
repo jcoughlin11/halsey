@@ -28,11 +28,10 @@ class BaseInstructor(ABC):
         # ImagePipeline and environment, respectively. Rather than
         # pass these arguments through multiple setup functions in
         # setup_instructor, it's done here
-        for i in range(len(self.brain.nets)):
-            self.brain.nets[i].build_arch(
-                self.navigator.imagePipeline.inputShape,
-                self.navigator.env.action_space.n
-            )
+        self.brain.build_networks(
+            self.navigator.imagePipeline.inputShape,
+            self.navigator.env.action_space.n,
+        )
 
     # -----
     # train

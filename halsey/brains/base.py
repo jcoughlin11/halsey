@@ -3,7 +3,7 @@ Title: base.py
 Notes:
 """
 from abc import ABC
-from abc import abstractbaseclass
+from abc import abstractmethod
 
 
 # ============================================
@@ -24,25 +24,37 @@ class BaseBrain(ABC):
         self.params = params
 
     # -----
+    # build_networks
+    # -----
+    def build_networks(self, inputShape, nActions):
+        """
+        The neural networks cannot be built until the shape of the
+        input data and the size of the game's action space are known.
+        The size of the action space is used to determine the output
+        shape. This method should be called by the instructor or
+        proctor before work begins.
+        """
+        for i in range(len(self.nets)):
+            self.nets[i].build_arch(inputShape, nActions)
+
+    # -----
     # pre_populate
     # -----
-    @abstractmethod
-    def pre_populate(self):
+    def pre_populate(self, navigator):
         """
         Fills the memory buffer before a run so that there are samples
         to draw from for learning early on.
         """
-        pass
+        self.memory.pre_populate(navigator)
 
     # -----
     # add_memory
     # -----
-    @abstractmethod
     def add_memory(self, experience):
         """
         Adds an experience to the memory buffer.
         """
-        pass
+        self.memory.add_memory(experience)
 
     # -----
     # learn
