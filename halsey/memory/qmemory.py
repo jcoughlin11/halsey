@@ -4,6 +4,8 @@ Notes:
 """
 import queue
 
+import numpy as np
+
 from .base import BaseMemory
 
 
@@ -47,6 +49,20 @@ class QMemory(BaseMemory):
                 navigator.reset()
 
     # -----
+    # prep_sample
+    # -----
+    def prep_sample(sample):
+        """
+        Batches all aspects of the sample.
+        """
+        states = np.stack(sample[:, 0]).astype(np.float)
+        actions = sample[:, 1].astype(np.int)
+        rewards = sample[:, 2].astype(np.float)
+        nextStates = np.stack(sample[:, 3]).astype(np.float)
+        dones = sample[:, 4].astype(np.bool)
+        return (states, actions, rewards, nextStates, dones)
+
+    # -----
     # sample
     # -----
     def sample(self):
@@ -54,3 +70,9 @@ class QMemory(BaseMemory):
         Draws a batch of experiences from the memory buffer to be used
         in learning.
         """
+        indices = np.random.choice(
+            np.arange(len(self.memoryBuffer)), size=self.params["batchSize"], replace=False
+        )
+        sample = np.array(self.memoryBuffer)[indices]
+        sample = prep_sample(sample)
+        return sample
