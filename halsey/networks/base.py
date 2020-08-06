@@ -5,11 +5,13 @@ Notes:
 from abc import ABC
 from abc import abstractmethod
 
+import tensorflow as tf
+
 
 # ============================================
 #                 BaseNetwork
 # ============================================
-class BaseNetwork(ABC):
+class BaseNetwork(ABC, tf.keras.Model):
     """
     The `network`(s) contain the weights. These weight parameters are
     tuned during the learning process in order to increase the agent's
@@ -17,3 +19,41 @@ class BaseNetwork(ABC):
     architecture, which is also held by this object. Both the value and
     architecture of the weights influence performance.
     """
+    networkType = None
+
+    # -----
+    # constructor
+    # -----
+    def __init__(self, params):
+        tf.keras.Model.__init__(self)
+        self.params = params
+
+    # -----
+    # build_arch
+    # -----
+    @abstractmethod
+    def build_arch(self, inputShape, nActions):
+        """
+        Constructs the layers of the network.
+        """
+        pass
+
+    # -----
+    # call
+    # -----
+    @abstractmethod
+    def call(self, x):
+        """
+        Defines a forward pass through the network.
+        """
+        pass
+
+    # -----
+    # get_data_format
+    # -----
+    def get_data_format(self):
+        """
+        Determines whether or not nChannels is the first part of the
+        shape or the last (not counting batchSize).
+        """
+        raise NotImplementedError
