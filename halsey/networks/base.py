@@ -7,6 +7,8 @@ from abc import abstractmethod
 
 import tensorflow as tf
 
+from halsey.utils.gpu import using_gpu
+
 
 # ============================================
 #                 BaseNetwork
@@ -55,5 +57,18 @@ class BaseNetwork(ABC, tf.keras.Model):
         """
         Determines whether or not nChannels is the first part of the
         shape or the last (not counting batchSize).
+
+        RNNs require NCHW. For CNN architectures, though, the shape
+        depends on the device doing the training. If it's a CPU we need
+        NHWC since CPUs don't support NCHW for CNNs (because the former
+        is more efficient). If it's a GPU, though, NCHW is more
+        efficient.
         """
-        raise NotImplementedError
+        channelsFirst = True
+        if self.networkType != "recurrent" and not using_gpu():
+            channelsFirst = False
+        if channelsFirst:
+            dataFormat = "channels_first"
+        else:
+            dataFormat = "channels_last"
+        return dataFormat
