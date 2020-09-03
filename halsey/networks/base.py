@@ -29,6 +29,8 @@ class BaseNetwork(ABC, tf.keras.Model):
     def __init__(self, params):
         tf.keras.Model.__init__(self)
         self.params = params
+        self.lossFunction = self.get_loss_function(self.params["loss"])
+        self.optimizer = self.get_optimizer(self.params["optimizer"])
 
     # -----
     # build_arch
@@ -56,7 +58,8 @@ class BaseNetwork(ABC, tf.keras.Model):
     def get_data_format(self):
         """
         Determines whether or not nChannels is the first part of the
-        shape or the last (not counting batchSize).
+        shape or the last (not counting batchSize, which is always the
+        first dimension when passing data to the network).
 
         RNNs require NCHW. For CNN architectures, though, the shape
         depends on the device doing the training. If it's a CPU we need
@@ -72,3 +75,26 @@ class BaseNetwork(ABC, tf.keras.Model):
         else:
             dataFormat = "channels_last"
         return dataFormat
+
+    # -----
+    # get_loss_function
+    # -----
+    def get_loss_function(self, lossName):
+        """
+        Assigns the function object containing the implementation of
+        the given loss function.
+        """
+        loss = tf.keras.losses.get(lossName)
+        return loss
+
+    # -----
+    # get_optimizer
+    # -----
+    def get_optimizer(self, optimizerName, learningRate):
+        """
+        Assigns the class containing the implementation of the given
+        optimizer.
+        """
+        optimizer = tf.keras.optimizers.get(optimizerName)
+        optimizer.learning_rate = learningRate
+        return optimizer

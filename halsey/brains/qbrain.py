@@ -28,7 +28,7 @@ class QBrain(BaseBrain):
         baselines package.
 
         NOTE: See version on development branch for in-depth comments.
-        I wanto to add a more refined version of them here.
+        I wan to to add a more refined version of them here.
         """
         states, actions, rewards, nextStates, dones = self.memory.sample()
         with tf.GradientTape() as tape:
