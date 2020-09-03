@@ -2,7 +2,7 @@
 Title: dqn.py
 Notes:
 """
-import tenorflow as tf
+import tensorflow as tf
 
 from .base import BaseNetwork
 

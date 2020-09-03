@@ -4,7 +4,6 @@ Notes:
 """
 import gin
 
-from halsey.io.logging import setup_loggers
 from halsey.io.read import parse_cl_args
 
 
@@ -22,7 +21,6 @@ def initialize():
     """
     clArgs = parse_cl_args()
     gin.parse_config_file(clArgs.paramFile)
-    setup_loggers()
     return clArgs
 
 
@@ -39,6 +37,27 @@ def setup_instructor(instructorCls, trainParams):
     navigator = setup_navigator()
     instructor = instructorCls(brain, navigator, trainParams)
     return instructor
+
+
+# ============================================
+#                setup_proctor
+# ============================================
+def setup_proctor():
+    """
+    Instantiates the `proctor` object based on the values given in
+    the parameter file.
+    """
+    raise NotImplementedError
+
+# ============================================
+#                setup_analyst
+# ============================================
+def setup_analyst():
+    """
+    Instantiates the `analyst` object based on the values given in
+    the parameter file.
+    """
+    raise NotImplementedError
 
 
 # ============================================
@@ -137,10 +156,3 @@ def setup_image_pipeline(imagePipelineCls, imagePipelineParams):
     """
     imagePipeline = imagePipelineCls(imagePipelineParams)
     return imagePipeline
-
-
-# ============================================
-#               setup_proctor
-# ============================================
-def setup_proctor():
-    raise NotImplementedError

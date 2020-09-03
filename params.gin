@@ -4,7 +4,7 @@ import halsey
 # ============================================
 #                  Training
 # ============================================
-training.instructorCls = @InstructorClassName
+training.instructorCls = @QInstructor
 training.trainParams = {
     "nEpisodes"       : 1,
     "maxEpisodeSteps" : 1000,
@@ -16,7 +16,7 @@ training.trainParams = {
 # ============================================
 #                  Learning
 # ============================================
-learning.brainCls = @BrainClassName
+learning.brainCls = @QBrain
 learning.learningParams = {
     "discountRate" : 0.9,
     "learningRate" : 0.00025,
@@ -26,7 +26,7 @@ learning.learningParams = {
 # ============================================
 #                   Memory
 # ============================================
-memory.memoryCls = @MemoryClassName
+memory.memoryCls = @QMemory
 memory.memoryParams = {
     "maxSize"     : 100,
     "pretrainLen" : 64,
@@ -37,7 +37,7 @@ memory.memoryParams = {
 #                  Networks
 # ============================================
 networks.nets = [
-    @DQN,
+    @DeepQNetwork,
 ]
 networks.netParams = [
     {
@@ -50,7 +50,7 @@ networks.netParams = [
 # ============================================
 #                 Navigation
 # ============================================
-navigation.navigatorCls = @NavigatorClassName
+navigation.navigatorCls = @FrameNavigator
 navigation.navigatorParams = {}
 
 
@@ -63,7 +63,7 @@ environment.envName = "SpaceInvaders-v4"
 # ============================================
 #                 Exploration
 # ============================================
-exploration.explorerCls = @ExplorerClassName
+exploration.explorerCls = @EpsilonGreedyExplorer
 exploration.explorerParams = {
     "epsDecayRate" : 0.00001,
     "epsilonStart" : 1.0,
@@ -74,7 +74,7 @@ exploration.explorerParams = {
 # ============================================
 #                   Images
 # ============================================
-images.imagePipelineCls = @ImagePipelineClassName
+images.imagePipelineCls = @QPipeline
 images.imagePipelineParams = {
     "normValue"    : 255.,
     "traceLen"     : 4,
