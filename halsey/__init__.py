@@ -1,9 +1,12 @@
 from . import (
     brains,
+    console,
+    explorers,
     instructors,
+    io,
     memory,
-    navigation,
+    navigators,
     networks,
     pipelines,
-    policies,
+    utils,
 )

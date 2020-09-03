@@ -3,6 +3,7 @@ Title: run.py
 Notes:
 """
 from halsey.utils.setup import initialize
+from halsey.utils.setup import setup_analyst
 from halsey.utils.setup import setup_instructor
 from halsey.utils.setup import setup_proctor
 
@@ -22,3 +23,9 @@ def run():
     if clArgs.train:
         instructor = setup_instructor()
         instructor.train()
+    if clArgs.evaluate:
+        proctor = setup_proctor()
+        proctor.evaluate()
+    if clArgs.analyze:
+        analyst = setup_analyst()
+        analyst.analyze()
