@@ -5,6 +5,8 @@ Notes:
 from abc import ABC
 from abc import abstractmethod
 
+from halsey.utils.register import register
+
 
 # ============================================
 #                  BaseBrain
@@ -14,6 +16,13 @@ class BaseBrain(ABC):
     The brain manages the memory and neural networks and contains the
     learning method by which the neural network weights are updated.
     """
+
+    # -----
+    # subclass hook
+    # -----
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register(cls)
 
     # -----
     # constructor

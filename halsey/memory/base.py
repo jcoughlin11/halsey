@@ -5,6 +5,8 @@ Notes:
 from abc import ABC
 from abc import abstractmethod
 
+from halsey.utils.register import register
+
 
 # ============================================
 #                 BaseMemory
@@ -15,6 +17,13 @@ class BaseMemory(ABC):
     provided by the game in response to the agent's actions. It is
     also responsible for sampling from this buffer for learning.
     """
+
+    # -----
+    # subclass hook
+    # -----
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register(cls)
 
     # -----
     # constructor

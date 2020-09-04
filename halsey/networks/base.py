@@ -8,6 +8,7 @@ from abc import abstractmethod
 import tensorflow as tf
 
 from halsey.utils.gpu import using_gpu
+from halsey.utils.register import register
 
 
 # ============================================
@@ -22,6 +23,13 @@ class BaseNetwork(ABC, tf.keras.Model):
     architecture of the weights influence performance.
     """
     networkType = None
+
+    # -----
+    # subclass hook
+    # -----
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register(cls)
 
     # -----
     # constructor

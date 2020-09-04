@@ -5,6 +5,8 @@ Notes:
 from abc import ABC
 from abc import abstractmethod
 
+from halsey.utils.register import register
+
 
 # ============================================
 #               BaseInstructor
@@ -15,6 +17,13 @@ class BaseInstructor(ABC):
 
     The `instructor` object contains the training loop.
     """
+
+    # -----
+    # subclass hook
+    # -----
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register(cls)
 
     # -----
     # constructor

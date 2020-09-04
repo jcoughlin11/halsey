@@ -7,6 +7,8 @@ from abc import abstractmethod
 
 import numpy as np
 
+from halsey.utils.register import register
+
 
 # ============================================
 #               BaseExplorer
@@ -15,6 +17,13 @@ class BaseExplorer(ABC):
     """
     The `explorer` object is responsible for action selection.
     """
+
+    # -----
+    # subclass hook
+    # -----
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        register(cls)
 
     # -----
     # constructor

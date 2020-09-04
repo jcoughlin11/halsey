@@ -6,6 +6,8 @@ import gin
 
 from halsey.io.read import parse_cl_args
 
+from .register import registry
+
 
 # ============================================
 #                  initialize
@@ -35,7 +37,7 @@ def setup_instructor(instructorCls, trainParams):
     """
     brain = setup_brain()
     navigator = setup_navigator()
-    instructor = instructorCls(brain, navigator, trainParams)
+    instructor = registry[instructorCls](brain, navigator, trainParams)
     return instructor
 
 
@@ -71,7 +73,7 @@ def setup_brain(brainCls, learningParams):
     """
     memory = setup_memory()
     networks = setup_networks()
-    brain = brainCls(memory, networks, learningParams)
+    brain = registry[brainCls](memory, networks, learningParams)
     return brain
 
 
@@ -84,7 +86,7 @@ def setup_memory(memoryCls, memoryParams):
     Instantiates the `memory` object based on the values given in the
     parameter file.
     """
-    memory = memoryCls(memoryParams)
+    memory = registry[memoryCls](memoryParams)
     return memory
 
 
@@ -98,8 +100,8 @@ def setup_networks(netClasses, netParams):
     the parameter file.
     """
     networks = []
-    for nn in enumerate(netClasses):
-        net = nn(netParams[i])
+    for i, nn in enumerate(netClasses):
+        net = registry[nn](netParams[i])
         networks.append(net)
     return networks
 
@@ -116,7 +118,7 @@ def setup_navigator(navigatorCls, navigatorParams):
     env = setup_environment()
     explorer = setup_explorer()
     imagePipeline = setup_image_pipeline()
-    navigator = navigatorCls(env, explorer, imagePipeline, navigatorParams)
+    navigator = registry[navigatorCls](env, explorer, imagePipeline, navigatorParams)
     return navigator
 
 
@@ -141,7 +143,7 @@ def setup_explorer(explorerCls, explorerParams):
     Instantiates the `explorer` object based on the values given in the
     parameter file.
     """
-    explorer = explorerCls(explorerParams)
+    explorer = registry[explorerCls](explorerParams)
     return explorer
 
 
@@ -154,5 +156,5 @@ def setup_image_pipeline(imagePipelineCls, imagePipelineParams):
     Instantiates the `pipeline` object based on the values given in
     the parameter file.
     """
-    imagePipeline = imagePipelineCls(imagePipelineParams)
+    imagePipeline = registry[imagePipelineCls](imagePipelineParams)
     return imagePipeline
