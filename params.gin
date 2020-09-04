@@ -16,7 +16,6 @@ training.trainParams = {
 learning.brainCls = "QBrain"
 learning.learningParams = {
     "discountRate" : 0.9,
-    "learningRate" : 0.00025,
 }
 
 
@@ -37,11 +36,33 @@ networks.nets = [
     "DeepQNetwork",
 ]
 networks.netParams = [
+    {},
+]
+
+
+# ============================================
+#               Loss Functions
+# ============================================
+losses.lossFunctions = [
+    "mse",
+]
+losses.lossParams = [
+    {},
+]
+
+
+# ============================================
+#                  Optimizers
+# ============================================
+optimizers.optimizers = [
+    "adam",
+]
+optimizers.optimizerParams = [
     {
-        "loss" : "mse",
-        "optimizer" : "adam",
+        "learningRate" : 0.00025
     },
 ]
+    
 
 
 # ============================================
