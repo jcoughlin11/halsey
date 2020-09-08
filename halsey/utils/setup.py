@@ -99,11 +99,52 @@ def setup_networks(netClasses, netParams):
     Instantiates the `network` object(s) based on the values given in
     the parameter file.
     """
+    optimizers = setup_optimizers()
+    losses = setup_losses()
     networks = []
-    for i, nn in enumerate(netClasses):
-        net = registry[nn](netParams[i])
-        networks.append(net)
+    for (nn, opt, lf, params) in zip(netClasses, optimizers, losses, netParams):
+        networks.append(registry[nn](opt, lf, params))
     return networks
+
+
+# ============================================
+#               setup_optimizers
+# ============================================
+@gin.configurable("optimizers")
+def setup_optimizers(optimizers, optimizerParams):
+    """
+    Instantiates the optimizer classes. One for each network.
+    """
+    opts = []
+    for (opt, params) in zip(optimizers, optimizerParams):
+        optimizer = tf.keras.optimizers.get(opt)
+        for key, value in params:
+            if hasattr(optimizer, key):
+                setattr(optimizer, key, value)
+        opts.append(optimizer)
+    return opts
+        
+
+# ============================================
+#                 setup_losses
+# ============================================
+@gin.configurable("losses")
+def setup_losses(lossFunctions, lossParams):
+    """
+    Sets the desired loss function, one for each network.
+
+    It seems like each loss in keras is implemented as both a
+    function and a class. Looking at the tf source code, it's weird,
+    though, the way the attributes are set, so I'm going to keep
+    working with only the function versions. Some loss functions
+    (such as mse) don't take any key word args while others (such as
+    categorical cross entropy) do, so I have to allow for their
+    existence.
+    """
+    losses = []
+    for (lf, params) in zip(lossFunctions, lossParams):
+        losses.append(HalseyLoss(lf, params))
+    return losses
 
 
 # ============================================

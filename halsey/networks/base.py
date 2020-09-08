@@ -34,11 +34,11 @@ class BaseNetwork(ABC, tf.keras.Model):
     # -----
     # constructor
     # -----
-    def __init__(self, params):
+    def __init__(self, optimizer, lossObject, params):
         tf.keras.Model.__init__(self)
         self.params = params
-        self.lossFunction = self.get_loss_function(self.params["loss"])
-        self.optimizer = self.get_optimizer(self.params["optimizer"])
+        self.lossObject = lossObject
+        self.optimizer = optimizer 
 
     # -----
     # build_arch

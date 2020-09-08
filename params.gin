@@ -59,7 +59,7 @@ optimizers.optimizers = [
 ]
 optimizers.optimizerParams = [
     {
-        "learningRate" : 0.00025
+        "learning_rate" : 0.00025
     },
 ]
     
