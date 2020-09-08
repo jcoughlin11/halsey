@@ -19,11 +19,10 @@ class DeepQNetwork(BaseNetwork):
     # -----
     # build_arch
     # -----
-    def build_arch(self, inputShape, nActions):
+    def build_arch(self, inputShape, nLogits, dataFormat):
         """
         Constructs the layers of the network.
         """
-        dataFormat = self.get_data_format()
         # First convolutional layer
         self.conv1 = tf.keras.layers.Conv2D(
             input_shape=inputShape,

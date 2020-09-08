@@ -37,6 +37,23 @@ def setup_instructor(instructorCls, trainParams):
     """
     brain = setup_brain()
     navigator = setup_navigator()
+    # Both the networks and image pipeline need access to dataFormat
+    # and the input shape, so we set it here instead of worrying about
+    # communicating between the objects later on
+    dataFormat = get_data_format(brain.nets[0].networkType)
+    inputShape = get_input_shape(
+        dataFormat,
+        navigator.imagePipeline.params["traceLength"],
+        navigator.imagePipeline.params["cropHeight"],
+        navigator.imagePipeline.params["cropWidth"]
+    )
+    brain.dataFormat = dataFormat
+    brain.inputShape = inputShape
+    brain.nLogits = navigator.env.action_space.n
+    navigator.imagePipeline.dataFormat = dataFormat
+    navigator.imagePipeline.inputShape = inputShape
+    # Networks cannot be built until input and output shapes are known
+    brain.build_networks()
     instructor = registry[instructorCls](brain, navigator, trainParams)
     return instructor
 

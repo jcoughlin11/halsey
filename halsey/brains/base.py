@@ -31,11 +31,14 @@ class BaseBrain(ABC):
         self.memory = memory
         self.nets = networks
         self.params = params
+        self.dataFormat = None
+        self.inputShape = None
+        self.nLogits = None
 
     # -----
     # build_networks
     # -----
-    def build_networks(self, inputShape, nActions):
+    def build_networks(self):
         """
         The neural networks cannot be built until the shape of the
         input data and the size of the game's action space are known.
@@ -44,7 +47,7 @@ class BaseBrain(ABC):
         proctor before work begins.
         """
         for i in range(len(self.nets)):
-            self.nets[i].build_arch(inputShape, nActions)
+            self.nets[i].build_arch(self.inputShape, self.nLogits, self.dataFormat)
 
     # -----
     # pre_populate

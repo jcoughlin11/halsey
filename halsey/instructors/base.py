@@ -32,15 +32,6 @@ class BaseInstructor(ABC):
         self.brain = brain
         self.navigator = navigator
         self.params = params
-        # The neural networks themselves cannot be built until the
-        # input and output shapes are known. These come from the
-        # ImagePipeline and environment, respectively. Rather than
-        # pass these arguments through multiple setup functions in
-        # setup_instructor, it's done here
-        self.brain.build_networks(
-            self.navigator.imagePipeline.inputShape,
-            self.navigator.env.action_space.n,
-        )
 
     # -----
     # train
