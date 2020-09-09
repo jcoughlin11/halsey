@@ -34,11 +34,11 @@ class BaseNetwork(ABC, tf.keras.Model):
     # -----
     # constructor
     # -----
-    def __init__(self, optimizer, lossObject, params):
+    def __init__(self, optimizer, loss, params):
         tf.keras.Model.__init__(self)
         self.params = params
-        self.lossObject = lossObject
         self.optimizer = optimizer 
+        self.loss = loss
 
     # -----
     # build_arch
@@ -59,26 +59,3 @@ class BaseNetwork(ABC, tf.keras.Model):
         Defines a forward pass through the network.
         """
         pass
-
-    # -----
-    # get_loss_function
-    # -----
-    def get_loss_function(self, lossName):
-        """
-        Assigns the function object containing the implementation of
-        the given loss function.
-        """
-        loss = tf.keras.losses.get(lossName)
-        return loss
-
-    # -----
-    # get_optimizer
-    # -----
-    def get_optimizer(self, optimizerName, learningRate):
-        """
-        Assigns the class containing the implementation of the given
-        optimizer.
-        """
-        optimizer = tf.keras.optimizers.get(optimizerName)
-        optimizer.learning_rate = learningRate
-        return optimizer
