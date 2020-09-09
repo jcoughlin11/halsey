@@ -3,6 +3,7 @@ Title: setup.py
 Notes:
 """
 import gin
+import tensorflow as tf
 
 from halsey.io.read import parse_cl_args
 
