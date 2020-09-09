@@ -32,7 +32,7 @@ memory.memoryParams = {
 # ============================================
 #                  Networks
 # ============================================
-networks.nets = [
+networks.netClasses = [
     "DeepQNetwork",
 ]
 networks.netParams = [
