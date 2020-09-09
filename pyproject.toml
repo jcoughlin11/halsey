@@ -24,8 +24,8 @@ exclude = '''
 
 [tool.poetry]
 name = 'halsey'
-version = "2.0.0"
-description = ''
+version = "0.1.0"
+description = 'A code for reinforcement learning research.'
 authors = ['Jared Coughlin']
 
 [tool.poetry.dependencies]
