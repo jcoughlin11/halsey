@@ -43,7 +43,7 @@ networks.netParams = [
 # ============================================
 #               Loss Functions
 # ============================================
-losses.lossFunctions = [
+losses.lossNames = [
     "mse",
 ]
 losses.lossParams = [

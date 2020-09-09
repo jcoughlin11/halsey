@@ -146,7 +146,7 @@ def setup_optimizers(optimizers, optimizerParams):
 #                 setup_losses
 # ============================================
 @gin.configurable("losses")
-def setup_losses(lossFunctions, lossParams):
+def setup_losses(lossNames, lossParams):
     """
     Sets the desired loss function, one for each network.
 
@@ -157,10 +157,13 @@ def setup_losses(lossFunctions, lossParams):
     (such as mse) don't take any key word args while others (such as
     categorical cross entropy) do, so I have to allow for their
     existence.
+
+    I'm really not sure how to handle them, though (the params)
     """
     losses = []
-    for (lf, params) in zip(lossFunctions, lossParams):
-        losses.append(HalseyLoss(lf, params))
+    for (lf, params) in zip(lossNames, lossParams):
+        lossFunc = tf.keras.losses.get_loss(lf)
+        losses.append(lossFunc)
     return losses
 
 
