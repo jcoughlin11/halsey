@@ -29,7 +29,7 @@ description = ''
 authors = ['Jared Coughlin']
 
 [tool.poetry.dependencies]
-python = '^3.6'
+python = '^3.8'
 numpy = "^1.17"
 gym = "^0.15.4"
 atari_py = "^0.2.6"
