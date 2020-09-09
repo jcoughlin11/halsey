@@ -27,7 +27,7 @@ class QMemory(BaseMemory):
     # -----
     # add
     # -----
-    def add(self, experience):
+    def add_memory(self, experience):
         """
         Adds the given experience to the memory buffer.
         """
