@@ -50,7 +50,7 @@ class DeepQNetwork(BaseNetwork):
         )
         # Output layer
         self.outputLayer = tf.keras.layers.Dense(
-            units=nActions, activation="linear", name="output"
+            units=nLogits, activation="linear", name="output"
         )
 
     # -----

@@ -63,9 +63,7 @@ class BaseExplorer(ABC):
         """
         Uses the agent's current knowledge to select an action.
         """
-        predictions = brain.predict(state)
-        action = np.argmax(predictions.numpy())
-        return action
+        return brain.predict(state)
 
     # -----
     # train_choice

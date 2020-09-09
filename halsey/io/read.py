@@ -31,5 +31,12 @@ def parse_cl_args():
         action="store_true",
         help="Instructs the code to evaluate a model.",
     )
+    parser.add_argument(
+        "--analyze",
+        "-a",
+        dest="analyze",
+        action="store_true",
+        help="Instructs the code to analyze a model.",
+    )
     clArgs = parser.parse_args()
     return clArgs

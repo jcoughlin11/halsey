@@ -66,7 +66,7 @@ class QBrain(BaseBrain):
         qNextMax = tf.reduce_max(qNext, 1)
         dones = tf.cast(dones, qNextMax.dtype)
         maskedVals = (1.0 - dones) * qNextMax
-        targets = rewards + self.discountRate * maskedVals
+        targets = rewards + self.params["discountRate"] * maskedVals
         return targets
 
     # -----
@@ -77,5 +77,7 @@ class QBrain(BaseBrain):
         Uses the current knowledge of the neural network(s) to select
         what it thinks is the best action for the current situation.
         """
+        # Batch size is always required, even if it's just 1
+        state = tf.expand_dims(state, 0)
         predictions = self.nets[0](state, training=False)
         return np.argmax(predictions.numpy())

@@ -4,6 +4,7 @@ Notes:
 """
 from abc import ABC
 from abc import abstractmethod
+from queue import deque
 
 from halsey.utils.register import register
 
@@ -29,6 +30,9 @@ class BaseImagePipeline(ABC):
     # -----
     def __init__(self, params):
         self.params = params
+        self.frameStack = deque(maxlen=self.params["traceLen"])
+        self.dataFormat = None
+        self.inputShape = None
 
     # -----
     # process

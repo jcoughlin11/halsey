@@ -2,7 +2,7 @@
 Title: qmemory.py
 Notes:
 """
-import queue
+from queue import deque
 
 import numpy as np
 
@@ -22,7 +22,7 @@ class QMemory(BaseMemory):
     # -----
     def __init__(self, params):
         super().__init__(params)
-        self.memoryBuffer = queue.deque(maxlen=self.params["maxSize"])
+        self.memoryBuffer = deque(maxlen=self.params["maxSize"])
 
     # -----
     # add
@@ -43,7 +43,7 @@ class QMemory(BaseMemory):
         navigator.reset()
         for _ in range(self.params["pretrainLen"]):
             experience = navigator.transition(None, "random")
-            self.add(experience)
+            self.add_memory(experience)
             # Check for terminal state
             if experience[-1]:
                 navigator.reset()
@@ -74,5 +74,9 @@ class QMemory(BaseMemory):
             np.arange(len(self.memoryBuffer)), size=self.params["batchSize"], replace=False
         )
         sample = np.array(self.memoryBuffer)[indices]
-        sample = prep_sample(sample)
-        return sample
+        states = np.stack(sample[:, 0]).astype(np.float)
+        actions = sample[:, 1].astype(np.int)
+        rewards = sample[:, 2].astype(np.float)
+        nextStates = np.stack(sample[:, 3]).astype(np.float)
+        dones = sample[:, 4].astype(np.bool)
+        return (states, actions, rewards, nextStates, dones)

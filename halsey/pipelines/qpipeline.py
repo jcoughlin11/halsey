@@ -2,6 +2,7 @@
 Title: qpipeline.py
 Notes:
 """
+import numpy as np
 import tensorflow as tf
 
 from .base import BaseImagePipeline
@@ -72,7 +73,7 @@ class QPipeline(BaseImagePipeline):
             self.frameStack.append(frame.numpy())
         # Return a tensorial version of the stack of frames to be used
         # by the network(s). Can't cast a deque to a tensor directly
-        if self.channelsFirst:
+        if self.dataFormat == "channels_first":
             state = np.stack(self.frameStack, axis=0)
         else:
             state = np.stack(self.frameStack, axis=2)

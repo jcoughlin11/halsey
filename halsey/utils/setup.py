@@ -3,10 +3,13 @@ Title: setup.py
 Notes:
 """
 import gin
+import gym
 import tensorflow as tf
 
 from halsey.io.read import parse_cl_args
 
+from .gpu import get_data_format
+from .gpu import get_input_shape
 from .register import registry
 
 
@@ -44,7 +47,7 @@ def setup_instructor(instructorCls, trainParams):
     dataFormat = get_data_format(brain.nets[0].networkType)
     inputShape = get_input_shape(
         dataFormat,
-        navigator.imagePipeline.params["traceLength"],
+        navigator.imagePipeline.params["traceLen"],
         navigator.imagePipeline.params["cropHeight"],
         navigator.imagePipeline.params["cropWidth"]
     )
@@ -136,7 +139,7 @@ def setup_optimizers(optimizers, optimizerParams):
     opts = []
     for (opt, params) in zip(optimizers, optimizerParams):
         optimizer = tf.keras.optimizers.get(opt)
-        for key, value in params:
+        for key, value in params.items():
             if hasattr(optimizer, key):
                 setattr(optimizer, key, value)
         opts.append(optimizer)
@@ -163,7 +166,7 @@ def setup_losses(lossNames, lossParams):
     """
     losses = []
     for (lf, params) in zip(lossNames, lossParams):
-        lossFunc = tf.keras.losses.get_loss(lf)
+        lossFunc = tf.keras.losses.get(lf)
         losses.append(lossFunc)
     return losses
 

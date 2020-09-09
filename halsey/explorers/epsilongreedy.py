@@ -16,6 +16,13 @@ class EpsilonGreedyExplorer(BaseExplorer):
     """
 
     # -----
+    # constructor
+    # -----
+    def __init__(self, params):
+        super().__init__(params)
+        self.params["decayStep"] = 0
+
+    # -----
     # train_choice
     # -----
     def train_choice(self, state, env, brain):

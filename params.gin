@@ -5,7 +5,6 @@ training.instructorCls = "QInstructor"
 training.trainParams = {
     "nEpisodes"       : 1,
     "maxEpisodeSteps" : 1000,
-    "batchSize"       : 32,
     "savePeriod"      : 1,
 }
 
@@ -26,6 +25,7 @@ memory.memoryCls = "QMemory"
 memory.memoryParams = {
     "maxSize"     : 100,
     "pretrainLen" : 64,
+    "batchSize"   : 32,
 }
 
 
