@@ -24,9 +24,28 @@ exclude = '''
 
 
 [tool.isort]
-profile = "hug"
 src_paths = ["halsey", "tests"]
+line_length = 80
+force_single_line = true
 multi_line_output = 3
+atomic = true
+include_trailing_comma = true
+lines_after_imports = 2
+lines_between_types = 1
+use_parentheses = true
+not_skip = "__init__.py"
+filter_files = true
+
+known_first_party = "halsey"
+known_third_party = [
+    "gin",
+    "gym",
+    "h5py",
+    "numpy",
+    "pytest",
+    "pyyaml",
+    "tensorflow",
+]
 
 
 [tool.poetry]
@@ -42,22 +61,21 @@ numpy = "^1.17"
 gym = "^0.15.4"
 atari_py = "^0.2.6"
 tensorflow = "^2.1"
-sphinx = "^2.3.1"
-sphinx_rtd_theme = "^0.4.3"
 gin-config = "^0.3.0"
-rich = "^0.8.6"
 h5py = "^2.10.0"
 tensorflow-estimator = "^2.1.0"
 pyyaml = "^5.3.1"
-scipy = "^1.4.1"
-pytest = "^6.0.1"
-nox = "^2020.8.22"
 
 
 [tool.poetry.dev-dependencies]
-ipython = "^7.9"
 black = "^18.9b0"
 flake8 = "^3.6"
+pytest = "^6.0.2"
+pytest-sugar = "^0.9.4"
+nox = "^2020.8.22"
+pytest-cov = "^2.10.1"
+mkdocs = "^1.1.2"
+isort = "^5.5.2"
 
 
 [tool.poetry.scripts]
