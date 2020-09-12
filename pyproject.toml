@@ -22,11 +22,19 @@ exclude = '''
 )/
 '''
 
+
+[tool.isort]
+profile = "hug"
+src_paths = ["halsey", "tests"]
+multi_line_output = 3
+
+
 [tool.poetry]
 name = 'halsey'
 version = "0.1.0"
 description = 'A code for reinforcement learning research.'
 authors = ['Jared Coughlin']
+
 
 [tool.poetry.dependencies]
 python = '^3.8'
@@ -42,11 +50,15 @@ h5py = "^2.10.0"
 tensorflow-estimator = "^2.1.0"
 pyyaml = "^5.3.1"
 scipy = "^1.4.1"
+pytest = "^6.0.1"
+nox = "^2020.8.22"
+
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.9"
 black = "^18.9b0"
 flake8 = "^3.6"
+
 
 [tool.poetry.scripts]
 halsey = 'halsey.console.run:run'

@@ -8,8 +8,7 @@ import tensorflow as tf
 
 from halsey.io.read import parse_cl_args
 
-from .gpu import get_data_format
-from .gpu import get_input_shape
+from .gpu import get_data_format, get_input_shape
 from .register import registry
 
 
@@ -49,7 +48,7 @@ def setup_instructor(instructorCls, trainParams):
         dataFormat,
         navigator.imagePipeline.params["traceLen"],
         navigator.imagePipeline.params["cropHeight"],
-        navigator.imagePipeline.params["cropWidth"]
+        navigator.imagePipeline.params["cropWidth"],
     )
     brain.dataFormat = dataFormat
     brain.inputShape = inputShape
@@ -71,6 +70,7 @@ def setup_proctor():
     the parameter file.
     """
     raise NotImplementedError
+
 
 # ============================================
 #                setup_analyst
@@ -144,7 +144,7 @@ def setup_optimizers(optimizers, optimizerParams):
                 setattr(optimizer, key, value)
         opts.append(optimizer)
     return opts
-        
+
 
 # ============================================
 #                 setup_losses
@@ -183,7 +183,9 @@ def setup_navigator(navigatorCls, navigatorParams):
     env = setup_environment()
     explorer = setup_explorer()
     imagePipeline = setup_image_pipeline()
-    navigator = registry[navigatorCls](env, explorer, imagePipeline, navigatorParams)
+    navigator = registry[navigatorCls](
+        env, explorer, imagePipeline, navigatorParams
+    )
     return navigator
 
 

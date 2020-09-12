@@ -1,10 +1,12 @@
-from . import brains
-from . import console
-from . import explorers
-from . import instructors
-from . import io
-from . import memory
-from . import navigators
-from . import networks
-from . import pipelines
-from . import utils
+from . import (
+    brains,
+    console,
+    explorers,
+    instructors,
+    io,
+    memory,
+    navigators,
+    networks,
+    pipelines,
+    utils,
+)

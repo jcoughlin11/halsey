@@ -1,3 +1,1 @@
-from . import (
-    qinstructor,
-)
+from . import qinstructor

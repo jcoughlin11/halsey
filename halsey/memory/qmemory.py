@@ -71,7 +71,9 @@ class QMemory(BaseMemory):
         in learning.
         """
         indices = np.random.choice(
-            np.arange(len(self.memoryBuffer)), size=self.params["batchSize"], replace=False
+            np.arange(len(self.memoryBuffer)),
+            size=self.params["batchSize"],
+            replace=False,
         )
         sample = np.array(self.memoryBuffer)[indices]
         states = np.stack(sample[:, 0]).astype(np.float)

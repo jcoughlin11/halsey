@@ -2,12 +2,10 @@
 Title: base.py
 Notes:
 """
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 import tensorflow as tf
 
-from halsey.utils.gpu import using_gpu
 from halsey.utils.register import register
 
 
@@ -22,6 +20,7 @@ class BaseNetwork(ABC, tf.keras.Model):
     architecture, which is also held by this object. Both the value and
     architecture of the weights influence performance.
     """
+
     networkType = None
 
     # -----
@@ -37,7 +36,7 @@ class BaseNetwork(ABC, tf.keras.Model):
     def __init__(self, optimizer, loss, params):
         tf.keras.Model.__init__(self)
         self.params = params
-        self.optimizer = optimizer 
+        self.optimizer = optimizer
         self.loss = loss
 
     # -----

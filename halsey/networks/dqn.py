@@ -14,6 +14,7 @@ class DeepQNetwork(BaseNetwork):
     """
     The network architecture from Mnih et al. 2013.
     """
+
     networkType = "convolution"
 
     # -----
@@ -45,9 +46,7 @@ class DeepQNetwork(BaseNetwork):
         # Flatten layer
         self.flatten = tf.keras.layers.Flatten(data_format=dataFormat)
         # Fully connected layer
-        self.d1 = tf.keras.layers.Dense(
-            units=256, activation="relu", name="d1"
-        )
+        self.d1 = tf.keras.layers.Dense(units=256, activation="relu", name="d1")
         # Output layer
         self.outputLayer = tf.keras.layers.Dense(
             units=nLogits, activation="linear", name="output"

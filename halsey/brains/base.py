@@ -2,8 +2,7 @@
 Title: base.py
 Notes:
 """
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 from halsey.utils.register import register
 
@@ -47,7 +46,9 @@ class BaseBrain(ABC):
         proctor before work begins.
         """
         for i in range(len(self.nets)):
-            self.nets[i].build_arch(self.inputShape, self.nLogits, self.dataFormat)
+            self.nets[i].build_arch(
+                self.inputShape, self.nLogits, self.dataFormat
+            )
 
     # -----
     # pre_populate

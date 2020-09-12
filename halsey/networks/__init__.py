@@ -1,3 +1,1 @@
-from . import (
-    dqn,
-)
+from . import dqn

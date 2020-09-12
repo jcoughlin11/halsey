@@ -1,3 +1,1 @@
-from . import (
-    qbrain,
-)
+from . import qbrain

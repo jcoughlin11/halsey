@@ -1,4 +1,1 @@
-from . import (
-    gpu,
-    setup,
-)
+from . import gpu, setup

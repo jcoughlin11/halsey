@@ -1,3 +1,1 @@
-from . import ( 
-    epsilongreedy,
-)
+from . import epsilongreedy

@@ -2,10 +2,12 @@
 Title: run.py
 Notes:
 """
-from halsey.utils.setup import initialize
-from halsey.utils.setup import setup_analyst
-from halsey.utils.setup import setup_instructor
-from halsey.utils.setup import setup_proctor
+from halsey.utils.setup import (
+    initialize,
+    setup_analyst,
+    setup_instructor,
+    setup_proctor,
+)
 
 
 # ============================================

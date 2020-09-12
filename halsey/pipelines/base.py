@@ -2,8 +2,7 @@
 Title: base.py
 Notes:
 """
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from queue import deque
 
 from halsey.utils.register import register
