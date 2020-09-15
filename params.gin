@@ -94,7 +94,6 @@ exploration.explorerParams = {
 # ============================================
 images.imagePipelineCls = "QPipeline"
 images.imagePipelineParams = {
-    "normValue"    : 255.,
     "traceLen"     : 4,
     "offsetHeight" : 8,
     "offsetWidth"  : 4,

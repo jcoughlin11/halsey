@@ -23,7 +23,7 @@ class QPipeline(BaseImagePipeline):
         """
         Normalizes the pixel values in the frame to a given value.
         """
-        return frame / self.params["normValue"]
+        return frame / 255.0
 
     # -----
     # grayscale
