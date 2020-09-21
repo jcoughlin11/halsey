@@ -18,3 +18,10 @@ def test_pipelines(session):
     session.run("curl", "-ssL", poetryURL, "|", "python")
     session.run("poetry", "install")
     session.run("pytest", "-s", "-v", "tests/test_pipelines/") 
+
+
+@nox.session
+def test_explorers(session):
+    session.run("curl", "-ssL", poetryURL, "|", "python")
+    session.run("poetry", "install")
+    session.run("pytest", "-s", "-v", "tests/test_explorers/") 
