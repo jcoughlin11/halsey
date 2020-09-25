@@ -1,0 +1,13 @@
+site_name: Halsey Documentation
+
+theme:
+    name: readthedocs
+    highlightjs: true
+
+extra:
+    version: 2.0
+
+nav:
+    - Introduction: index.md
+    - Overview: overview.md
+    - Objects: objects.md
