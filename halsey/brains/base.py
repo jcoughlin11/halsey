@@ -1,5 +1,5 @@
 """
-Title: base.py
+Title: halsey.brains.base.py
 Notes:
 """
 from abc import ABC
@@ -13,14 +13,18 @@ from halsey.utils.register import register
 # ============================================
 class BaseBrain(ABC):
     """
-    The brain manages the memory and neural networks and contains the
-    learning method by which the neural network weights are updated.
+    Manages the memory, neural networks, and contains the learning
+    method by which the neural network weights are updated (e.g., Q
+    learning).
     """
 
     # -----
     # subclass hook
     # -----
     def __init_subclass__(cls, **kwargs):
+        """
+        Adds subclasses to the register used during set up.
+        """
         super().__init_subclass__(**kwargs)
         register(cls)
 
