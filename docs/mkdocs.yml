@@ -1,13 +1,43 @@
 site_name: Halsey Documentation
+# site_description: Research code for Deep Reinforcement Learning
+# site_url:
+# repo_url:
+# repo_name:
 
 theme:
-    name: readthedocs
+    name: material
+    palette:
+        - scheme: halsey
     highlightjs: true
 
-extra:
-    version: 2.0
+extra_css:
+    - stylesheets/extra.css
+
+extra_javascript:
+    - javascripts/config.js
+    - https://polyfill.io/v3/polyfill.min.js?features=es6
+    - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+markdown_extensions:
+    - admonition
+    - codehilite:
+        guess_lang: false
+    - pymdownx.emoji
+    - pymdownx.magiclink
+    - pymdownx.superfences
+    - pymdownx.tabbed
+    - pymdownx.tasklist
+    - pymdownx.arithmatex:
+        generic: true
+
+plugins:
+    - search
+    - mkdocstrings
 
 nav:
     - Introduction: index.md
     - Overview: overview.md
+    # - SectionName:
+    #   - Subsection: file.md (full path, e.g., sectioname/file.md)
     - Objects: objects.md
+    - API: api.md

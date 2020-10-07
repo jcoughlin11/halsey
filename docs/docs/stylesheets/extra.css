@@ -1,0 +1,29 @@
+[data-md-color-scheme="halsey"] {
+  /* Main banner color. --light, --lighter, and --dark are different shades
+  of the main base color they are appended to */
+  --md-primary-fg-color:          #3B4252;
+  /* Code font color */
+  --md-code-fg-color:             #8FBCBB;
+  /* Background color of code block */
+  --md-code-bg-color:             #2E3440;
+  --md-code-hl-function-color:    #8FBCBB;
+  --md-code-hl-constant-color:    #ECEFF4;
+  --md-code-hl-keyword-color:     #5E81AC;
+  --md-code-hl-string-color:      #A3BE8C;
+  --md-code-hl-name-color:        #ECEFF4;
+  --md-code-hl-operator-color:    #ECEFF4;
+  --md-code-hl-punctuation-color: #ECEFF4;
+  --md-code-hl-comment-color:     #ECEFF4;
+  --md-code-hl-generic-color:     #ECEFF4;
+  --md-code-hl-variable-color:    #ECEFF4;
+  /* Normal text font color */
+  --md-typeset-color:             #2E3440;
+  /* Color of active text. e.g., currently selected page in nav bar */
+  --md-typeset-a-color:           #D08770;
+  /* Note, warning, etc. blocks fg is font */
+  --md-admonition-fg-color:       #B48EAD;
+  --md-admonition-bg-color:       #D8DEE9;
+  /* Bottom banner colors */
+  --md-footer-fg-color:           var(md-primary-fg-color);
+  --md-footer-bg-color:           var(md-primary-fg-color);
+}
