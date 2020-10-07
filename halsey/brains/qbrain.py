@@ -13,7 +13,9 @@ from .base import BaseBrain
 # ============================================
 class QBrain(BaseBrain):
     """
-    Contains the learning method presented in Mnih et al. 2013.
+    Contains the learning method presented in [Mnih et al. 2013][1].
+
+    [1]: https://arxiv.org/abs/1312.5602
     """
 
     # -----

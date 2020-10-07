@@ -43,6 +43,8 @@ ipython = "^7.9"
 black = "^18.9b0"
 flake8 = "^3.6"
 mkdocs = "^1.1.2"
+mkdocs-material = "^6.0.2"
+mkdocstrings = "^0.13.6"
 
 [tool.poetry.scripts]
 halsey = 'halsey.console.run:run'

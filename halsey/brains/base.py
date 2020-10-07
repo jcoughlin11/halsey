@@ -58,8 +58,8 @@ class BaseBrain(ABC):
     # -----
     def pre_populate(self, navigator):
         """
-        Fills the memory buffer before a run so that there are samples
-        to draw from for learning early on.
+        Fills the memory buffer before training so that there are
+        samples to draw from for learning early on.
         """
         self.memory.pre_populate(navigator)
 
@@ -68,7 +68,7 @@ class BaseBrain(ABC):
     # -----
     def add_memory(self, experience):
         """
-        Adds an experience to the memory buffer.
+        Puts an experience in the memory buffer.
         """
         self.memory.add_memory(experience)
 
@@ -79,7 +79,7 @@ class BaseBrain(ABC):
     def learn(self):
         """
         The learning method by which the neural network weights are
-        updated.
+        updated (e.g., Q-learning).
         """
         pass
 
@@ -89,7 +89,7 @@ class BaseBrain(ABC):
     @abstractmethod
     def predict(self, state):
         """
-        Uses the current knowledge of the neural network(s) to select
-        what it thinks is the best action for the current situation.
+        Uses the neural network's current knowledge to select what it
+        thinks is the best action for the current situation.
         """
         pass
