@@ -32,12 +32,19 @@ markdown_extensions:
 
 plugins:
     - search
-    - mkdocstrings
+    - mkdocstrings:
+        handlers:
+            python:
+                rendering:
+                    show_root_heading: true
+                    show_source: false
+                selection:
+                    filters:
+                        - "!^_"
 
 nav:
     - Introduction: index.md
-    - Overview: overview.md
     # - SectionName:
     #   - Subsection: file.md (full path, e.g., sectioname/file.md)
-    - Objects: objects.md
-    - API: api.md
+    - API:
+        - Brains: api/brains.md

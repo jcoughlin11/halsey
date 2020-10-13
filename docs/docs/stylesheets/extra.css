@@ -7,21 +7,21 @@
   /* Background color of code block */
   --md-code-bg-color:             #2E3440;
   --md-code-hl-function-color:    #8FBCBB;
-  --md-code-hl-constant-color:    #ECEFF4;
-  --md-code-hl-keyword-color:     #5E81AC;
+  --md-code-hl-constant-color:    #B48EAD;
+  --md-code-hl-keyword-color:     #B48EAD;
   --md-code-hl-string-color:      #A3BE8C;
-  --md-code-hl-name-color:        #ECEFF4;
-  --md-code-hl-operator-color:    #ECEFF4;
-  --md-code-hl-punctuation-color: #ECEFF4;
-  --md-code-hl-comment-color:     #ECEFF4;
-  --md-code-hl-generic-color:     #ECEFF4;
-  --md-code-hl-variable-color:    #ECEFF4;
+  --md-code-hl-name-color:        #81A1C1;
+  --md-code-hl-operator-color:    #81A1C1;
+  --md-code-hl-punctuation-color: #81A1C1;
+  --md-code-hl-comment-color:     #81A1C1;
+  --md-code-hl-generic-color:     #81A1C1;
+  --md-code-hl-variable-color:    #81A1C1;
   /* Normal text font color */
   --md-typeset-color:             #2E3440;
   /* Color of active text. e.g., currently selected page in nav bar */
   --md-typeset-a-color:           #D08770;
   /* Note, warning, etc. blocks fg is font */
-  --md-admonition-fg-color:       #B48EAD;
+  --md-admonition-fg-color:       #D08770;
   --md-admonition-bg-color:       #D8DEE9;
   /* Bottom banner colors */
   --md-footer-fg-color:           var(md-primary-fg-color);
